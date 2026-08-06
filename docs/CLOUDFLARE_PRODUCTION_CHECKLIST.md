@@ -18,9 +18,11 @@ Worker name: `easyweddpro-raianvisual` (`wrangler.jsonc`).
 
 | Setting | Value |
 | --- | --- |
-| Build command | `npm run cf:build` |
+| Build command | `npm run cf:build` (sau `npm run build` = OpenNext) |
 | Deploy command | `npm run cf:deploy` |
 | Node.js | `22` |
+
+Nu folosi Deploy = `npx wrangler deploy` fără Build OpenNext.
 
 ## Secrets / vars (Worker)
 
