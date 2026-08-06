@@ -4,10 +4,23 @@ Worker name: `easyweddpro-raianvisual` (`wrangler.jsonc`).
 
 ## Build & deploy
 
+**Important:** nu folosi `npm run build` + `npx wrangler deploy` — lipsește `.open-next` și apare  
+`Could not find compiled Open Next config`. Vezi `docs/CLOUDFLARE_WORKERS_BUILD.md`.
+
+### Local / CLI
+
 1. `npm run typecheck && npm run test && npm run lint`
-2. `npm run cf:build`
-3. `npm run cf:deploy` (or OpenNext deploy pipeline)
+2. `npm run cf:build` — verifică existența `.open-next/worker.js`
+3. `npm run cf:deploy` (sau `npm run deploy` = build + deploy OpenNext)
 4. Confirm `/api/health` and `/api/health/ready` after deploy
+
+### Cloudflare Workers Builds (dashboard)
+
+| Setting | Value |
+| --- | --- |
+| Build command | `npm run cf:build` |
+| Deploy command | `npm run cf:deploy` |
+| Node.js | `22` |
 
 ## Secrets / vars (Worker)
 
@@ -25,16 +38,30 @@ Set as encrypted secrets (never commit):
 | `CRON_SECRET` | Bearer for `/api/cron/automations` |
 | Price IDs (`STRIPE_PRICE_*`) | Plan catalog mapping |
 
-## Cron
+## Cron (native Cloudflare)
 
-Call hourly or daily:
+`wrangler.jsonc` schedules hourly:
 
-```http
-GET /api/cron/automations
-Authorization: Bearer ${CRON_SECRET}
+```json
+"triggers": { "crons": ["0 * * * *"] }
 ```
 
-Options: Cloudflare Cron Trigger → Worker `scheduled` handler that `fetch`es the route, GitHub Actions, or external cron. Without `CRON_SECRET`, the route returns 401.
+Entry: custom `worker.ts` (OpenNext fetch + `scheduled()`).
+
+```
+Cloudflare Cron → scheduled() → runBackgroundJobs() → job modules
+```
+
+HTTP fallback (optional): `GET/POST /api/cron/automations` with `Authorization: Bearer ${CRON_SECRET}`.
+
+Local test after `cf:build`:
+
+```bash
+npx wrangler dev --test-scheduled --config wrangler.jsonc
+curl "http://localhost:8787/__scheduled?cron=0+*+*+*+*"
+```
+
+Cron is only considered live after deploy with `worker.ts` as `main` and a successful `scheduled` execution writing to `cron_runs`.
 
 ## Observability
 

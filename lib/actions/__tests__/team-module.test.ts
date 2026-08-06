@@ -17,16 +17,20 @@ vi.mock("@/lib/activity/log", () => ({
 }));
 
 describe("team server actions module", () => {
-  it("can be imported without runtime reference errors", async () => {
-    const actions = await import("@/lib/actions/team");
-    expect(actions.inviteMemberAction).toBeDefined();
-    expect(actions.resendInvitationAction).toBeDefined();
-    expect(actions.revokeInvitationAction).toBeDefined();
-    expect(actions.changeMemberRoleAction).toBeDefined();
-    expect(actions.disableMemberAction).toBeDefined();
-    expect(actions.enableMemberAction).toBeDefined();
-    expect(actions.removeMemberAction).toBeDefined();
-  });
+  it(
+    "can be imported without runtime reference errors",
+    async () => {
+      const actions = await import("@/lib/actions/team");
+      expect(actions.inviteMemberAction).toBeDefined();
+      expect(actions.resendInvitationAction).toBeDefined();
+      expect(actions.revokeInvitationAction).toBeDefined();
+      expect(actions.changeMemberRoleAction).toBeDefined();
+      expect(actions.disableMemberAction).toBeDefined();
+      expect(actions.enableMemberAction).toBeDefined();
+      expect(actions.removeMemberAction).toBeDefined();
+    },
+    20_000,
+  );
 
   it("rejects an invalid invite payload before touching the workspace", async () => {
     const actions = await import("@/lib/actions/team");

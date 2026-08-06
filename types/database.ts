@@ -908,6 +908,7 @@ export type Database = {
           entity_id: string | null;
           action_url: string | null;
           read_at: string | null;
+          idempotency_key: string | null;
           metadata: Json;
           created_at: string;
         };
@@ -922,10 +923,79 @@ export type Database = {
           entity_id?: string | null;
           action_url?: string | null;
           read_at?: string | null;
+          idempotency_key?: string | null;
           metadata?: Json;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["notifications"]["Insert"]>;
+        Relationships: [];
+      };
+      cron_runs: {
+        Row: {
+          id: string;
+          job: string;
+          started_at: string;
+          finished_at: string | null;
+          duration_ms: number | null;
+          success: boolean;
+          processed: number;
+          errors: number;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          job: string;
+          started_at?: string;
+          finished_at?: string | null;
+          duration_ms?: number | null;
+          success?: boolean;
+          processed?: number;
+          errors?: number;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["cron_runs"]["Insert"]>;
+        Relationships: [];
+      };
+      workspace_statistics: {
+        Row: {
+          workspace_id: string;
+          snapshot_date: string;
+          leads_count: number;
+          leads_won_count: number;
+          conversion_rate: number | null;
+          contracts_count: number;
+          contracts_accepted_count: number;
+          revenue_by_currency: Json;
+          outstanding_by_currency: Json;
+          overdue_payments_count: number;
+          active_projects_count: number;
+          overdue_tasks_count: number;
+          upcoming_events_count: number;
+          metadata: Json;
+          computed_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          workspace_id: string;
+          snapshot_date?: string;
+          leads_count?: number;
+          leads_won_count?: number;
+          conversion_rate?: number | null;
+          contracts_count?: number;
+          contracts_accepted_count?: number;
+          revenue_by_currency?: Json;
+          outstanding_by_currency?: Json;
+          overdue_payments_count?: number;
+          active_projects_count?: number;
+          overdue_tasks_count?: number;
+          upcoming_events_count?: number;
+          metadata?: Json;
+          computed_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["workspace_statistics"]["Insert"]>;
         Relationships: [];
       };
       email_deliveries: {
@@ -976,6 +1046,9 @@ export type Database = {
           rating: number | null;
           page_url: string | null;
           status: string;
+          priority: string | null;
+          assigned_to: string | null;
+          admin_notes: string | null;
           metadata: Json;
           created_at: string;
         };
@@ -988,6 +1061,9 @@ export type Database = {
           rating?: number | null;
           page_url?: string | null;
           status?: string;
+          priority?: string | null;
+          assigned_to?: string | null;
+          admin_notes?: string | null;
           metadata?: Json;
           created_at?: string;
         };
@@ -1010,12 +1086,230 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["stripe_webhook_events"]["Insert"]>;
         Relationships: [];
       };
+      platform_admins: {
+        Row: {
+          user_id: string;
+          role: string;
+          disabled_at: string | null;
+          invited_by: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          role: string;
+          disabled_at?: string | null;
+          invited_by?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["platform_admins"]["Insert"]>;
+        Relationships: [];
+      };
+      platform_audit_logs: {
+        Row: {
+          id: string;
+          actor_id: string | null;
+          action: string;
+          entity_type: string | null;
+          entity_id: string | null;
+          reason: string | null;
+          metadata: Json;
+          ip: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          actor_id?: string | null;
+          action: string;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          reason?: string | null;
+          metadata?: Json;
+          ip?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["platform_audit_logs"]["Insert"]>;
+        Relationships: [];
+      };
+      admin_access_logs: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          path: string;
+          outcome: string;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          path: string;
+          outcome: string;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["admin_access_logs"]["Insert"]>;
+        Relationships: [];
+      };
+      admin_inspect_sessions: {
+        Row: {
+          id: string;
+          admin_id: string;
+          workspace_id: string;
+          reason: string;
+          expires_at: string;
+          ended_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          admin_id: string;
+          workspace_id: string;
+          reason: string;
+          expires_at: string;
+          ended_at?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["admin_inspect_sessions"]["Insert"]>;
+        Relationships: [];
+      };
+      plans: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          description: string;
+          currency: string;
+          visible: boolean;
+          active: boolean;
+          highlighted: boolean;
+          sort_order: number;
+          visibility: string;
+          cta: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          name: string;
+          slug: string;
+          description?: string;
+          currency?: string;
+          visible?: boolean;
+          active?: boolean;
+          highlighted?: boolean;
+          sort_order?: number;
+          visibility?: string;
+          cta?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["plans"]["Insert"]>;
+        Relationships: [];
+      };
+      plan_versions: {
+        Row: {
+          id: string;
+          plan_id: string;
+          version: number;
+          price_monthly: number;
+          price_yearly: number | null;
+          stripe_price_monthly_id: string | null;
+          stripe_price_yearly_id: string | null;
+          trial_days: number;
+          limits: Json;
+          features: Json;
+          is_current: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          plan_id: string;
+          version: number;
+          price_monthly?: number;
+          price_yearly?: number | null;
+          stripe_price_monthly_id?: string | null;
+          stripe_price_yearly_id?: string | null;
+          trial_days?: number;
+          limits?: Json;
+          features?: Json;
+          is_current?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["plan_versions"]["Insert"]>;
+        Relationships: [];
+      };
+      platform_settings: {
+        Row: {
+          key: string;
+          value: Json;
+          updated_by: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          key: string;
+          value?: Json;
+          updated_by?: string | null;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["platform_settings"]["Insert"]>;
+        Relationships: [];
+      };
+      system_errors: {
+        Row: {
+          id: string;
+          severity: string;
+          module: string;
+          route: string | null;
+          message: string;
+          error_type: string | null;
+          stack: string | null;
+          workspace_id: string | null;
+          user_id: string | null;
+          occurrence_count: number;
+          first_seen_at: string;
+          last_seen_at: string;
+          resolved_at: string | null;
+          resolved_by: string | null;
+          notes: string | null;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          severity?: string;
+          module: string;
+          route?: string | null;
+          message: string;
+          error_type?: string | null;
+          stack?: string | null;
+          workspace_id?: string | null;
+          user_id?: string | null;
+          occurrence_count?: number;
+          first_seen_at?: string;
+          last_seen_at?: string;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+          notes?: string | null;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["system_errors"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
       is_platform_admin: {
         Args: Record<string, never>;
         Returns: boolean;
+      };
+      get_platform_admin_role: {
+        Args: Record<string, never>;
+        Returns: string;
       };
       is_workspace_member: {
         Args: { p_workspace_id: string };

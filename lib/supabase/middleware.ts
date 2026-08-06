@@ -1,7 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-import { PASSWORD_RESET_PATH } from "@/lib/auth/callback-destination";
+import {
+  isPasswordResetPath,
+  LEGACY_PASSWORD_RESET_PATH,
+  PASSWORD_RESET_PATH,
+} from "@/lib/auth/callback-destination";
 import { hasSupabaseEnv, isDemoMode, requireSupabasePublicEnv } from "@/lib/env";
 import type { Database } from "@/types/database";
 
@@ -16,6 +20,8 @@ const AUTH_PASS_THROUGH = [
   "/auth/confirm",
   "/auth/error",
   "/auth/callback",
+  "/auth/signout",
+  "/auth/reset-password",
   "/login",
   "/register",
   "/forgot-password",
@@ -74,10 +80,7 @@ function needsSessionWork(pathname: string, request: NextRequest) {
     return true;
   }
   if (AUTH_ENTRY_ROUTES.includes(pathname)) return true;
-  if (
-    pathname === PASSWORD_RESET_PATH ||
-    pathname.startsWith(`${PASSWORD_RESET_PATH}/`)
-  ) {
+  if (isPasswordResetPath(pathname)) {
     return hasSupabaseAuthCookie(request);
   }
   return hasSupabaseAuthCookie(request);
@@ -134,9 +137,21 @@ export async function updateSession(request: NextRequest) {
     pathname === "/auth/callback" ||
     pathname.startsWith("/auth/callback/") ||
     pathname === "/auth/signout" ||
-    pathname.startsWith("/auth/signout/")
+    pathname.startsWith("/auth/signout/") ||
+    pathname === PASSWORD_RESET_PATH ||
+    pathname.startsWith(`${PASSWORD_RESET_PATH}/`)
   ) {
     return NextResponse.next({ request });
+  }
+
+  // Legacy reset path → canonical /auth/reset-password (keep query for tokens).
+  if (
+    pathname === LEGACY_PASSWORD_RESET_PATH ||
+    pathname.startsWith(`${LEGACY_PASSWORD_RESET_PATH}/`)
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = PASSWORD_RESET_PATH;
+    return NextResponse.redirect(url);
   }
 
   let supabaseResponse = NextResponse.next({ request });
@@ -240,8 +255,12 @@ export async function updateSession(request: NextRequest) {
 
     if (isAdminPath) {
       const { data: isAdmin, error } = adminCheck;
+      // Avoid soft-redirect to dashboard. Serve an explicit 403 page outside /admin layout.
       if (error || !isAdmin) {
-        return redirectTo(request, hasWorkspace ? "/dashboard" : "/onboarding");
+        const url = request.nextUrl.clone();
+        url.pathname = "/access-denied";
+        url.searchParams.set("from", pathname);
+        return NextResponse.rewrite(url);
       }
     }
   }

@@ -17,6 +17,7 @@ export type CreateNotificationInput = {
   entityType?: string | null;
   entityId?: string | null;
   actionUrl?: string | null;
+  idempotencyKey?: string | null;
   metadata?: Record<string, Json | undefined>;
 };
 
@@ -42,12 +43,15 @@ export async function createNotification(
       entity_type: input.entityType ?? null,
       entity_id: input.entityId ?? null,
       action_url: input.actionUrl ?? null,
+      idempotency_key: input.idempotencyKey ?? null,
       metadata,
     })
     .select("*")
     .single();
 
   if (error) {
+    // Duplicate idempotency key — treat as success/no-op.
+    if (error.code === "23505") return null;
     if (process.env.NODE_ENV === "development") {
       console.error("[notifications.create]", error.message);
     }

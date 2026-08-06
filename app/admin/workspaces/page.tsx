@@ -1,19 +1,14 @@
+import Link from "next/link";
 import { Building2 } from "lucide-react";
 
+import { AdminEmptyState } from "@/components/admin/admin-empty-state";
+import { AdminErrorState } from "@/components/admin/admin-error-state";
+import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
+import { AdminTable } from "@/components/admin/admin-table";
 import { WorkspaceActions } from "@/components/admin/workspace-actions";
-import { EmptyState } from "@/components/shared/empty-state";
-import { PageHeader } from "@/components/shared/page-header";
-import { StatusBadge } from "@/components/shared/status-badge";
 import { listWorkspacesForAdmin } from "@/lib/data/admin";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { requirePlatformAdmin } from "@/lib/workspace/session";
-
-const PLAN_LABEL: Record<string, string> = {
-  free: "Free",
-  solo: "Solo",
-  studio: "Studio",
-  agency: "Agency",
-};
+import { requirePlatformPermission } from "@/lib/platform/session";
 
 function statusToneFor(status: string | null) {
   if (status === "active") return "success" as const;
@@ -35,66 +30,103 @@ function statusLabelFor(status: string | null) {
 }
 
 export default async function AdminWorkspacesPage() {
-  const admin = await requirePlatformAdmin();
-  const workspaces = await listWorkspacesForAdmin(admin.supabase);
+  const admin = await requirePlatformPermission("workspaces.read");
+
+  let loadError: string | null = null;
+  let workspaces: Awaited<ReturnType<typeof listWorkspacesForAdmin>> = [];
+  try {
+    workspaces = await listWorkspacesForAdmin(admin.supabase);
+  } catch (error) {
+    loadError = error instanceof Error ? error.message : "Nu am putut încărca workspace-urile.";
+  }
 
   return (
-    <div>
-      <PageHeader
-        title="Workspace-uri"
-        description="Toate studiourile și agențiile înregistrate pe platformă."
-      />
+    <div className="space-y-6">
+      <div>
+        <h1 className="font-heading text-3xl font-medium text-foreground">Workspace-uri</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Toate studiourile și agențiile înregistrate pe platformă.
+        </p>
+      </div>
 
-      {workspaces.length === 0 ? (
-        <EmptyState icon={Building2} title="Niciun workspace" description="Nu există încă workspace-uri înregistrate." />
-      ) : (
-        <div className="surface-card overflow-x-auto">
-          <table className="w-full min-w-[880px] border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-border text-left text-muted-foreground">
-                <th className="px-5 py-3 font-medium">Workspace</th>
-                <th className="px-5 py-3 font-medium">Utilizatori</th>
-                <th className="px-5 py-3 font-medium">MRR</th>
-                <th className="px-5 py-3 font-medium">Status</th>
-                <th className="px-5 py-3 font-medium">Creat la</th>
-                <th className="px-5 py-3 font-medium">Acțiuni</th>
-              </tr>
-            </thead>
-            <tbody>
-              {workspaces.map((workspace) => (
-                <tr key={workspace.id} className="border-b border-border/60 last:border-0">
-                  <td className="px-5 py-3.5">
-                    <p className="text-foreground">{workspace.name}</p>
+      {loadError ? <AdminErrorState message={loadError} /> : null}
+
+      {!loadError && workspaces.length === 0 ? (
+        <AdminEmptyState
+          icon={Building2}
+          title="Niciun workspace"
+          description="Nu există încă workspace-uri înregistrate."
+        />
+      ) : null}
+
+      {!loadError && workspaces.length > 0 ? (
+        <div className="surface-card overflow-hidden">
+          <AdminTable
+            rows={workspaces}
+            columns={[
+              {
+                key: "workspace",
+                header: "Workspace",
+                cell: (workspace) => (
+                  <div>
+                    <Link
+                      href={`/admin/workspaces/${workspace.id}`}
+                      className="text-foreground hover:text-champagne-soft"
+                    >
+                      {workspace.name}
+                    </Link>
                     <p className="text-xs text-muted-soft">{workspace.slug}</p>
-                  </td>
-                  <td className="px-5 py-3.5 text-muted-foreground">{workspace.memberCount}</td>
-                  <td className="px-5 py-3.5 text-muted-foreground">
+                  </div>
+                ),
+              },
+              {
+                key: "members",
+                header: "Utilizatori",
+                cell: (workspace) => (
+                  <span className="text-muted-foreground">{workspace.memberCount}</span>
+                ),
+              },
+              {
+                key: "mrr",
+                header: "MRR",
+                cell: (workspace) => (
+                  <span className="text-muted-foreground">
                     {workspace.mrr === 0 ? "—" : formatCurrency(workspace.mrr)}
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <StatusBadge
-                      label={statusLabelFor(workspace.subscriptionStatus)}
-                      tone={statusToneFor(workspace.subscriptionStatus)}
-                    />
-                  </td>
-                  <td className="px-5 py-3.5 text-muted-soft">{formatDate(workspace.createdAt)}</td>
-                  <td className="px-5 py-3.5">
-                    <WorkspaceActions
-                      workspaceId={workspace.id}
-                      plan={workspace.plan}
-                      isSuspended={workspace.subscriptionStatus === "suspended"}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </span>
+                ),
+              },
+              {
+                key: "status",
+                header: "Status",
+                cell: (workspace) => (
+                  <AdminStatusBadge
+                    label={statusLabelFor(workspace.subscriptionStatus)}
+                    tone={statusToneFor(workspace.subscriptionStatus)}
+                  />
+                ),
+              },
+              {
+                key: "created",
+                header: "Creat la",
+                cell: (workspace) => (
+                  <span className="text-muted-soft">{formatDate(workspace.createdAt)}</span>
+                ),
+              },
+              {
+                key: "actions",
+                header: "Acțiuni",
+                cell: (workspace) => (
+                  <WorkspaceActions
+                    workspaceId={workspace.id}
+                    plan={workspace.plan}
+                    isSuspended={workspace.subscriptionStatus === "suspended"}
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
-      )}
-      <p className="mt-4 text-xs text-muted-soft">
-        Planul afișat este cel din tabelul workspace-uri; MRR se calculează doar pentru abonamente cu status
-        &quot;activ&quot;. {PLAN_LABEL.free} nu contribuie la MRR.
-      </p>
+      ) : null}
     </div>
   );
 }

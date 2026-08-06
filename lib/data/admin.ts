@@ -249,6 +249,120 @@ export type AdminActivityItem = {
   createdAt: string;
 };
 
+export type AdminCronRunItem = {
+  id: string;
+  job: string;
+  startedAt: string;
+  finishedAt: string | null;
+  durationMs: number | null;
+  success: boolean;
+  processed: number;
+  errors: number;
+};
+
+export type AdminSystemStatus = {
+  recentCronRuns: AdminCronRunItem[];
+  emailQueue: { pending: number; failed: number; sent24h: number; skipped: number };
+  automationQueue: { running: number; failed24h: number; success24h: number };
+  webhooks: { processed24h: number };
+  storageConfigured: boolean;
+  resendConfigured: boolean;
+  stripeConfigured: boolean;
+};
+
+/** Platform-admin system monitor (cron, queues, integrations). */
+export async function getSystemStatusForAdmin(
+  supabase: SupabaseClient<Database>,
+): Promise<AdminSystemStatus> {
+  const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+  const [
+    cronRuns,
+    emailPending,
+    emailFailed,
+    emailSent,
+    emailSkipped,
+    automationRunning,
+    automationFailed,
+    automationSuccess,
+    webhooks,
+  ] = await Promise.all([
+    supabase
+      .from("cron_runs")
+      .select("id, job, started_at, finished_at, duration_ms, success, processed, errors")
+      .order("started_at", { ascending: false })
+      .limit(40),
+    supabase
+      .from("email_deliveries")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending"),
+    supabase
+      .from("email_deliveries")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "failed"),
+    supabase
+      .from("email_deliveries")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "sent")
+      .gte("created_at", since24h),
+    supabase
+      .from("email_deliveries")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "skipped"),
+    supabase
+      .from("automation_runs")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "running"),
+    supabase
+      .from("automation_runs")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "failed")
+      .gte("created_at", since24h),
+    supabase
+      .from("automation_runs")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "success")
+      .gte("created_at", since24h),
+    supabase
+      .from("stripe_webhook_events")
+      .select("id", { count: "exact", head: true })
+      .gte("processed_at", since24h),
+  ]);
+
+  if (cronRuns.error) throw new Error(cronRuns.error.message);
+
+  return {
+    recentCronRuns: (cronRuns.data ?? []).map((row) => ({
+      id: row.id,
+      job: row.job,
+      startedAt: row.started_at,
+      finishedAt: row.finished_at,
+      durationMs: row.duration_ms,
+      success: row.success,
+      processed: row.processed,
+      errors: row.errors,
+    })),
+    emailQueue: {
+      pending: emailPending.count ?? 0,
+      failed: emailFailed.count ?? 0,
+      sent24h: emailSent.count ?? 0,
+      skipped: emailSkipped.count ?? 0,
+    },
+    automationQueue: {
+      running: automationRunning.count ?? 0,
+      failed24h: automationFailed.count ?? 0,
+      success24h: automationSuccess.count ?? 0,
+    },
+    webhooks: { processed24h: webhooks.count ?? 0 },
+    storageConfigured: Boolean(
+      process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() &&
+        process.env.SUPABASE_SERVICE_ROLE_KEY?.trim(),
+    ),
+    resendConfigured: Boolean(process.env.RESEND_API_KEY?.trim()),
+    stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY?.trim()),
+  };
+}
+
 /** Recent activity across every workspace — visible only to platform admins via RLS. */
 export async function listRecentActivityForAdmin(
   supabase: SupabaseClient<Database>,

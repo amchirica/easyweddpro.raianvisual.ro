@@ -50,6 +50,7 @@ export function UpdatePasswordForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (pending || success) return;
     setError(null);
 
     const result = passwordSchema.safeParse({ password, confirmPassword });
@@ -72,9 +73,14 @@ export function UpdatePasswordForm() {
       }
 
       setSuccess(true);
-      setTimeout(() => {
-        router.push("/login");
-      }, 1500);
+      // Optional logout after successful password change.
+      try {
+        await supabase.auth.signOut({ scope: "local" });
+      } catch {
+        // Ignore logout errors — password was already updated.
+      }
+      router.replace("/login?message=password_updated");
+      router.refresh();
     } catch (err) {
       setError(mapAuthError(err instanceof Error ? err.message : undefined));
       setPending(false);
@@ -95,7 +101,7 @@ export function UpdatePasswordForm() {
           placeholder="Minim 8 caractere"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          disabled={pending}
+          disabled={pending || success}
         />
       </div>
 
@@ -111,7 +117,7 @@ export function UpdatePasswordForm() {
           placeholder="Repetă parola"
           value={confirmPassword}
           onChange={(event) => setConfirmPassword(event.target.value)}
-          disabled={pending}
+          disabled={pending || success}
         />
       </div>
 
@@ -124,7 +130,7 @@ export function UpdatePasswordForm() {
         </p>
       ) : null}
 
-      <Button type="submit" className="w-full" disabled={pending}>
+      <Button type="submit" className="w-full" disabled={pending || success}>
         {pending ? "Se actualizează…" : "Actualizează parola"}
       </Button>
     </form>

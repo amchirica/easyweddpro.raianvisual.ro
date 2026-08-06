@@ -1,9 +1,9 @@
-import "server-only";
-
 /**
  * Resend is an optional dependency at runtime: without RESEND_API_KEY we must
  * never pretend an email was sent. Callers should check `isResendConfigured()`
  * first and fall back to a "prepared" / "skipped" outcome otherwise.
+ *
+ * No `server-only` — also used from Cloudflare `scheduled()` background jobs.
  */
 export function isResendConfigured(): boolean {
   return Boolean(process.env.RESEND_API_KEY?.trim());

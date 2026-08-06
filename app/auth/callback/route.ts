@@ -1,31 +1,33 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
 
+import { PASSWORD_RESET_PATH } from "@/lib/auth/callback-destination";
 import { getSafeRedirectPath, resolvePostAuthPath } from "@/lib/auth/redirect";
+import { redirectRelative } from "@/lib/auth/relative-redirect";
 import { hasSupabaseEnv } from "@/lib/env";
 import {
   applyPendingAuthCookies,
   createAuthRouteClient,
   type PendingAuthCookie,
 } from "@/lib/supabase/auth-route";
-import { getSiteUrl } from "@/lib/url";
 
 /**
- * OAuth / PKCE only (`?code=`).
- * Email confirm + password recovery use /auth/confirm (token_hash + verifyOtp).
+ * OAuth / PKCE (`?code=`) and recovery links that land with an auth code.
+ * Email confirm via token_hash uses /auth/confirm.
+ *
+ * Redirects stay on the current request host via request.url.
  */
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
-  const siteUrl = getSiteUrl();
-  const requestedNext = getSafeRedirectPath(searchParams.get("next"), "/dashboard");
+  const requestedNext = getSafeRedirectPath(searchParams.get("next")) ?? "/dashboard";
 
   if (!code) {
-    return NextResponse.redirect(new URL("/login?error=missing_code", siteUrl));
+    return redirectRelative(request, "/login?error=missing_auth_code");
   }
 
   if (!hasSupabaseEnv()) {
-    return NextResponse.redirect(new URL("/login?error=auth_not_configured", siteUrl));
+    return redirectRelative(request, "/login?error=auth_not_configured");
   }
 
   const pendingCookies: PendingAuthCookie[] = [];
@@ -41,11 +43,12 @@ export async function GET(request: NextRequest) {
         status: error.status,
       });
     }
-    return NextResponse.redirect(
-      new URL(
-        `/login?error=${encodeURIComponent(error.code ?? "auth_confirmation_failed")}`,
-        siteUrl,
-      ),
+    const isRecovery = requestedNext === PASSWORD_RESET_PATH;
+    return redirectRelative(
+      request,
+      isRecovery
+        ? "/login?error=password_reset_failed"
+        : "/login?error=session_initialization_failed",
     );
   }
 
@@ -54,10 +57,17 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.redirect(new URL("/login?error=session_missing", siteUrl));
+    return redirectRelative(request, "/login?error=session_initialization_failed");
   }
 
-  const destination = await resolvePostAuthPath(supabase, requestedNext);
-  const response = NextResponse.redirect(new URL(destination, siteUrl));
+  await supabase.rpc("ensure_own_profile");
+
+  const destination =
+    requestedNext === PASSWORD_RESET_PATH ||
+    requestedNext.startsWith(`${PASSWORD_RESET_PATH}/`)
+      ? PASSWORD_RESET_PATH
+      : await resolvePostAuthPath(supabase, requestedNext);
+
+  const response = redirectRelative(request, destination);
   return applyPendingAuthCookies(response, pendingCookies);
 }

@@ -37,7 +37,11 @@ export function Sidebar({
       )}
     >
       <div className={cn("flex items-center gap-2 border-b border-sidebar-border px-3 py-4", collapsed && "justify-center")}>
-        <BrandLogo href="/dashboard" showWordmark={!collapsed} size="sm" />
+        <BrandLogo
+          href="/dashboard"
+          showWordmark={!collapsed}
+          size={collapsed ? "collapsed" : "sm"}
+        />
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-4" aria-label="Navigare principală">

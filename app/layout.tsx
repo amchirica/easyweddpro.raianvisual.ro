@@ -31,12 +31,9 @@ export const metadata: Metadata = {
   description: APP_SEO_DESCRIPTION,
   applicationName: APP_NAME,
   icons: {
-    icon: [
-      { url: "/logo.ico", sizes: "any" },
-      { url: "/logo.png", sizes: "64x64", type: "image/png" },
-    ],
-    shortcut: ["/logo.ico"],
-    apple: [{ url: "/logo.png", sizes: "64x64", type: "image/png" }],
+    icon: "/logo.ico",
+    shortcut: "/logo.ico",
+    apple: "/logo.png",
   },
   manifest: "/site.webmanifest",
   openGraph: {

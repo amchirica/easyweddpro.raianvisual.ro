@@ -53,12 +53,54 @@ export function mapAnalyticsSummary(raw: unknown): WorkspaceAnalyticsSummary {
   };
 }
 
+/**
+ * Prefer cron-built `workspace_statistics` when no custom date range is requested.
+ * Falls back to the live RPC for filtered ranges or missing snapshots.
+ */
+export async function fetchWorkspaceStatisticsSnapshot(
+  supabase: SupabaseClient<Database>,
+  workspaceId: string,
+): Promise<WorkspaceAnalyticsSummary | null> {
+  const { data, error } = await supabase
+    .from("workspace_statistics")
+    .select("*")
+    .eq("workspace_id", workspaceId)
+    .maybeSingle();
+
+  if (error || !data) return null;
+
+  return {
+    leadsCreated: data.leads_count,
+    leadsBySource: {},
+    proposalsSent: 0,
+    proposalsAccepted: data.leads_won_count,
+    contractsCreated: data.contracts_count,
+    contractsAccepted: data.contracts_accepted_count,
+    contractedByCurrency: {},
+    collectedByCurrency: toCurrencyMap(data.revenue_by_currency),
+    outstandingByCurrency: toCurrencyMap(data.outstanding_by_currency),
+    activeProjects: data.active_projects_count,
+    overdueTasks: data.overdue_tasks_count,
+    upcomingEvents: data.upcoming_events_count,
+  };
+}
+
 /** Calls `workspace_analytics_summary` and normalizes the jsonb payload. */
 export async function fetchWorkspaceAnalyticsSummary(
   supabase: SupabaseClient<Database>,
   workspaceId: string,
   range: AnalyticsRange = {},
 ): Promise<WorkspaceAnalyticsSummary> {
+  const hasRange = Boolean(range.from || range.to);
+  if (!hasRange && typeof supabase.from === "function") {
+    try {
+      const snapshot = await fetchWorkspaceStatisticsSnapshot(supabase, workspaceId);
+      if (snapshot) return snapshot;
+    } catch {
+      // Snapshot table may be unavailable pre-migration — fall back to RPC.
+    }
+  }
+
   const { data, error } = await supabase.rpc("workspace_analytics_summary", {
     p_workspace_id: workspaceId,
     p_from: range.from ?? null,

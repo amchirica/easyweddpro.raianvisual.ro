@@ -130,37 +130,52 @@ supabase/
 ## Scripturi disponibile
 
 ```bash
-npm run dev          # next dev --turbopack
-npm run build        # next build --webpack
+npm run dev           # next dev --turbopack
+npm run build         # next build --webpack (nu e suficient pentru Workers)
 npm run start         # next start
 npm run lint          # eslint .
 npm run typecheck     # tsc --noEmit
-npm run cf:build       # opennextjs-cloudflare build
-npm run preview        # build + opennextjs-cloudflare preview (Cloudflare local runtime)
-npm run cf:deploy       # build + wrangler deploy
+npm run cf:build      # opennextjs-cloudflare build → .open-next/
+npm run cf:preview    # preview pe runtime Workers (după cf:build)
+npm run cf:deploy     # opennextjs-cloudflare deploy (necesită .open-next)
+npm run deploy        # cf:build + cf:deploy (all-in-one)
+npm run preview       # build + preview
 ```
 
 ## Deploy pe Cloudflare (OpenNext)
 
+Detalii: [`docs/CLOUDFLARE_WORKERS_BUILD.md`](docs/CLOUDFLARE_WORKERS_BUILD.md).
+
+**Nu** folosi `npm run build` + `npx wrangler deploy` — apare
+`Could not find compiled Open Next config`.
+
+### Workers Builds (dashboard)
+
+| Setting | Value |
+| --- | --- |
+| Build command | `npm run cf:build` |
+| Deploy command | `npm run cf:deploy` |
+| Node.js | `22` |
+
+### Local CLI
+
 1. Completează variabilele de producție în **Cloudflare Worker Variables**
    (nu în fișiere `.env` — acestea nu sunt incluse în deploy).
 2. Autentifică-te cu `wrangler login` (o singură dată per mașină).
-3. Rulează build + deploy:
+3. Rulează:
 
    ```bash
-   npm run cf:deploy
+   npm run deploy
    ```
 
-   Comanda rulează `opennextjs-cloudflare build` urmat de
-   `wrangler deploy --config wrangler.jsonc`.
+   sau `npm run cf:build` apoi `npm run cf:deploy`.
 
-4. Pentru un preview local al runtime-ului Cloudflare (Workers, nu Node):
+4. Preview local pe runtime Workers:
 
    ```bash
    cp .dev.vars.example .dev.vars
    npm run preview
    ```
 
-Configurația Wrangler (`wrangler.jsonc`) definește deja binding-urile de
-assets (`ASSETS`) și auto-referința worker-ului (`WORKER_SELF_REFERENCE`),
-necesare pentru funcționarea corectă a Next.js pe Cloudflare Workers.
+Configurația Wrangler (`wrangler.jsonc`) definește binding-urile
+`ASSETS` și `WORKER_SELF_REFERENCE`, plus cron orar pe `worker.ts`.

@@ -12,11 +12,13 @@
 /coverage
 
 # next.js
+.next
 /.next/
 /out/
 
 # production
 /build
+.open-next
 /.open-next
 /.wrangler
 .wrangler-size

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { mapAuthError } from "@/lib/auth/map-auth-error";
-import { mapAuthQueryError } from "@/lib/auth/query-errors";
+import { mapAuthQueryError, mapAuthQueryMessage } from "@/lib/auth/query-errors";
 import { getSafeRedirectPath, resolvePostAuthPath } from "@/lib/auth/redirect";
 import { hasSupabaseEnv } from "@/lib/env";
 import {
@@ -23,12 +23,14 @@ import { loginSchema } from "@/lib/validations/auth";
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = getSafeRedirectPath(searchParams.get("next"), "/dashboard");
+  const next = getSafeRedirectPath(searchParams.get("next")) ?? "/dashboard";
   const queryError = mapAuthQueryError(searchParams.get("error"));
+  const queryMessage = mapAuthQueryMessage(searchParams.get("message"));
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(queryError);
+  const [info] = useState<string | null>(queryMessage);
   const [pending, setPending] = useState(false);
 
   if (!hasSupabaseEnv()) {
@@ -130,6 +132,15 @@ export function LoginForm() {
           disabled={pending}
         />
       </div>
+
+      {info && !error ? (
+        <p
+          className="rounded-md border border-champagne/30 bg-champagne/10 px-3 py-2 text-sm text-champagne-soft"
+          role="status"
+        >
+          {info}
+        </p>
+      ) : null}
 
       {error ? (
         <p

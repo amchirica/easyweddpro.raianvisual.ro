@@ -1,20 +1,16 @@
+import Link from "next/link";
 import { Users } from "lucide-react";
 
-import { EmptyState } from "@/components/shared/empty-state";
-import { PageHeader } from "@/components/shared/page-header";
-import { StatusBadge } from "@/components/shared/status-badge";
+import { AdminEmptyState } from "@/components/admin/admin-empty-state";
+import { AdminErrorState } from "@/components/admin/admin-error-state";
+import { AdminFilters } from "@/components/admin/admin-filters";
+import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
+import { AdminTable } from "@/components/admin/admin-table";
 import { listUsersForAdmin } from "@/lib/data/admin";
 import { formatDate } from "@/lib/format";
-import { requirePlatformAdmin } from "@/lib/workspace/session";
+import { requirePlatformPermission } from "@/lib/platform/session";
 
-const ROLE_LABEL: Record<string, string> = {
-  owner: "Proprietar",
-  admin: "Admin",
-  manager: "Manager",
-  collaborator: "Colaborator",
-};
-
-const STATUS_TONE: Record<string, "success" | "accent" | "danger"> = {
+const STATUS_TONE: Record<string, "success" | "accent" | "danger" | "muted"> = {
   active: "success",
   invited: "accent",
   suspended: "danger",
@@ -26,67 +22,136 @@ const STATUS_LABEL: Record<string, string> = {
   suspended: "Suspendat",
 };
 
-export default async function AdminUsersPage() {
-  const admin = await requirePlatformAdmin();
-  const users = await listUsersForAdmin(admin.supabase);
+type SearchParams = Promise<{ q?: string; status?: string }>;
+
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const admin = await requirePlatformPermission("users.read");
+  const params = await searchParams;
+  const q = (params.q ?? "").trim().toLowerCase();
+  const status = (params.status ?? "").trim();
+
+  let loadError: string | null = null;
+  let users: Awaited<ReturnType<typeof listUsersForAdmin>> = [];
+  try {
+    users = await listUsersForAdmin(admin.supabase);
+  } catch (error) {
+    loadError = error instanceof Error ? error.message : "Nu am putut încărca utilizatorii.";
+  }
+
+  const filtered = users.filter((user) => {
+    if (status && user.accountStatus !== status) return false;
+    if (!q) return true;
+    const haystack = `${user.fullName ?? ""} ${user.email ?? ""}`.toLowerCase();
+    return haystack.includes(q);
+  });
 
   return (
-    <div>
-      <PageHeader
-        title="Utilizatori"
-        description="Toți utilizatorii înregistrați la nivelul platformei."
+    <div className="space-y-6">
+      <div>
+        <h1 className="font-heading text-3xl font-medium text-foreground">Utilizatori</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Conturi înregistrate pe platformă. Caută după nume sau email și filtrează după status.
+        </p>
+      </div>
+
+      <AdminFilters
+        fields={[
+          {
+            name: "q",
+            label: "Căutare",
+            type: "search",
+            defaultValue: params.q ?? "",
+            placeholder: "Nume sau email…",
+          },
+          {
+            name: "status",
+            label: "Status",
+            type: "select",
+            defaultValue: status,
+            options: [
+              { value: "", label: "Toate" },
+              { value: "active", label: "Activ" },
+              { value: "invited", label: "Invitat" },
+              { value: "suspended", label: "Suspendat" },
+            ],
+          },
+        ]}
       />
 
-      {users.length === 0 ? (
-        <EmptyState icon={Users} title="Niciun utilizator" description="Nu există încă utilizatori înregistrați." />
-      ) : (
-        <div className="surface-card overflow-x-auto">
-          <table className="w-full min-w-[760px] border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-border text-left text-muted-foreground">
-                <th className="px-5 py-3 font-medium">Utilizator</th>
-                <th className="px-5 py-3 font-medium">Workspace-uri</th>
-                <th className="px-5 py-3 font-medium">Status</th>
-                <th className="px-5 py-3 font-medium">Actualizat</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user.id} className="border-b border-border/60 last:border-0">
-                  <td className="px-5 py-3.5">
-                    <p className="text-foreground">{user.fullName ?? "Fără nume"}</p>
+      {loadError ? <AdminErrorState message={loadError} /> : null}
+
+      {!loadError && filtered.length === 0 ? (
+        <AdminEmptyState
+          icon={Users}
+          title="Niciun utilizator"
+          description={
+            q || status
+              ? "Niciun rezultat pentru filtrele selectate."
+              : "Nu există încă utilizatori înregistrați."
+          }
+        />
+      ) : null}
+
+      {!loadError && filtered.length > 0 ? (
+        <div className="surface-card overflow-hidden">
+          <AdminTable
+            rows={filtered}
+            columns={[
+              {
+                key: "user",
+                header: "Utilizator",
+                cell: (user) => (
+                  <div>
+                    <Link
+                      href={`/admin/users/${user.id}`}
+                      className="text-foreground hover:text-champagne-soft"
+                    >
+                      {user.fullName ?? "Fără nume"}
+                    </Link>
                     <p className="text-xs text-muted-soft">{user.email ?? "email indisponibil"}</p>
                     {user.isPlatformAdmin ? (
-                      <StatusBadge label="Admin platformă" tone="accent" className="mt-1" />
+                      <span className="mt-1 inline-block">
+                        <AdminStatusBadge label="Admin platformă" tone="accent" />
+                      </span>
                     ) : null}
-                  </td>
-                  <td className="px-5 py-3.5 text-muted-foreground">
-                    {user.memberships.length === 0 ? (
-                      <span className="text-muted-soft">Fără workspace</span>
-                    ) : (
-                      <div className="space-y-1">
-                        {user.memberships.map((membership) => (
-                          <div key={membership.workspaceId} className="text-xs">
-                            {membership.workspaceName}{" "}
-                            <span className="text-muted-soft">({ROLE_LABEL[membership.role] ?? membership.role})</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <StatusBadge
-                      label={STATUS_LABEL[user.accountStatus] ?? user.accountStatus}
-                      tone={STATUS_TONE[user.accountStatus] ?? "accent"}
-                    />
-                  </td>
-                  <td className="px-5 py-3.5 text-muted-soft">{formatDate(user.updatedAt)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                ),
+              },
+              {
+                key: "workspaces",
+                header: "Workspace-uri",
+                cell: (user) =>
+                  user.memberships.length === 0 ? (
+                    <span className="text-muted-soft">Fără workspace</span>
+                  ) : (
+                    <span className="text-muted-foreground">{user.memberships.length}</span>
+                  ),
+              },
+              {
+                key: "status",
+                header: "Status",
+                cell: (user) => (
+                  <AdminStatusBadge
+                    label={STATUS_LABEL[user.accountStatus] ?? user.accountStatus}
+                    tone={STATUS_TONE[user.accountStatus] ?? "muted"}
+                  />
+                ),
+              },
+              {
+                key: "updated",
+                header: "Actualizat",
+                cell: (user) => (
+                  <span className="text-muted-soft">{formatDate(user.updatedAt)}</span>
+                ),
+              },
+            ]}
+          />
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

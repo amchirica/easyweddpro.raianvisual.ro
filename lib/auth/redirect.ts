@@ -2,21 +2,42 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/types/database";
 
+const ALLOWED_AUTH_PATHS = new Set(["/auth/reset-password"]);
+
 /**
  * Safe internal redirect only. Rejects external URLs and protocol-relative paths.
+ * Returns null when the value is unsafe (callers supply a fallback).
  */
+export function getSafeRedirectPath(value: string | null | undefined): string | null;
 export function getSafeRedirectPath(
-  next: string | null | undefined,
-  fallback = "/dashboard",
-): string {
-  if (!next || !next.startsWith("/") || next.startsWith("//")) {
-    return fallback;
+  value: string | null | undefined,
+  fallback: string,
+): string;
+export function getSafeRedirectPath(
+  value: string | null | undefined,
+  fallback?: string,
+): string | null {
+  if (!value || typeof value !== "string") {
+    return fallback === undefined ? null : fallback;
   }
-  // Avoid bouncing through auth handlers again.
-  if (next === "/auth" || next.startsWith("/auth/")) {
-    return fallback;
+
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("/") || trimmed.startsWith("//")) {
+    return fallback === undefined ? null : fallback;
   }
-  return next;
+  if (trimmed.includes("://") || /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) {
+    return fallback === undefined ? null : fallback;
+  }
+
+  const pathOnly = trimmed.split(/[?#]/)[0] ?? trimmed;
+
+  if (pathOnly === "/auth" || pathOnly.startsWith("/auth/")) {
+    if (!ALLOWED_AUTH_PATHS.has(pathOnly)) {
+      return fallback === undefined ? null : fallback;
+    }
+  }
+
+  return trimmed;
 }
 
 export async function userHasWorkspace(
@@ -49,7 +70,11 @@ export async function resolvePostAuthPath(
 
   const hasWorkspace = await userHasWorkspace(supabase, user.id);
   const fallback = hasWorkspace ? "/dashboard" : "/onboarding";
-  const safe = getSafeRedirectPath(next, fallback);
+  const safe = getSafeRedirectPath(next) ?? fallback;
+
+  if (safe === "/auth/reset-password" || safe.startsWith("/auth/reset-password/")) {
+    return "/auth/reset-password";
+  }
 
   if (!hasWorkspace && (safe === "/dashboard" || safe.startsWith("/dashboard/"))) {
     return "/onboarding";

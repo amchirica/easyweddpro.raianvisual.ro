@@ -28,10 +28,19 @@ export async function getCurrentWorkspaceRole(): Promise<WorkspaceRole> {
   return ctx.role;
 }
 
+const INSPECT_ALLOWED_ACTIONS = new Set<WorkspaceAction>([
+  "crm.read",
+  "analytics.read",
+  "billing.read",
+]);
+
 export async function requireWorkspaceAction(
   action: WorkspaceAction,
 ): Promise<WorkspaceContext> {
   const ctx = await requireWorkspace();
+  if (ctx.isInspecting && !INSPECT_ALLOWED_ACTIONS.has(action)) {
+    throw new Error("forbidden_inspect_readonly");
+  }
   if (!canPerformWorkspaceAction(ctx.role, action)) {
     throw new Error("forbidden");
   }

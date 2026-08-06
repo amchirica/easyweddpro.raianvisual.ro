@@ -1,31 +1,46 @@
 import { NextResponse } from "next/server";
 
-import { hasSupabaseEnv } from "@/lib/env";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getHealthSnapshot } from "@/lib/background/health";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Readiness probe — confirms Supabase is reachable. Never returns secrets or
- * env values, only a plain up/down status.
+ * Readiness probe — Supabase must be up. Includes cron/analytics freshness
+ * flags without exposing secrets or PII.
  */
 export async function GET() {
-  if (!hasSupabaseEnv()) {
-    return NextResponse.json({ ok: true, supabase: "down" });
+  const snapshot = await getHealthSnapshot();
+
+  if (snapshot.supabase !== "up") {
+    return NextResponse.json(
+      {
+        ok: false,
+        supabase: snapshot.supabase,
+        resendConfigured: snapshot.resendConfigured,
+        stripeConfigured: snapshot.stripeConfigured,
+        storageConfigured: snapshot.storageConfigured,
+      },
+      { status: 503 },
+    );
   }
 
-  try {
-    const supabase = createAdminClient();
-    const { error } = await supabase
-      .from("profiles")
-      .select("id", { count: "exact", head: true });
-
-    if (error) {
-      return NextResponse.json({ ok: false, supabase: "down" }, { status: 503 });
-    }
-
-    return NextResponse.json({ ok: true, supabase: "up" });
-  } catch {
-    return NextResponse.json({ ok: false, supabase: "down" }, { status: 503 });
-  }
+  return NextResponse.json({
+    ok: true,
+    supabase: "up",
+    resendConfigured: snapshot.resendConfigured,
+    stripeConfigured: snapshot.stripeConfigured,
+    storageConfigured: snapshot.storageConfigured,
+    lastCronRun: snapshot.lastCronRun
+      ? {
+          startedAt: snapshot.lastCronRun.startedAt,
+          finishedAt: snapshot.lastCronRun.finishedAt,
+          success: snapshot.lastCronRun.success,
+          processed: snapshot.lastCronRun.processed,
+          errors: snapshot.lastCronRun.errors,
+          durationMs: snapshot.lastCronRun.durationMs,
+        }
+      : null,
+    lastAutomationsRun: snapshot.lastAutomationsRun,
+    lastAnalyticsSync: snapshot.lastAnalyticsSync,
+  });
 }

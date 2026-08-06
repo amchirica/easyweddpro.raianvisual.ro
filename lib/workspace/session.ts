@@ -27,6 +27,7 @@ export type WorkspaceContext = {
   activeWorkspace: WorkspaceRow;
   role: WorkspaceRole;
   isPlatformAdmin: boolean;
+  isInspecting: boolean;
   isDemo: false;
   supabase: NonNullable<Awaited<ReturnType<typeof createClient>>>;
 };
@@ -38,6 +39,7 @@ export type DemoWorkspaceContext = {
   activeWorkspace: null;
   role: null;
   isPlatformAdmin: false;
+  isInspecting: false;
   isDemo: true;
   supabase: null;
 };
@@ -138,38 +140,32 @@ export const getActiveWorkspace = cache(async () => {
   return matched ?? workspaces[0] ?? null;
 });
 
+const demoContext = {
+  user: null,
+  profile: null,
+  workspaces: [] as WorkspaceMembership[],
+  activeWorkspace: null,
+  role: null,
+  isPlatformAdmin: false,
+  isInspecting: false as const,
+  isDemo: true as const,
+  supabase: null,
+};
+
 export const getSessionContext = cache(async () => {
   if (isDemoMode()) {
     const supabase = await createClient();
     const user = supabase ? (await supabase.auth.getUser()).data.user : null;
     // Explicit demo without session → demo UI
     if (!user) {
-      return {
-        user: null,
-        profile: null,
-        workspaces: [] as WorkspaceMembership[],
-        activeWorkspace: null,
-        role: null,
-        isPlatformAdmin: false,
-        isDemo: true as const,
-        supabase: null,
-      };
+      return demoContext;
     }
   }
 
   const supabase = await createClient();
   if (!supabase) {
     if (isDemoMode()) {
-      return {
-        user: null,
-        profile: null,
-        workspaces: [] as WorkspaceMembership[],
-        activeWorkspace: null,
-        role: null,
-        isPlatformAdmin: false,
-        isDemo: true as const,
-        supabase: null,
-      };
+      return demoContext;
     }
     return null;
   }
@@ -180,16 +176,7 @@ export const getSessionContext = cache(async () => {
 
   if (!user) {
     if (isDemoMode()) {
-      return {
-        user: null,
-        profile: null,
-        workspaces: [] as WorkspaceMembership[],
-        activeWorkspace: null,
-        role: null,
-        isPlatformAdmin: false,
-        isDemo: true as const,
-        supabase: null,
-      };
+      return demoContext;
     }
     return null;
   }
@@ -201,16 +188,45 @@ export const getSessionContext = cache(async () => {
   ]);
 
   const cookieId = await readWorkspaceCookie();
-  const activeMembership =
+  let activeMembership =
     workspaces.find((w) => w.workspace.id === cookieId) ?? workspaces[0] ?? null;
+  let resolvedWorkspaces = workspaces;
+  let isInspecting = false;
+
+  if (isPlatformAdmin) {
+    const { getActiveInspectSession } = await import("@/lib/platform/inspect");
+    const inspect = await getActiveInspectSession();
+    if (inspect) {
+      const { data: inspectWorkspace } = await supabase
+        .from("workspaces")
+        .select("*")
+        .eq("id", inspect.workspaceId)
+        .maybeSingle();
+
+      if (inspectWorkspace) {
+        const inspectMembership: WorkspaceMembership = {
+          workspace: inspectWorkspace,
+          role: "viewer",
+          membershipId: `inspect:${inspect.id}`,
+        };
+        resolvedWorkspaces = [
+          inspectMembership,
+          ...workspaces.filter((w) => w.workspace.id !== inspectWorkspace.id),
+        ];
+        activeMembership = inspectMembership;
+        isInspecting = true;
+      }
+    }
+  }
 
   return {
     user,
     profile,
-    workspaces,
+    workspaces: resolvedWorkspaces,
     activeWorkspace: activeMembership?.workspace ?? null,
     role: activeMembership?.role ?? null,
     isPlatformAdmin: Boolean(isPlatformAdmin),
+    isInspecting,
     isDemo: false as const,
     supabase,
   };
@@ -254,17 +270,15 @@ export async function requireWorkspace(): Promise<WorkspaceContext> {
     activeWorkspace: ctx.activeWorkspace,
     role: ctx.role,
     isPlatformAdmin: ctx.isPlatformAdmin,
+    isInspecting: ctx.isInspecting,
     isDemo: false,
     supabase: ctx.supabase,
   };
 }
 
 export async function requirePlatformAdmin() {
-  const ctx = await requireUser();
-  if (!ctx.isPlatformAdmin) {
-    redirect("/dashboard");
-  }
-  return ctx;
+  const { requirePlatformPermission } = await import("@/lib/platform/session");
+  return requirePlatformPermission("admin.access");
 }
 
 /** For pages that support demo fixtures when unauthenticated in demo mode. */
@@ -296,6 +310,7 @@ export async function getWorkspaceOrDemo() {
     role: ctx.role,
     workspaces: ctx.workspaces,
     isPlatformAdmin: ctx.isPlatformAdmin,
+    isInspecting: ctx.isInspecting,
     supabase: ctx.supabase,
   };
 }
