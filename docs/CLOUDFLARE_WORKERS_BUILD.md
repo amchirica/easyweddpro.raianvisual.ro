@@ -1,74 +1,63 @@
 # Cloudflare Workers Builds — EasyWedd Pro
 
-## Cauza erorii „Could not find compiled Open Next config”
+## Buclă infinită (important)
 
-Log tipic greșit:
+**Nu** pune `opennextjs-cloudflare build` în scriptul npm `build`.
 
-```txt
-Executing user build command: npm run build   → doar Next (.next), fără .open-next
-Executing user deploy command: npx wrangler deploy
-OpenNext project detected, calling opennextjs-cloudflare deploy
-ERROR Could not find compiled Open Next config
+OpenNext rulează intern `npm run build` (= Next.js). Dacă `build` pointează tot la OpenNext → recursie infinită (exact ce apare în log: OpenNext → Building Next.js app → `npm run build` → OpenNext… pe loop).
+
+Corect:
+
+```json
+{
+  "build": "next build --webpack",
+  "cf:build": "opennextjs-cloudflare build",
+  "cf:deploy": "opennextjs-cloudflare deploy"
+}
 ```
 
-Deploy-ul OpenNext cere artefacte din `opennextjs-cloudflare build` (folder `.open-next/`).
-
-## Setări obligatorii în Workers Builds
-
-| Setting | Value (recomandat) | Compatibil cu setările vechi |
-| --- | --- | --- |
-| **Build command** | `npm run cf:build` | `npm run build` *(acum = OpenNext)* |
-| **Deploy command** | `npm run cf:deploy` | `npx opennextjs-cloudflare deploy` |
-| **Node.js version** | `22` | `22` |
-
-Preferat explicit:
+## Cauza „Could not find compiled Open Next config”
 
 ```txt
-Build command:  npm run cf:build
-Deploy command: npm run cf:deploy
+Build:  npm run build          → doar .next
+Deploy: npx wrangler deploy    → cere .open-next
 ```
 
-Dacă lași Build = `npm run build`, după update-ul din `package.json` acesta rulează deja OpenNext și produce `.open-next`. Deploy-ul trebuie totuși să fie OpenNext (`npm run cf:deploy` sau `npx opennextjs-cloudflare deploy`), nu un `wrangler deploy` fără artefacte.
+## Setări obligatorii Workers Builds
+
+| Setting | Value |
+| --- | --- |
+| **Build command** | `npm run cf:build` |
+| **Deploy command** | `npm run cf:deploy` |
+| **Node.js** | `22` |
+
+Echivalent:
+
+```txt
+Build command:  npx opennextjs-cloudflare build
+Deploy command: npx opennextjs-cloudflare deploy
+```
+
+**Nu** folosi:
+
+```txt
+Build:  npm run build
+Deploy: npx wrangler deploy
+```
 
 ## Scripturi
 
 | Script | Efect |
 | --- | --- |
-| `npm run build` | **OpenNext** → `.open-next/` (Cloudflare Workers Builds) |
-| `npm run build:next` | Doar `next build --webpack` (local / CI fără Workers) |
-| `npm run cf:build` | Alias OpenNext build |
-| `npm run cf:deploy` | Deploy OpenNext (necesită `.open-next` din Build) |
-| `npm run deploy` | OpenNext build + deploy |
+| `npm run build` | Doar Next.js (apelat de OpenNext) |
+| `npm run cf:build` | OpenNext → `.open-next/` |
+| `npm run cf:deploy` | Deploy OpenNext (după `cf:build`) |
+| `npm run deploy` | `cf:build` + `cf:deploy` |
 
-## Node.js
+## Verificare
 
-- Local / CI: Node **22** (`engines`: `>=22 <23`, `.nvmrc`: `22`)
-- Cloudflare Workers Builds: Node **22**
+După `cf:build` trebuie să existe `.open-next/worker.js`.
 
-## Verificare după build
+## Node
 
-```txt
-.open-next/
-.open-next/worker.js
-```
-
-`.open-next` și `.next` sunt în `.gitignore`.
-
-### Windows `EBUSY` pe `.open-next/assets`
-
-Oprește `workerd` / preview, șterge `.open-next`, reîncearcă. Preferă build pe Cloudflare (Linux) sau WSL.
-
-## Variabile / secrete
-
-Vezi `docs/CLOUDFLARE_PRODUCTION_CHECKLIST.md` și `docs/AUTH_CONFIGURATION.md`.
-
-## Health după deploy
-
-```txt
-https://<worker-host>/api/health
-https://<worker-host>/api/health/ready
-```
-
-## Middleware vs proxy
-
-Proiectul păstrează `middleware.ts`. Migrarea la `proxy.ts` este amânată (OpenNext pe Workers). Warning-ul Next este acceptat.
+`engines`: `>=22 <23`, `.nvmrc`: `22`

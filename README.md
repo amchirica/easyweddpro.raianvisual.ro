@@ -131,12 +131,11 @@ supabase/
 
 ```bash
 npm run dev           # next dev --turbopack
-npm run build         # OpenNext build → .open-next/ (pentru Cloudflare)
-npm run build:next    # doar next build --webpack
+npm run build         # next build --webpack (folosit intern de OpenNext)
 npm run start         # next start
 npm run lint          # eslint .
 npm run typecheck     # tsc --noEmit
-npm run cf:build      # alias OpenNext build
+npm run cf:build      # opennextjs-cloudflare build → .open-next/
 npm run cf:preview    # preview pe runtime Workers (după cf:build)
 npm run cf:deploy     # opennextjs-cloudflare deploy (necesită .open-next)
 npm run deploy        # cf:build + cf:deploy (all-in-one)
@@ -151,24 +150,22 @@ Detalii: [`docs/CLOUDFLARE_WORKERS_BUILD.md`](docs/CLOUDFLARE_WORKERS_BUILD.md).
 
 | Setting | Value |
 | --- | --- |
-| Build command | `npm run cf:build` (sau `npm run build`) |
+| Build command | `npm run cf:build` |
 | Deploy command | `npm run cf:deploy` |
 | Node.js | `22` |
 
-**Nu** folosi Deploy = `npx wrangler deploy` fără ca Build să fi rulat OpenNext (altfel: `Could not find compiled Open Next config`).
+Nu pune OpenNext în scriptul `build` (buclă infinită).  
+Nu folosi Deploy = `npx wrangler deploy` fără Build OpenNext.
 
 ### Local CLI
 
-1. Completează variabilele în **Cloudflare Worker Variables**.
+1. Variabile în **Cloudflare Worker Variables**
 2. `wrangler login`
 3. `npm run deploy`
 
-4. Preview local:
+```bash
+cp .dev.vars.example .dev.vars
+npm run preview
+```
 
-   ```bash
-   cp .dev.vars.example .dev.vars
-   npm run preview
-   ```
-
-Configurația Wrangler (`wrangler.jsonc`) definește binding-urile
-`ASSETS` și `WORKER_SELF_REFERENCE`, plus cron orar pe `worker.ts`.
+`wrangler.jsonc`: binding-uri `ASSETS`, `WORKER_SELF_REFERENCE`, cron pe `worker.ts`.
