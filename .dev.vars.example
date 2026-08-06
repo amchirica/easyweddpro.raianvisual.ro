@@ -1,0 +1,25 @@
+# =============================================================================
+# Local Cloudflare Worker runtime vars (wrangler / `opennextjs-cloudflare preview`)
+# Copy this file to `.dev.vars` for local `wrangler`/OpenNext preview runs.
+# Mirrors .env.example — keep both in sync.
+# =============================================================================
+
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+EASYWEDDPRO_DEMO=
+
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+STRIPE_PRICE_SOLO_MONTHLY=
+STRIPE_PRICE_STUDIO_MONTHLY=
+STRIPE_PRICE_AGENCY_MONTHLY=
+
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=notificari@easyweddpro.raianvisual.ro
+RESEND_FROM_NAME=EasyWedd Pro

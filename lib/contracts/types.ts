@@ -1,0 +1,33 @@
+import type { ContractStatus } from "@/lib/constants";
+import type { ContractContent } from "@/lib/contracts/content";
+
+export type ContractDetailData = {
+  id: string;
+  contractNumber: string | null;
+  title: string;
+  status: string;
+  effectiveStatus: ContractStatus;
+  currency: string;
+  subtotal: number;
+  discountAmount: number;
+  taxAmount: number;
+  total: number;
+  depositAmount: number;
+  remainingAmount: number;
+  eventDate: string | null;
+  eventLocation: string | null;
+  validUntil: string | null;
+  terms: string | null;
+  publicToken: string | null;
+  clientId: string | null;
+  clientName: string | null;
+  proposalId: string | null;
+  proposalNumber: string | null;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  acceptedAt: string | null;
+  publishedAt: string | null;
+  viewedAt: string | null;
+  content: ContractContent;
+};

@@ -1,0 +1,23 @@
+{
+  "name": "EasyWedd Pro",
+  "short_name": "EasyWedd Pro",
+  "description": "Business OS pentru profesioniștii din industria evenimentelor.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0b0b0c",
+  "theme_color": "#0b0b0c",
+  "lang": "ro",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "64x64",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}
