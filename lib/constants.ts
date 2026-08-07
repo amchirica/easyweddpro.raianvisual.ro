@@ -1,16 +1,19 @@
 export const APP_NAME = "EasyWedd Pro";
 export const APP_TAGLINE = "Business OS pentru profesioniștii din industria evenimentelor";
+export const APP_HERO_HEADING = "Condu întreaga afacere dintr-un singur loc.";
+export const APP_HERO_SUPPORT = "De la primul lead până la ultimul follow-up.";
+/** @deprecated Prefer APP_HERO_HEADING — kept for any lingering imports. */
+export const APP_HERO_ALT = APP_HERO_HEADING;
 export const APP_PROMISE =
-  "Gestionează leadurile, clienții, ofertele, contractele, plățile, echipa și proiectele dintr-un singur loc.";
-export const APP_HERO_ALT = "Mai multe rezervări. Mai puțin haos.";
-export const APP_SUBTITLE =
-  "EasyWedd Pro centralizează vânzările, contractele, proiectele și relația cu clienții pentru furnizorii din industria evenimentelor.";
+  "Leaduri, clienți, oferte, contracte, plăți, calendar, proiecte, echipă și automatizări — construite special pentru profesioniștii din industria evenimentelor.";
+export const APP_SUBTITLE = APP_PROMISE;
 export const APP_SEO_DESCRIPTION =
-  "CRM și Business OS pentru furnizori de evenimente — leaduri, oferte, contracte, calendar, plăți, proiecte și echipă.";
+  "Business OS pentru furnizori Weddings & Events: CRM evenimente, oferte, contracte, plăți, calendar și proiecte — pentru fotografi, DJ, wedding planners, locații și agenții.";
+export const EASYWEDD_CONSUMER_URL = "https://easywedd.raianvisual.ro";
 export const PRODUCTION_SITE_URL = "https://easyweddpro.raianvisual.ro";
 export const WORKSPACE_COOKIE = "ewp_workspace_id";
 
-export const SUPPORT_EMAIL = "hello@raianvisual.ro";
+export const SUPPORT_EMAIL = "raian.visual@yahoo.com";
 
 export type WorkspaceRole =
   | "owner"

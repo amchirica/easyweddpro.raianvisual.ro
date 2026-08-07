@@ -25,7 +25,7 @@ const siteUrl = getSiteUrl();
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${APP_NAME} — CRM și Business OS pentru furnizori de evenimente`,
+    default: `${APP_NAME} — Business OS pentru Weddings & Events`,
     template: `%s · ${APP_NAME}`,
   },
   description: APP_SEO_DESCRIPTION,
@@ -41,13 +41,13 @@ export const metadata: Metadata = {
     locale: "ro_RO",
     url: siteUrl,
     siteName: APP_NAME,
-    title: `${APP_NAME} — CRM și Business OS pentru furnizori de evenimente`,
+    title: `${APP_NAME} — Business OS pentru Weddings & Events`,
     description: APP_TAGLINE,
     images: [{ url: "/logo.png", width: 64, height: 64, alt: APP_NAME }],
   },
   twitter: {
     card: "summary",
-    title: `${APP_NAME} — CRM și Business OS pentru furnizori de evenimente`,
+    title: `${APP_NAME} — Business OS pentru Weddings & Events`,
     description: APP_TAGLINE,
     images: ["/logo.png"],
   },

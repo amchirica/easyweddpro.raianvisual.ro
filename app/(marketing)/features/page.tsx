@@ -20,103 +20,103 @@ import { Button } from "@/components/ui/button";
 export const metadata: Metadata = {
   title: "Funcționalități",
   description:
-    "Descoperă modulele EasyWedd Pro: leaduri, oferte, contracte, calendar, proiecte, plăți, automatizări și portal de client pentru furnizori de evenimente.",
+    "Business OS EasyWedd Pro: CRM evenimente, oferte, contracte, plăți, calendar, proiecte, automatizări, analytics și portal client pentru Weddings & Events.",
 };
 
 const FEATURE_GROUPS = [
   {
-    title: "Vânzări",
-    description: "Transformă mai multe leaduri în contracte semnate.",
+    title: "Workflow comercial",
+    description: "De la lead la contract și avans — fără haos pe WhatsApp și email.",
     items: [
       {
         icon: Users,
-        title: "Pipeline de leaduri",
+        title: "CRM & pipeline",
         description:
-          "Capturezi leaduri din formular, rețele sociale sau recomandări și le urmărești pe stagii — de la contact la câștigat sau pierdut.",
+          "Leaduri, surse, statusuri și follow-up pe un pipeline construit pentru evenimente — nu un CRM generic.",
       },
       {
         icon: Contact,
         title: "Dosare de clienți",
         description:
-          "Istoric complet al conversațiilor, ofertelor și contractelor pentru fiecare client, într-un singur loc.",
+          "Istoric al ofertelor, contractelor și plăților pentru fiecare client, într-un singur loc.",
       },
       {
         icon: FileText,
-        title: "Oferte cu link public",
+        title: "Oferte",
         description:
-          "Trimiți pachete personalizate cu preț și termeni pe un link elegant, urmăribil — vezi exact când a fost vizualizată oferta.",
+          "Pachete, extraopțiuni, discount și link public — vezi când oferta a fost vizualizată și acceptată.",
       },
       {
         icon: ScrollText,
-        title: "Contracte digitale",
+        title: "Contracte",
         description:
-          "Statusuri clare de la trimis la semnat, fără hârtii pierdute și fără schimb interminabil de emailuri.",
+          "Template-uri, acceptare digitală, versiuni și PDF — fără hârtii pierdute.",
       },
     ],
   },
   {
     title: "Operațiuni",
-    description: "Coordonezi echipa de la rezervare la închiderea proiectului.",
+    description: "Proiect, calendar și echipă — de la rezervare la livrare.",
     items: [
       {
         icon: CalendarDays,
-        title: "Calendar unificat",
+        title: "Calendar",
         description:
-          "Evenimente, deadline-uri și scadențe de plată — toate într-un singur calendar al businessului.",
+          "Evenimente, întâlniri, deadline-uri și task-uri într-un calendar unificat.",
       },
       {
         icon: FolderKanban,
-        title: "Pipeline de proiecte",
+        title: "Proiecte",
         description:
-          "Urmărești fiecare proiect prin etape configurabile — generice sau specializate pe tipul de business.",
+          "Workflow pe tip de business, echipă, checklist și deadline-uri pe eveniment.",
       },
       {
         icon: CheckSquare,
-        title: "Task-uri de echipă",
+        title: "Task-uri",
         description:
-          "Alocă sarcini colegilor, cu priorități și termene, pentru ca nimic să nu rămână neterminat.",
+          "Alocă sarcini cu priorități și termene, legate de proiect și eveniment.",
       },
       {
         icon: UsersRound,
-        title: "Roluri de echipă",
+        title: "Echipă & roluri",
         description:
-          "Fiecare membru al echipei vede exact ce trebuie să facă, cu permisiuni adaptate rolului.",
+          "Fiecare membru vede ce trebuie să facă, cu permisiuni pe rol.",
       },
     ],
   },
   {
-    title: "Financiar",
-    description: "Ai control complet asupra plăților și veniturilor.",
+    title: "Financiar & insight",
+    description: "Plăți clare și analytics pe pipeline.",
     items: [
       {
         icon: Wallet,
-        title: "Plăți și scadențe",
+        title: "Plăți",
         description:
-          "Urmărești avansuri, tranșe și restanțe automat, cu alerte pentru plățile care întârzie.",
+          "Avansuri, tranșe, restante și remindere — urmărite pe fiecare eveniment.",
       },
       {
         icon: BarChart3,
         title: "Analytics",
         description:
-          "Vezi venitul lunar, rata de conversie și sursele de leaduri care performează cel mai bine.",
+          "Conversie, pipeline, venit, surse și rezultate — fără vanity metrics inventate.",
       },
     ],
   },
   {
     title: "Experiența clientului",
-    description: "Impresionează clienții fără efort suplimentar.",
+    description: "Automatizări și portal — fără efort manual la fiecare pas.",
     items: [
       {
         icon: Zap,
         title: "Automatizări",
         description:
-          "Remindere pentru oferte netratate, mesaje pre-eveniment și solicitări de recenzie trimise automat.",
+          "Trigger → condiții → acțiuni: follow-up ofertă, reminder contract, checklist pre-eveniment, review.",
       },
       {
         icon: LayoutTemplate,
-        title: "Portal de client",
+        title: "Portal client",
         description:
-          "Fiecare client accesează un portal dedicat — ofertă, contract, plăți, calendar și livrare finală, fără cont sau parolă.",
+          "Ofertă, contract, plăți, proiect și documente pe link unic — fără cont obligatoriu.",
       },
     ],
   },
@@ -127,14 +127,14 @@ export default function FeaturesPage() {
     <>
       <section className="px-6 pt-20 pb-16 text-center">
         <span className="inline-flex items-center gap-2 rounded-full border border-champagne/25 bg-champagne/10 px-4 py-1.5 text-xs font-medium tracking-wide text-champagne-soft">
-          Funcționalități
+          Business OS · Weddings & Events
         </span>
         <h1 className="mx-auto mt-6 max-w-2xl font-heading text-4xl font-medium tracking-tight text-foreground sm:text-5xl">
-          Tot fluxul de business, într-un singur produs
+          Platformă operațională pentru furnizorii de evenimente
         </h1>
         <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground">
-          De la primul mesaj al unui potențial client până la recenzia finală
-          — fiecare etapă are un modul dedicat, conectat cu restul.
+          Lead → ofertă → contract → avans → proiect → eveniment → follow-up.
+          Module conectate, adaptate tipului tău de business.
         </p>
       </section>
 
@@ -174,10 +174,10 @@ export default function FeaturesPage() {
       <section className="border-t border-border px-6 py-20">
         <div className="surface-card glow-accent mx-auto max-w-4xl px-8 py-14 text-center">
           <h2 className="font-heading text-3xl font-medium text-foreground sm:text-4xl">
-            Vezi toate modulele în acțiune
+            Începe să lucrezi, nu să configurezi zile întregi
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
-            Creează un cont gratuit — nu ai nevoie de card bancar.
+            Cont gratuit, fără card pe planul Free.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button size="lg" render={<Link href="/register" />} nativeButton={false}>

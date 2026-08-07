@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
-import { APP_TAGLINE, SUPPORT_EMAIL } from "@/lib/constants";
+import { APP_TAGLINE, EASYWEDD_CONSUMER_URL, SUPPORT_EMAIL } from "@/lib/constants";
 
 const PRODUCT_LINKS = [
   { href: "/features", label: "Funcționalități" },
@@ -28,6 +28,14 @@ export function SiteFooter() {
           <div className="max-w-sm space-y-4">
             <BrandLogo href="/" size="sm" />
             <p className="text-sm text-muted-foreground">{APP_TAGLINE}</p>
+            <a
+              href={EASYWEDD_CONSUMER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block text-sm text-champagne-soft hover:text-champagne"
+            >
+              Pentru miri → EasyWedd
+            </a>
             <p className="text-sm text-muted-soft">
               <a href={`mailto:${SUPPORT_EMAIL}`} className="hover:text-foreground">
                 {SUPPORT_EMAIL}

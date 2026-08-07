@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 export const metadata: Metadata = {
   title: "Prețuri",
   description:
-    "Planuri simple pentru furnizori din industria evenimentelor. Începe gratuit, treci la un plan plătit când businessul tău crește.",
+    "Free, Solo, Studio și Agency — Business OS EasyWedd Pro pentru Weddings & Events. Începe gratuit, fără card pe planul Free.",
 };
 
 const COMPARISON_ROWS = [

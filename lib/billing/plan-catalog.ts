@@ -25,7 +25,7 @@ export const PLAN_CATALOG: PlanDefinition[] = [
     id: "free",
     name: "Free",
     priceMonthlyRon: 0,
-    description: "Pentru a testa fluxul de bază.",
+    description: "Testează workflow-ul.",
     features: [
       "5 leaduri active",
       "3 clienți",
@@ -49,7 +49,7 @@ export const PLAN_CATALOG: PlanDefinition[] = [
     id: "solo",
     name: "Solo",
     priceMonthlyRon: 79,
-    description: "Pentru freelanceri și furnizori independenți.",
+    description: "Pentru profesioniști independenți.",
     features: [
       "Leaduri nelimitate",
       "Clienți, oferte, contracte",
@@ -74,7 +74,7 @@ export const PLAN_CATALOG: PlanDefinition[] = [
     id: "studio",
     name: "Studio",
     priceMonthlyRon: 179,
-    description: "Pentru echipe și businessuri de evenimente în creștere.",
+    description: "Pentru echipe și businessuri în creștere.",
     features: [
       "Până la 5 utilizatori",
       "Automatizări",
@@ -99,7 +99,7 @@ export const PLAN_CATALOG: PlanDefinition[] = [
     id: "agency",
     name: "Agency",
     priceMonthlyRon: 349,
-    description: "Pentru agenții, locații și operațiuni cu mai multe echipe.",
+    description: "Pentru operațiuni complexe și mai multe echipe.",
     features: [
       "Până la 15 utilizatori",
       "Roluri avansate",
