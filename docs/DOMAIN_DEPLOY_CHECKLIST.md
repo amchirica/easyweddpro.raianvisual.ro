@@ -1,8 +1,11 @@
 # Domain & Cloudflare deploy checklist
 
-Worker name (from `wrangler.jsonc`): `easyweddpro-raianvisual`.
+Worker name (from `wrangler.jsonc`): `easyweddpro-raianvisual-ro`.
+Custom domain: `easyweddpro.raianvisual.ro` (`workers_dev` / `preview_urls` disabled).
 
 `NEXT_PUBLIC_APP_URL` alone does **not** make a hostname reachable. Firefox **Server Not Found** means DNS/deploy failed — it is not a Next.js 404.
+
+If the root returns plain-text `Hello world`, the hostname is bound to a Cloudflare starter Worker — not the OpenNext app. Fix by deploying this repo to `easyweddpro-raianvisual-ro` and ensuring the custom domain is on that Worker only.
 
 ## Steps (production)
 
@@ -11,11 +14,12 @@ Worker name (from `wrangler.jsonc`): `easyweddpro-raianvisual`.
    - Plan a record for `easyweddpro` (CNAME/AAAA as required by Workers custom domains)
 
 2. **Workers & Pages**
-   - Open the Worker `easyweddpro-raianvisual` (or the OpenNext deploy target)
+   - Open the Worker `easyweddpro-raianvisual-ro` (OpenNext deploy target from `wrangler.jsonc`)
+   - Remove or leave unused any demo/starter Worker that previously owned the hostname
 
 3. **Worker custom domains**
-   - Workers → your worker → Settings → Domains & Routes
-   - Add custom domain:
+   - Workers → `easyweddpro-raianvisual-ro` → Settings → Domains & Routes
+   - Custom domain (also declared in `wrangler.jsonc` `routes`):
 
    ```txt
    easyweddpro.raianvisual.ro
@@ -33,10 +37,9 @@ Worker name (from `wrangler.jsonc`): `easyweddpro-raianvisual`.
 
    ```bash
    npm run cf:build   # prefer WSL/CI on Windows if EBUSY on .open-next/assets
-   npx wrangler deploy --config wrangler.jsonc
+   npm run cf:deploy  # OpenNext deploy — do not use raw `wrangler deploy` for the app
    ```
 
-   Or `npm run cf:deploy`.
 
 7. **Health check**
 

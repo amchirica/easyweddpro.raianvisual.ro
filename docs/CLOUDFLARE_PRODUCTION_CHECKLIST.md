@@ -1,6 +1,7 @@
 # Cloudflare production checklist
 
-Worker name: `easyweddpro-raianvisual` (`wrangler.jsonc`).
+Worker name: `easyweddpro-raianvisual-ro` (`wrangler.jsonc`).
+Custom domain: `easyweddpro.raianvisual.ro` · `compatibility_date`: `2026-08-06` · cron: `0 * * * *`.
 
 ## Build & deploy
 
@@ -36,9 +37,9 @@ Set as encrypted secrets (never commit):
 | `NEXT_PUBLIC_APP_URL` | Canonical public origin |
 | `RESEND_API_KEY` / `RESEND_FROM_EMAIL` | Transactional email |
 | `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` | Billing |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Checkout UI |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Checkout UI (`pk_...` only) |
 | `CRON_SECRET` | Bearer for `/api/cron/automations` |
-| Price IDs (`STRIPE_PRICE_*`) | Plan catalog mapping |
+| Price IDs (`STRIPE_PRICE_*`) | Must be Stripe **Price** IDs (`price_...`), never Product IDs (`prod_...`) |
 
 ## Cron (native Cloudflare)
 
