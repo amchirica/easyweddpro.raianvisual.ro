@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, Check, CreditCard, Trash2, Upload, UserCog } from "lucide-react";
 
+import { useI18n } from "@/components/providers/i18n-provider";
 import { ModuleShell } from "@/components/shared/module-shell";
 import { useToast } from "@/components/shared/toast-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -105,6 +106,7 @@ export function SettingsPageClient({
   isOwner,
   transferTargets,
 }: SettingsPageClientProps) {
+  const { t } = useI18n();
   const [workspaceForm, setWorkspaceForm] = useState<WorkspaceFormValues>(initialWorkspace);
   const [fullName, setFullName] = useState(initialFullName);
   const [currentLogoUrl, setCurrentLogoUrl] = useState<string | null>(logoUrl);
@@ -281,8 +283,8 @@ export function SettingsPageClient({
 
   return (
     <ModuleShell
-      title="Setări"
-      description="Configurează workspace-ul, profilul și preferințele de notificare."
+      title={t("modules.settings.title")}
+      description={t("modules.settings.description")}
       actions={
         <Button
           type="button"
@@ -291,7 +293,7 @@ export function SettingsPageClient({
           nativeButton={false}
         >
           <CreditCard data-icon="inline-start" />
-          Facturare
+          {t("modules.billing.title")}
         </Button>
       }
     >

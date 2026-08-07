@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -68,6 +70,7 @@ type TemplatesListProps = {
 };
 
 export function TemplatesList({ initialTemplates, canWrite, error }: TemplatesListProps) {
+  const { t } = useI18n();
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<TemplateType | "all">("all");
   const [showArchived, setShowArchived] = useState(false);
@@ -113,14 +116,14 @@ export function TemplatesList({ initialTemplates, canWrite, error }: TemplatesLi
   }
 
   function handleDelete(template: TemplateListItem) {
-    if (!window.confirm(`Ștergi template-ul „${template.name}”? Această acțiune nu poate fi anulată.`)) return;
+    if (!window.confirm(t("modules.templates.deleteConfirm", { name: template.name }))) return;
     void runAction(template.id, () => softDeleteTemplateAction(template.id));
   }
 
   return (
     <ModuleShell
-      title="Template-uri"
-      description="Template-uri reutilizabile pentru oferte, contracte, emailuri, sarcini, proiecte, pipeline-uri și automatizări."
+      title={t("modules.templates.title")}
+      description={t("modules.templates.description")}
       actions={
         canWrite ? (
           <Button type="button" render={<Link href="/dashboard/templates/new" />} nativeButton={false}>
@@ -142,12 +145,12 @@ export function TemplatesList({ initialTemplates, canWrite, error }: TemplatesLi
 
         <div className="flex flex-wrap items-center gap-3">
           <label className="relative block max-w-sm flex-1">
-            <span className="sr-only">Căutare template-uri</span>
+            <span className="sr-only">{t("modules.templates.searchSr")}</span>
             <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Caută după nume sau categorie…"
+              placeholder={t("modules.templates.searchPlaceholder")}
               className="h-9 pl-9"
             />
           </label>
@@ -174,18 +177,18 @@ export function TemplatesList({ initialTemplates, canWrite, error }: TemplatesLi
             onClick={() => setShowArchived((current) => !current)}
           >
             <Archive data-icon="inline-start" />
-            {showArchived ? "Se văd arhivate" : "Vezi arhivate"}
+            {showArchived ? t("modules.templates.hidingArchived") : t("modules.templates.showArchived")}
           </Button>
         </div>
 
         {filtered.length === 0 ? (
           <EmptyState
             icon={FileStack}
-            title={showArchived ? "Nimic în arhivă" : "Niciun template încă"}
+            title={showArchived ? t("modules.templates.emptyArchive") : t("modules.templates.empty")}
             description={
               showArchived
                 ? "Template-urile arhivate apar aici."
-                : "Creează primul template pentru oferte, contracte, emailuri sau alte fluxuri."
+                : t("modules.templates.emptyHint")
             }
             action={
               !showArchived && canWrite ? (
@@ -258,7 +261,7 @@ export function TemplatesList({ initialTemplates, canWrite, error }: TemplatesLi
                             }
                           >
                             <Star data-icon="inline-start" />
-                            Setează implicit
+                            {t("modules.templates.setDefault")}
                           </DropdownMenuItem>
                         ) : null}
                         <DropdownMenuItem onClick={() => handleDuplicate(template)}>
@@ -273,7 +276,7 @@ export function TemplatesList({ initialTemplates, canWrite, error }: TemplatesLi
                             }
                           >
                             <ArchiveRestore data-icon="inline-start" />
-                            Restaurează din arhivă
+                            {t("modules.templates.restoreArchive")}
                           </DropdownMenuItem>
                         ) : (
                           <DropdownMenuItem

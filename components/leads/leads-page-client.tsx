@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { UserPlus } from "lucide-react";
 
+import { useI18n } from "@/components/providers/i18n-provider";
 import { DemoBanner } from "@/components/shared/demo-banner";
 import { ModuleShell } from "@/components/shared/module-shell";
 import { useToast } from "@/components/shared/toast-provider";
@@ -25,6 +26,7 @@ export function LeadsPageClient({
   currency = "RON",
   error,
 }: LeadsPageClientProps) {
+  const { t } = useI18n();
   const [createOpen, setCreateOpen] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -39,12 +41,12 @@ export function LeadsPageClient({
 
   return (
     <ModuleShell
-      title="Leaduri"
-      description="Urmărește și califică leadurile noi, de la primul contact până la contract semnat."
+      title={t("modules.leads.title")}
+      description={t("modules.leads.description")}
       actions={
         <Button type="button" onClick={handleCreateClick}>
           <UserPlus data-icon="inline-start" />
-          Lead nou
+          {t("modules.leads.new")}
         </Button>
       }
     >

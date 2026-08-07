@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { InviteMemberDialog } from "@/components/team/invite-member-dialog";
+import { useI18n } from "@/components/providers/i18n-provider";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ModuleShell } from "@/components/shared/module-shell";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -101,6 +102,7 @@ export function TeamPageClient({
   currentUserId,
   error,
 }: TeamPageClientProps) {
+  const { t } = useI18n();
   const [inviteOpen, setInviteOpen] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const router = useRouter();
@@ -127,7 +129,7 @@ export function TeamPageClient({
     let confirmOwnerTransfer = false;
     if (nextRole === "owner") {
       confirmOwnerTransfer = window.confirm(
-        `Confirmă transferul de proprietate: „${member.fullName ?? "acest membru"}” va deveni owner.`,
+        t("modules.team.transferConfirm", { name: member.fullName ?? t("modules.team.thisMember") }),
       );
       if (!confirmOwnerTransfer) return;
     }
@@ -156,13 +158,13 @@ export function TeamPageClient({
     const result = await resendInvitationAction(invitation.id);
     setBusyId(null);
     if (result?.error || !result?.data) {
-      toast(result?.error ?? "Nu am putut retrimite invitația.", "error");
+      toast(result?.error ?? t("modules.team.resendFailed"), "error");
       return;
     }
-    toast(result.success ?? "Invitație retrimisă.", "success");
+    toast(result.success ?? t("modules.team.resent"), "success");
     try {
       await navigator.clipboard.writeText(`${window.location.origin}${result.data.invitePath}`);
-      toast("Link nou copiat în clipboard.", "success");
+      toast(t("modules.team.newLinkCopied"), "success");
     } catch {
       // Clipboard optional — invitation was still rotated successfully.
     }
@@ -170,19 +172,19 @@ export function TeamPageClient({
   }
 
   function handleRevoke(invitation: TeamInvitationItem) {
-    if (!window.confirm(`Revoci invitația trimisă către ${invitation.email}?`)) return;
+    if (!window.confirm(t("modules.team.revokeConfirm", { email: invitation.email }))) return;
     void runAction(invitation.id, () => revokeInvitationAction(invitation.id));
   }
 
   return (
     <ModuleShell
-      title="Echipă"
-      description="Membrii echipei, rolurile lor și invitațiile în curs."
+      title={t("modules.team.title")}
+      description={t("modules.team.description")}
       actions={
         canManage ? (
           <Button type="button" onClick={() => setInviteOpen(true)}>
             <UserPlus data-icon="inline-start" />
-            Invită membru
+            {t("modules.team.invite")}
           </Button>
         ) : undefined
       }
@@ -200,14 +202,14 @@ export function TeamPageClient({
         {members.length === 0 ? (
           <EmptyState
             icon={UsersRound}
-            title="Nicio persoană în echipă"
-            description="Invită colegi pentru a colabora în workspace."
+            title={t("modules.team.empty")}
+            description={t("modules.team.emptyHint")}
           />
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {members.map((member) => {
               const isSelf = member.userId === currentUserId;
-              const displayName = member.fullName ?? "Membru fără profil";
+              const displayName = member.fullName ?? t("modules.team.memberNoProfile");
               return (
                 <div key={member.membershipId} className="surface-card flex flex-col gap-3 p-5">
                   <div className="flex items-start justify-between gap-3">
@@ -305,7 +307,7 @@ export function TeamPageClient({
                           <DropdownMenuSeparator />
                           <DropdownMenuItem variant="destructive" onClick={() => handleRemove(member)}>
                             <Trash2 data-icon="inline-start" />
-                            Elimină din workspace
+                            {t("modules.team.removeFromWorkspace")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -320,10 +322,10 @@ export function TeamPageClient({
         {canManage ? (
           <section className="space-y-3">
             <h2 className="font-heading text-lg font-medium text-foreground">
-              Invitații în curs ({invitations.length})
+              {t("modules.team.pendingInvites", { count: invitations.length })}
             </h2>
             {invitations.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Nicio invitație în curs.</p>
+              <p className="text-sm text-muted-foreground">{t("modules.team.noPendingInvites")}</p>
             ) : (
               <div className="surface-card divide-y divide-border overflow-hidden">
                 {invitations.map((invitation) => (
@@ -355,7 +357,7 @@ export function TeamPageClient({
                         size="icon-sm"
                         disabled={busyId === invitation.id}
                         onClick={() => handleRevoke(invitation)}
-                        aria-label="Revocă invitația"
+                        aria-label={t("modules.team.revokeAria")}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>

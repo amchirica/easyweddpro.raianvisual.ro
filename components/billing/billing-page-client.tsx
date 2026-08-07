@@ -13,6 +13,7 @@ import {
   Users,
 } from "lucide-react";
 
+import { useI18n } from "@/components/providers/i18n-provider";
 import { ModuleShell } from "@/components/shared/module-shell";
 import { StatCard } from "@/components/shared/stat-card";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -72,6 +73,7 @@ export function BillingPageClient({
   limits,
   subscription,
 }: BillingPageClientProps) {
+  const { t } = useI18n();
   const { toast } = useToast();
   const [billingInterval, setBillingInterval] = useState<"month" | "year">(
     subscription.billingInterval ?? "month",
@@ -108,8 +110,8 @@ export function BillingPageClient({
 
   return (
     <ModuleShell
-      title="Facturare"
-      description="Planul curent, utilizarea workspace-ului și abonamentul Stripe."
+      title={t("modules.billing.title")}
+      description={t("modules.billing.description")}
     >
       <div className="space-y-8">
         {!isStripeConfigured ? (

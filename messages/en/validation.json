@@ -1,0 +1,7 @@
+{
+  "required": "Required field",
+  "email": "Invalid email",
+  "min": "Too short",
+  "max": "Too long",
+  "generic": "Invalid data"
+}

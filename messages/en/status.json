@@ -1,0 +1,105 @@
+{
+  "lead": {
+    "new": "New lead",
+    "contacted": "Contacted",
+    "qualified": "Qualified",
+    "proposal_sent": "Proposal sent",
+    "negotiation": "Negotiation",
+    "won": "Won",
+    "lost": "Lost"
+  },
+  "client": {
+    "active": "Active",
+    "past": "Past",
+    "lead_converted": "Converted from lead"
+  },
+  "proposal": {
+    "draft": "Draft",
+    "sent": "Sent",
+    "viewed": "Viewed",
+    "accepted": "Accepted",
+    "declined": "Declined",
+    "rejected": "Rejected",
+    "expired": "Expired",
+    "cancelled": "Cancelled"
+  },
+  "contract": {
+    "draft": "Draft",
+    "published": "Published",
+    "sent": "Sent",
+    "viewed": "Viewed",
+    "accepted": "Accepted",
+    "declined": "Declined",
+    "expired": "Expired",
+    "cancelled": "Cancelled",
+    "superseded": "Superseded"
+  },
+  "project": {
+    "booked": "Booked",
+    "prep": "Prep",
+    "logistics": "Logistics",
+    "event_done": "Event done",
+    "follow_up": "Follow-up",
+    "backup": "Backup",
+    "selection": "Selection",
+    "photo_edit": "Photo edit",
+    "video_edit": "Video edit",
+    "album": "Album",
+    "review": "Review",
+    "delivery": "Delivery",
+    "completed": "Completed",
+    "active": "Active",
+    "on_hold": "On hold",
+    "cancelled": "Cancelled"
+  },
+  "task": {
+    "todo": "To do",
+    "in_progress": "In progress",
+    "blocked": "Blocked",
+    "done": "Done",
+    "cancelled": "Cancelled",
+    "unassigned": "Unassigned"
+  },
+  "priority": {
+    "low": "Low",
+    "normal": "Normal",
+    "high": "High",
+    "urgent": "Urgent"
+  },
+  "paymentMethod": {
+    "cash": "Cash",
+    "bank_transfer": "Bank transfer",
+    "card": "Card",
+    "online": "Online",
+    "other": "Other"
+  },
+  "payment": {
+    "pending": "Pending",
+    "partial": "Partial",
+    "paid": "Paid",
+    "overdue": "Overdue",
+    "cancelled": "Cancelled",
+    "refunded": "Refunded"
+  },
+  "subscription": {
+    "active": "Active",
+    "trialing": "Trialing",
+    "past_due": "Past due",
+    "canceled": "Canceled",
+    "incomplete": "Incomplete"
+  },
+  "role": {
+    "owner": "Owner",
+    "admin": "Admin",
+    "manager": "Manager",
+    "sales": "Sales",
+    "editor": "Editor",
+    "collaborator": "Collaborator",
+    "viewer": "Viewer"
+  },
+  "calendar": {
+    "confirmed": "Confirmed",
+    "tentative": "Tentative",
+    "cancelled": "Cancelled"
+  }
+}

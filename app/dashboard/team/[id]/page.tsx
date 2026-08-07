@@ -12,6 +12,7 @@ import {
 import type { WorkspaceRole } from "@/lib/constants";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { getWorkspaceOrDemo } from "@/lib/workspace/session";
+import { getTranslator } from "@/lib/i18n/t";
 
 type TeamMemberPageParams = { id: string };
 
@@ -24,6 +25,7 @@ export default async function TeamMemberPage({
 }: {
   params: Promise<TeamMemberPageParams>;
 }) {
+  const { t } = await getTranslator();
   const { id } = await params;
   const ctx = await getWorkspaceOrDemo();
 
@@ -40,8 +42,8 @@ export default async function TeamMemberPage({
 
   return (
     <ModuleShell
-      title={member.fullName ?? "Membru echipă"}
-      description="Rol, status și volum de lucru curent."
+      title={member.fullName ?? t("modules.team.memberFallback")}
+      description={t("modules.team.descriptionMember")}
     >
       <MemberDetail
         member={{

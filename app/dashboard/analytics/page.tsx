@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { fetchWorkspaceAnalyticsSummary, type WorkspaceAnalyticsSummary } from "@/lib/data/analytics";
 import { formatCurrency } from "@/lib/format";
+import { getTranslator } from "@/lib/i18n/t";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { requireWorkspace } from "@/lib/workspace/session";
 
@@ -22,13 +23,21 @@ type AnalyticsPageProps = {
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-function CurrencyBreakdown({ title, map }: { title: string; map: Record<string, number> }) {
+function CurrencyBreakdown({
+  title,
+  map,
+  emptyLabel,
+}: {
+  title: string;
+  map: Record<string, number>;
+  emptyLabel: string;
+}) {
   const entries = Object.entries(map);
   return (
     <div className="surface-card p-5">
       <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">{title}</p>
       {entries.length === 0 ? (
-        <p className="mt-3 text-sm text-muted-soft">Fără date pentru perioada selectată.</p>
+        <p className="mt-3 text-sm text-muted-soft">{emptyLabel}</p>
       ) : (
         <div className="mt-3 space-y-1.5">
           {entries.map(([currency, value]) => (
@@ -43,15 +52,23 @@ function CurrencyBreakdown({ title, map }: { title: string; map: Record<string, 
   );
 }
 
-function LeadSourcesBreakdown({ map }: { map: Record<string, number> }) {
+function LeadSourcesBreakdown({
+  map,
+  title,
+  emptyLabel,
+}: {
+  map: Record<string, number>;
+  title: string;
+  emptyLabel: string;
+}) {
   const entries = Object.entries(map).sort((a, b) => b[1] - a[1]);
   const max = entries.reduce((acc, [, value]) => Math.max(acc, value), 0);
 
   return (
     <div className="surface-card p-6">
-      <p className="font-heading text-lg font-medium text-foreground">Leaduri pe sursă</p>
+      <p className="font-heading text-lg font-medium text-foreground">{title}</p>
       {entries.length === 0 ? (
-        <p className="mt-3 text-sm text-muted-soft">Fără leaduri în perioada selectată.</p>
+        <p className="mt-3 text-sm text-muted-soft">{emptyLabel}</p>
       ) : (
         <div className="mt-5 space-y-4">
           {entries.map(([source, count]) => (
@@ -88,6 +105,7 @@ function isEmptySummary(summary: WorkspaceAnalyticsSummary): boolean {
 }
 
 export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps) {
+  const { t } = await getTranslator();
   const ctx = await requireWorkspace();
   const permissions = permissionsForRole(ctx.role);
   const params = await searchParams;
@@ -95,13 +113,13 @@ export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps
   if (!permissions.canReadAnalytics) {
     return (
       <ModuleShell
-        title="Analytics"
-        description="Indicatori de performanță pentru vânzări, venituri și surse de leaduri."
+        title={t("modules.analytics.title")}
+        description={t("modules.analytics.description")}
       >
         <EmptyState
           icon={Lock}
-          title="Nu ai permisiunea necesară"
-          description="Contactează un administrator al workspace-ului pentru acces la analytics."
+          title={t("modules.analytics.noPermission")}
+          description={t("modules.analytics.noPermissionHint")}
         />
       </ModuleShell>
     );
@@ -116,69 +134,91 @@ export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps
   try {
     summary = await fetchWorkspaceAnalyticsSummary(ctx.supabase, ctx.activeWorkspace.id, { from, to });
   } catch (error) {
-    loadError = error instanceof Error ? error.message : "Nu am putut încărca analytics.";
+    loadError = error instanceof Error ? error.message : t("common.loadFailed");
   }
+
+  const periodLabel =
+    from || to
+      ? t("modules.analytics.periodRange", {
+          from: from ?? t("modules.analytics.periodStart"),
+          to: to ?? t("modules.analytics.periodToday"),
+        })
+      : t("modules.analytics.periodDefault");
 
   return (
     <ModuleShell
-      title="Analytics"
-      description="Indicatori de performanță pentru vânzări, venituri și surse de leaduri."
+      title={t("modules.analytics.title")}
+      description={t("modules.analytics.description")}
     >
       <div className="space-y-6">
         <form method="get" className="surface-card flex flex-wrap items-end gap-3 p-4">
           <div className="space-y-1.5">
-            <Label htmlFor="analytics-from">De la</Label>
+            <Label htmlFor="analytics-from">{t("modules.analytics.from")}</Label>
             <Input id="analytics-from" type="date" name="from" defaultValue={from ?? ""} className="h-9 w-40" />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="analytics-to">Până la</Label>
+            <Label htmlFor="analytics-to">{t("modules.analytics.to")}</Label>
             <Input id="analytics-to" type="date" name="to" defaultValue={to ?? ""} className="h-9 w-40" />
           </div>
           <Button type="submit" size="sm">
-            Filtrează
+            {t("modules.analytics.filter")}
           </Button>
           {from || to ? (
             <Button type="button" variant="ghost" size="sm" render={<a href="/dashboard/analytics" />} nativeButton={false}>
-              Resetează
+              {t("modules.analytics.reset")}
             </Button>
           ) : null}
-          <p className="ml-auto text-xs text-muted-soft">
-            {from || to ? `Perioadă: ${from ?? "început"} – ${to ?? "azi"}` : "Implicit: ultimele 90 de zile"}
-          </p>
+          <p className="ml-auto text-xs text-muted-soft">{periodLabel}</p>
         </form>
 
         {loadError ? (
           <EmptyState
             icon={BarChart3}
-            title="Analytics indisponibil"
+            title={t("modules.analytics.unavailable")}
             description={loadError}
           />
         ) : summary ? (
           <>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <StatCard label="Leaduri noi" value={summary.leadsCreated.toString()} icon={UserPlus} />
-              <StatCard label="Oferte trimise" value={summary.proposalsSent.toString()} icon={FileText} />
-              <StatCard label="Oferte acceptate" value={summary.proposalsAccepted.toString()} icon={TrendingUp} />
-              <StatCard label="Contracte create" value={summary.contractsCreated.toString()} icon={ScrollText} />
-              <StatCard label="Contracte acceptate" value={summary.contractsAccepted.toString()} icon={ScrollText} />
-              <StatCard label="Proiecte active" value={summary.activeProjects.toString()} icon={BarChart3} />
-              <StatCard label="Task-uri întârziate" value={summary.overdueTasks.toString()} icon={CalendarClock} />
-              <StatCard label="Evenimente în 30 zile" value={summary.upcomingEvents.toString()} icon={CalendarClock} />
+              <StatCard label={t("modules.analytics.newLeads")} value={summary.leadsCreated.toString()} icon={UserPlus} />
+              <StatCard label={t("modules.analytics.proposalsSent")} value={summary.proposalsSent.toString()} icon={FileText} />
+              <StatCard label={t("modules.analytics.proposalsAccepted")} value={summary.proposalsAccepted.toString()} icon={TrendingUp} />
+              <StatCard label={t("modules.analytics.contractsCreated")} value={summary.contractsCreated.toString()} icon={ScrollText} />
+              <StatCard label={t("modules.analytics.contractsAccepted")} value={summary.contractsAccepted.toString()} icon={ScrollText} />
+              <StatCard label={t("modules.analytics.activeProjects")} value={summary.activeProjects.toString()} icon={BarChart3} />
+              <StatCard label={t("modules.analytics.overdueTasks")} value={summary.overdueTasks.toString()} icon={CalendarClock} />
+              <StatCard label={t("modules.analytics.upcomingEvents")} value={summary.upcomingEvents.toString()} icon={CalendarClock} />
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <CurrencyBreakdown title="Valoare contractată (acceptate)" map={summary.contractedByCurrency} />
-              <CurrencyBreakdown title="Încasat" map={summary.collectedByCurrency} />
-              <CurrencyBreakdown title="Restant de încasat" map={summary.outstandingByCurrency} />
+              <CurrencyBreakdown
+                title={t("modules.analytics.contractedValue")}
+                map={summary.contractedByCurrency}
+                emptyLabel={t("modules.analytics.noDataPeriod")}
+              />
+              <CurrencyBreakdown
+                title={t("modules.analytics.collected")}
+                map={summary.collectedByCurrency}
+                emptyLabel={t("modules.analytics.noDataPeriod")}
+              />
+              <CurrencyBreakdown
+                title={t("modules.analytics.outstanding")}
+                map={summary.outstandingByCurrency}
+                emptyLabel={t("modules.analytics.noDataPeriod")}
+              />
             </div>
 
-            <LeadSourcesBreakdown map={summary.leadsBySource} />
+            <LeadSourcesBreakdown
+              map={summary.leadsBySource}
+              title={t("modules.analytics.leadsBySource")}
+              emptyLabel={t("modules.analytics.noLeadsPeriod")}
+            />
 
             {isEmptySummary(summary) ? (
               <EmptyState
                 icon={Wallet}
-                title="Fără date de analytics pentru această perioadă"
-                description="Indicatorii vor apărea pe măsură ce adaugi leaduri, oferte, contracte și plăți."
+                title={t("modules.analytics.empty")}
+                description={t("modules.analytics.emptyHint")}
               />
             ) : null}
           </>

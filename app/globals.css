@@ -55,7 +55,50 @@
 }
 
 :root {
-  /* EasyWedd Pro — cinematic dark + champagne (aligned with Raian Fine Arts / EasyWedd) */
+  /* EasyWedd Pro — warm premium light (default tokens; .dark overrides) */
+  --background: #f7f3eb;
+  --background-secondary: #efe8dc;
+  --foreground: #1a1814;
+  --card: #fffcf7;
+  --card-foreground: #1a1814;
+  --popover: #fffcf7;
+  --popover-foreground: #1a1814;
+  --primary: #b8954f;
+  --primary-foreground: #1a1814;
+  --secondary: #efe8dc;
+  --secondary-foreground: #1a1814;
+  --muted: #ebe4d8;
+  --muted-foreground: #6b6560;
+  --accent: #c6a76a;
+  --accent-foreground: #1a1814;
+  --destructive: #c45c5c;
+  --border: rgba(26, 24, 20, 0.1);
+  --input: rgba(26, 24, 20, 0.12);
+  --ring: #c6a76a;
+  --champagne: #c6a76a;
+  --champagne-soft: #a8894a;
+  --success: #3d9a6a;
+  --warning: #c4922e;
+  --surface: #fffcf7;
+  --surface-elevated: #f3ede3;
+  --chart-1: #b8954f;
+  --chart-2: #8a7a66;
+  --chart-3: #3d9a6a;
+  --chart-4: #6b6560;
+  --chart-5: #c6a76a;
+  --radius: 0.9rem;
+  --sidebar: #f0e9dd;
+  --sidebar-foreground: #1a1814;
+  --sidebar-primary: #b8954f;
+  --sidebar-primary-foreground: #1a1814;
+  --sidebar-accent: rgba(198, 167, 106, 0.18);
+  --sidebar-accent-foreground: #6b5320;
+  --sidebar-border: rgba(26, 24, 20, 0.1);
+  --sidebar-ring: #c6a76a;
+}
+
+.dark {
+  /* EasyWedd Pro — cinematic dark + champagne */
   --background: #0b0b0c;
   --background-secondary: #111214;
   --foreground: #f5f2ec;
@@ -86,7 +129,6 @@
   --chart-3: #62b58c;
   --chart-4: #8a7a66;
   --chart-5: #77746e;
-  --radius: 0.9rem;
   --sidebar: #111214;
   --sidebar-foreground: #f5f2ec;
   --sidebar-primary: #c6a76a;
@@ -105,9 +147,15 @@
   body {
     @apply bg-background text-foreground antialiased;
     background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(198, 167, 106, 0.12), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgba(26, 24, 20, 0.04), transparent);
+    background-attachment: fixed;
+  }
+
+  .dark body {
+    background-image:
       radial-gradient(ellipse 80% 50% at 50% -20%, rgba(198, 167, 106, 0.08), transparent),
       radial-gradient(ellipse 60% 40% at 100% 0%, rgba(255, 255, 255, 0.03), transparent);
-    background-attachment: fixed;
   }
 
   html {
@@ -133,19 +181,29 @@
   }
 
   .surface-card {
+    background: rgba(26, 24, 20, 0.03);
+    border: 1px solid rgba(26, 24, 20, 0.1);
+    border-radius: 18px;
+    box-shadow: 0 12px 40px rgba(26, 24, 20, 0.06);
+  }
+
+  .dark .surface-card {
     background: rgba(255, 255, 255, 0.025);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 18px;
     box-shadow: 0 18px 60px rgba(0, 0, 0, 0.18);
   }
 
   .surface-elevated {
     background: var(--surface-elevated);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border);
     border-radius: 18px;
   }
 
   .text-muted-soft {
+    color: #8a8278;
+  }
+
+  .dark .text-muted-soft {
     color: #77746e;
   }
 

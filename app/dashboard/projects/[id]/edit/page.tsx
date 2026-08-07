@@ -8,6 +8,7 @@ import { getProjectById, type ProjectDetail as ProjectDetailRow } from "@/lib/da
 import { type ProjectStatus } from "@/lib/constants";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { getWorkspaceOrDemo } from "@/lib/workspace/session";
+import { getTranslator } from "@/lib/i18n/t";
 
 type ProjectEditPageParams = { id: string };
 
@@ -41,6 +42,7 @@ export default async function ProjectEditPage({
 }: {
   params: Promise<ProjectEditPageParams>;
 }) {
+  const { t } = await getTranslator();
   const { id } = await params;
   const projectId = typeof id === "string" ? id.trim() : "";
 
@@ -64,7 +66,10 @@ export default async function ProjectEditPage({
   const clients = clientRows.map((client) => ({ id: client.id, name: client.name }));
 
   return (
-    <ModuleShell title={`Editează ${row.name}`} description={row.clientName ?? "Proiect"}>
+    <ModuleShell
+      title={t("modules.projects.editTitle", { name: row.name })}
+      description={row.clientName ?? t("modules.projects.title")}
+    >
       <ProjectForm
         mode="edit"
         projectId={row.id}

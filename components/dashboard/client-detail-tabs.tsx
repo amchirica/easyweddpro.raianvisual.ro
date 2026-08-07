@@ -16,13 +16,13 @@ import {
   Wallet,
 } from "lucide-react";
 
+import { useI18n } from "@/components/providers/i18n-provider";
 import { EmptyState } from "@/components/shared/empty-state";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { useToast } from "@/components/shared/toast-provider";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { updateClientAction } from "@/lib/actions/clients";
-import { PROJECT_STATUS_LABELS } from "@/lib/constants";
 import type { ActivityViewModel, ClientViewModel } from "@/lib/crm/mappers";
 import type { DemoContract, DemoPayment, DemoProject } from "@/lib/demo/fixtures";
 import { formatCurrency, formatDate } from "@/lib/format";
@@ -39,30 +39,14 @@ type ClientDetailTabsProps = {
   mode: "live" | "demo";
 };
 
-const CLIENT_STATUS_LABELS: Record<string, string> = {
-  active: "Activ",
-  past: "Finalizat",
-  lead_converted: "Convertit din lead",
-};
-
-const SECTIONS: { id: SectionId; label: string; icon: typeof Contact }[] = [
-  { id: "contact", label: "Contact", icon: Contact },
-  { id: "projects", label: "Proiecte", icon: FolderKanban },
-  { id: "contracts", label: "Contracte", icon: ScrollText },
-  { id: "payments", label: "Plăți", icon: Wallet },
-  { id: "notes", label: "Notițe", icon: StickyNote },
-  { id: "activity", label: "Activitate", icon: ActivityIcon },
+const SECTIONS: { id: SectionId; labelKey: string; icon: typeof Contact }[] = [
+  { id: "contact", labelKey: "modules.clients.tabContact", icon: Contact },
+  { id: "projects", labelKey: "modules.projects.title", icon: FolderKanban },
+  { id: "contracts", labelKey: "modules.contracts.title", icon: ScrollText },
+  { id: "payments", labelKey: "modules.payments.title", icon: Wallet },
+  { id: "notes", labelKey: "modules.clients.tabNotes", icon: StickyNote },
+  { id: "activity", labelKey: "dashboard.recentActivity", icon: ActivityIcon },
 ];
-
-const CONTRACT_STATUS_LABELS: Record<DemoContract["status"], string> = {
-  draft: "Ciornă",
-  published: "Publicat",
-  viewed: "Vizualizat",
-  accepted: "Acceptat",
-  expired: "Expirat",
-  cancelled: "Anulat",
-  superseded: "Înlocuit",
-};
 
 const CONTRACT_STATUS_TONE: Record<
   DemoContract["status"],
@@ -75,15 +59,6 @@ const CONTRACT_STATUS_TONE: Record<
   expired: "neutral",
   cancelled: "danger",
   superseded: "neutral",
-};
-
-const PAYMENT_STATUS_LABELS: Record<DemoPayment["status"], string> = {
-  pending: "În așteptare",
-  partial: "Parțial",
-  paid: "Plătit",
-  overdue: "Întârziat",
-  cancelled: "Anulat",
-  refunded: "Rambursat",
 };
 
 const PAYMENT_STATUS_TONE: Record<
@@ -106,6 +81,7 @@ export function ClientDetailTabs({
   activity,
   mode,
 }: ClientDetailTabsProps) {
+  const { t } = useI18n();
   const [active, setActive] = useState<SectionId>("contact");
   const [notes, setNotes] = useState(client.notes);
   const [savingNotes, setSavingNotes] = useState(false);
@@ -137,9 +113,9 @@ export function ClientDetailTabs({
         setSavingNotes(false);
         return;
       }
-      toast(result?.success ?? "Notițe salvate.", "success");
+      toast(result?.success ?? t("modules.clients.notesSaved"), "success");
     } else {
-      toast("Notițe salvate (mod demo).", "success");
+      toast(t("modules.clients.notesSavedDemo"), "success");
     }
 
     setSavingNotes(false);
@@ -165,7 +141,7 @@ export function ClientDetailTabs({
               aria-pressed={isActive}
             >
               <Icon className="h-4 w-4" aria-hidden />
-              {section.label}
+              {t(section.labelKey)}
             </button>
           );
         })}
@@ -176,9 +152,12 @@ export function ClientDetailTabs({
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-2">
               <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                Date de contact
+                {t("modules.clients.contactDetails")}
               </p>
-              <StatusBadge label={CLIENT_STATUS_LABELS[client.status] ?? client.status} tone="accent" />
+              <StatusBadge
+                label={t(`status.client.${client.status}`)}
+                tone="accent"
+              />
             </div>
             <p className="flex items-center gap-2 text-sm text-foreground">
               <Mail className="h-4 w-4 text-champagne" aria-hidden />
@@ -195,13 +174,13 @@ export function ClientDetailTabs({
           </div>
           <div className="space-y-3">
             <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-              Eveniment
+              {t("modules.clients.event")}
             </p>
             <p className="flex items-center gap-2 text-sm text-foreground">
               <CalendarDays className="h-4 w-4 text-champagne" aria-hidden />
               {client.eventType || "—"} · {client.eventDate ? formatDate(client.eventDate) : "—"}
             </p>
-            <p className="text-sm text-muted-foreground">Valoare totală</p>
+            <p className="text-sm text-muted-foreground">{t("common.totalValue")}</p>
             <p className="font-heading text-2xl font-medium text-champagne">
               {formatCurrency(client.totalValue)}
             </p>
@@ -212,7 +191,7 @@ export function ClientDetailTabs({
               render={<Link href={`/dashboard/proposals/new?clientId=${client.id}`} />} nativeButton={false}
             >
               <FileText data-icon="inline-start" />
-              Creează ofertă
+              {t("modules.proposals.new")}
             </Button>
           </div>
         </div>
@@ -222,8 +201,8 @@ export function ClientDetailTabs({
         projects.length === 0 ? (
           <EmptyState
             icon={FolderKanban}
-            title="Niciun proiect"
-            description="Acest client nu are proiecte active încă."
+            title={t("modules.projects.empty")}
+            description={t("modules.clients.noProjects")}
           />
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -231,10 +210,10 @@ export function ClientDetailTabs({
               <div key={project.id} className="surface-card space-y-3 p-5">
                 <div className="flex items-start justify-between gap-2">
                   <p className="font-medium text-foreground">{project.name}</p>
-                  <StatusBadge label={PROJECT_STATUS_LABELS[project.status]} tone="accent" />
+                  <StatusBadge label={t(`status.project.${project.status}`)} tone="accent" />
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Termen livrare: {formatDate(project.deadline)}
+                  {t("modules.clients.deliveryDeadline")}: {formatDate(project.deadline)}
                 </p>
                 <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
                   <div
@@ -242,7 +221,9 @@ export function ClientDetailTabs({
                     style={{ width: `${project.progress}%` }}
                   />
                 </div>
-                <p className="text-xs text-muted-soft">{project.progress}% finalizat</p>
+                <p className="text-xs text-muted-soft">
+                  {t("common.completedPercent", { percent: project.progress })}
+                </p>
               </div>
             ))}
           </div>
@@ -253,8 +234,8 @@ export function ClientDetailTabs({
         contracts.length === 0 ? (
           <EmptyState
             icon={ScrollText}
-            title="Niciun contract"
-            description="Nu există contracte semnate pentru acest client."
+            title={t("modules.contracts.empty")}
+            description={t("modules.clients.noContracts")}
           />
         ) : (
           <div className="surface-card divide-y divide-border">
@@ -266,13 +247,15 @@ export function ClientDetailTabs({
                 <div>
                   <p className="text-sm font-medium text-foreground">{contract.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {contract.signedAt ? `Semnat ${formatDate(contract.signedAt)}` : "Nesemnat"}
+                    {contract.signedAt
+                      ? `${t("common.signed")} ${formatDate(contract.signedAt)}`
+                      : t("common.unsigned")}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-champagne">{formatCurrency(contract.amount)}</span>
                   <StatusBadge
-                    label={CONTRACT_STATUS_LABELS[contract.status]}
+                    label={t(`status.contract.${contract.status}`)}
                     tone={CONTRACT_STATUS_TONE[contract.status]}
                   />
                 </div>
@@ -286,8 +269,8 @@ export function ClientDetailTabs({
         payments.length === 0 ? (
           <EmptyState
             icon={Wallet}
-            title="Nicio plată"
-            description="Nu există plăți înregistrate pentru acest client."
+            title={t("modules.payments.empty")}
+            description={t("modules.clients.noPayments")}
           />
         ) : (
           <div className="surface-card divide-y divide-border">
@@ -302,7 +285,7 @@ export function ClientDetailTabs({
                 <div>
                   <p className="text-sm font-medium text-foreground">{payment.label}</p>
                   <p className="text-xs text-muted-foreground">
-                    Scadență {formatDate(payment.dueDate)}
+                    {t("common.dueDate")} {formatDate(payment.dueDate)}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -310,7 +293,7 @@ export function ClientDetailTabs({
                     {formatCurrency(payment.paidAmount)} / {formatCurrency(payment.amount)}
                   </span>
                   <StatusBadge
-                    label={PAYMENT_STATUS_LABELS[payment.status]}
+                    label={t(`status.payment.${payment.status}`)}
                     tone={PAYMENT_STATUS_TONE[payment.status]}
                   />
                 </div>
@@ -323,20 +306,20 @@ export function ClientDetailTabs({
       {active === "notes" ? (
         <div className="surface-card space-y-3 p-5">
           <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-            Notițe interne
+            {t("modules.clients.internalNotes")}
           </p>
           <Textarea
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
             rows={6}
-            placeholder="Adaugă notițe despre acest client…"
+            placeholder={t("modules.clients.notesPlaceholder")}
           />
           <div className="flex items-center justify-between gap-3">
             <p className="text-xs text-muted-soft">
-              Notițele sunt vizibile doar echipei tale, nu și clientului.
+              {t("modules.clients.notesPrivate")}
             </p>
             <Button type="button" size="sm" onClick={handleSaveNotes} disabled={savingNotes}>
-              {savingNotes ? "Se salvează…" : "Salvează notițe"}
+              {savingNotes ? t("common.saving") : t("modules.clients.saveNotes")}
             </Button>
           </div>
         </div>
@@ -346,8 +329,8 @@ export function ClientDetailTabs({
         activity.length === 0 ? (
           <EmptyState
             icon={ActivityIcon}
-            title="Fără activitate"
-            description="Nu există evenimente recente pentru acest client."
+            title={t("modules.clients.noActivity")}
+            description={t("modules.clients.noActivityHint")}
           />
         ) : (
           <ul className="surface-card divide-y divide-border">

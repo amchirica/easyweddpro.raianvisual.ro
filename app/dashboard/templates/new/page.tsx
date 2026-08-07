@@ -8,22 +8,24 @@ import { ModuleShell } from "@/components/shared/module-shell";
 import { Button } from "@/components/ui/button";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { getWorkspaceOrDemo } from "@/lib/workspace/session";
+import { getTranslator } from "@/lib/i18n/t";
 
 export const metadata: Metadata = {
   title: "Template nou · EasyWedd Pro",
 };
 
 export default async function NewTemplatePage() {
+  const { t } = await getTranslator();
   const ctx = await getWorkspaceOrDemo();
   const permissions = permissionsForRole(ctx.role);
 
   if (!permissions.canWriteTemplates) {
     return (
-      <ModuleShell title="Template nou" description="Creează un template reutilizabil pentru workspace.">
+      <ModuleShell title={t("modules.templates.new")} description={t("modules.templates.description")}>
         <EmptyState
           icon={Lock}
-          title="Nu ai permisiunea necesară"
-          description="Contactează un administrator al workspace-ului pentru acces la crearea template-urilor."
+          title={t("modules.permissionDenied")}
+          description={t("modules.permissionDeniedHint")}
           action={
             <Button
               type="button"
@@ -31,7 +33,7 @@ export default async function NewTemplatePage() {
               render={<Link href="/dashboard/templates" />}
               nativeButton={false}
             >
-              Înapoi la template-uri
+              {t("modules.backToList")}
             </Button>
           }
         />
@@ -40,7 +42,7 @@ export default async function NewTemplatePage() {
   }
 
   return (
-    <ModuleShell title="Template nou" description="Creează un template reutilizabil pentru workspace.">
+    <ModuleShell title={t("modules.templates.new")} description={t("modules.templates.description")}>
       <TemplateForm mode="create" />
     </ModuleShell>
   );

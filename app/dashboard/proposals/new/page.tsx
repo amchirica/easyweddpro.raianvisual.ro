@@ -10,6 +10,7 @@ import { listClients } from "@/lib/data/clients";
 import { listLeads } from "@/lib/data/leads";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { getWorkspaceOrDemo } from "@/lib/workspace/session";
+import { getTranslator } from "@/lib/i18n/t";
 
 export const metadata: Metadata = {
   title: "Ofertă nouă · EasyWedd Pro",
@@ -20,6 +21,7 @@ type NewProposalPageProps = {
 };
 
 export default async function NewProposalPage({ searchParams }: NewProposalPageProps) {
+  const { t } = await getTranslator();
   const { leadId, clientId } = await searchParams;
   const ctx = await getWorkspaceOrDemo();
 
@@ -28,16 +30,16 @@ export default async function NewProposalPage({ searchParams }: NewProposalPageP
   if (!permissions.canWriteProposals) {
     return (
       <ModuleShell
-        title="Ofertă nouă"
-        description="Creează o ofertă nouă pentru un client sau un lead."
+        title={t("modules.proposals.new")}
+        description={t("modules.proposals.description")}
       >
         <EmptyState
           icon={Lock}
-          title="Nu ai permisiunea necesară"
-          description="Contactează un administrator al workspace-ului pentru acces la crearea ofertelor."
+          title={t("modules.permissionDenied")}
+          description={t("modules.permissionDeniedHint")}
           action={
             <Button type="button" variant="outline" render={<Link href="/dashboard/proposals" />} nativeButton={false}>
-              Înapoi la oferte
+              {t("modules.backToList")}
             </Button>
           }
         />
@@ -54,7 +56,7 @@ export default async function NewProposalPage({ searchParams }: NewProposalPageP
   const leads = leadsResult.leads.map((lead) => ({ id: lead.id, name: lead.name }));
 
   return (
-    <ModuleShell title="Ofertă nouă" description="Creează o ofertă nouă pentru un client sau un lead.">
+    <ModuleShell title={t("modules.proposals.new")} description={t("modules.proposals.description")}>
       <ProposalForm
         mode="create"
         clients={clients}

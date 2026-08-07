@@ -1,9 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Source_Sans_3 } from "next/font/google";
+import Script from "next/script";
 
 import { RegisterServiceWorker } from "@/components/pwa/register-sw";
+import { AppProviders } from "@/components/providers/app-providers";
 import { ToastProvider } from "@/components/shared/toast-provider";
 import { APP_NAME, APP_SEO_DESCRIPTION, APP_TAGLINE } from "@/lib/constants";
+import { getRequestLocale } from "@/lib/i18n/get-locale";
+import { getRequestTheme, themeAntiFlashScript } from "@/lib/i18n/get-theme";
 import { getSiteUrl } from "@/lib/url";
 
 import "./globals.css";
@@ -16,7 +20,6 @@ const sourceSans = Source_Sans_3({
 const cormorant = Cormorant_Garamond({
   variable: "--font-heading",
   subsets: ["latin", "latin-ext"],
-  // Used weights: normal (400), medium (500), semibold (600)
   weight: ["400", "500", "600"],
 });
 
@@ -55,24 +58,39 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b0b0c",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0b0b0c" },
+    { media: "(prefers-color-scheme: light)", color: "#f7f3eb" },
+  ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [locale, theme] = await Promise.all([getRequestLocale(), getRequestTheme()]);
+
   return (
     <html
-      lang="ro"
-      className={`${sourceSans.variable} ${cormorant.variable} dark h-full antialiased`}
+      lang={locale}
+      className={`${sourceSans.variable} ${cormorant.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        <Script
+          id="ewp-theme-anti-flash"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: themeAntiFlashScript(theme) }}
+        />
+      </head>
       <body className="flex min-h-full flex-col font-sans">
-        <ToastProvider>
-          {children}
-          <RegisterServiceWorker />
-        </ToastProvider>
+        <AppProviders locale={locale} theme={theme}>
+          <ToastProvider>
+            {children}
+            <RegisterServiceWorker />
+          </ToastProvider>
+        </AppProviders>
       </body>
     </html>
   );

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { listClients } from "@/lib/data/clients";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { getWorkspaceOrDemo } from "@/lib/workspace/session";
+import { getTranslator } from "@/lib/i18n/t";
 
 export const metadata: Metadata = {
   title: "Proiect nou · EasyWedd Pro",
@@ -19,20 +20,21 @@ type NewProjectPageProps = {
 };
 
 export default async function NewProjectPage({ searchParams }: NewProjectPageProps) {
+  const { t } = await getTranslator();
   const { clientId } = await searchParams;
   const ctx = await getWorkspaceOrDemo();
   const permissions = permissionsForRole(ctx.role);
 
   if (!permissions.canWriteProjects) {
     return (
-      <ModuleShell title="Proiect nou" description="Creează un proiect nou pentru un client.">
+      <ModuleShell title={t("modules.projects.new")} description={t("modules.projects.description")}>
         <EmptyState
           icon={Lock}
-          title="Nu ai permisiunea necesară"
-          description="Contactează un administrator al workspace-ului pentru acces la crearea proiectelor."
+          title={t("modules.permissionDenied")}
+          description={t("modules.permissionDeniedHint")}
           action={
             <Button type="button" variant="outline" render={<Link href="/dashboard/projects" />} nativeButton={false}>
-              Înapoi la proiecte
+              {t("modules.backToList")}
             </Button>
           }
         />
@@ -44,7 +46,7 @@ export default async function NewProjectPage({ searchParams }: NewProjectPagePro
   const clients = clientRows.map((client) => ({ id: client.id, name: client.name }));
 
   return (
-    <ModuleShell title="Proiect nou" description="Creează un proiect nou pentru un client.">
+    <ModuleShell title={t("modules.projects.new")} description={t("modules.projects.description")}>
       <ProjectForm
         mode="create"
         clients={clients}

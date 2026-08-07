@@ -1,0 +1,9 @@
+{
+  "title": "Billing",
+  "currentPlan": "Current plan",
+  "upgrade": "Upgrade",
+  "usage": "Usage",
+  "invoices": "Invoices",
+  "manage": "Manage subscription",
+  "limits": "Limits"
+}

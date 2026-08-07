@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useMemo, useState } from "react";
 import {
   addDays,
@@ -14,7 +16,7 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
-import { ro } from "date-fns/locale";
+import { ro, enUS } from "date-fns/locale";
 import {
   CalendarDays,
   ChevronLeft,
@@ -49,23 +51,17 @@ import { cn } from "@/lib/utils";
 type CalendarView = "month" | "week" | "day" | "list";
 type StatusFilter = CalendarEventStatus | "all";
 
-const STATUS_LABELS: Record<CalendarEventStatus, string> = {
-  confirmed: "Confirmat",
-  tentative: "Provizoriu",
-  cancelled: "Anulat",
-};
-
 const STATUS_TONE: Record<CalendarEventStatus, "success" | "warning" | "danger"> = {
   confirmed: "success",
   tentative: "warning",
   cancelled: "danger",
 };
 
-const VIEW_OPTIONS: { value: CalendarView; label: string }[] = [
-  { value: "month", label: "Lună" },
-  { value: "week", label: "Săptămână" },
-  { value: "day", label: "Zi" },
-  { value: "list", label: "Listă" },
+const VIEW_OPTIONS: { value: CalendarView; labelKey: string }[] = [
+  { value: "month", labelKey: "common.month" },
+  { value: "week", labelKey: "common.week" },
+  { value: "day", labelKey: "common.day" },
+  { value: "list", labelKey: "common.list" },
 ];
 
 function matchesSearch(event: CalendarEventItem, query: string): boolean {
@@ -91,6 +87,8 @@ export function CalendarBoard({
   clients = [],
   error,
 }: CalendarBoardProps) {
+  const { t, locale } = useI18n();
+  const dateLocale = locale === "en" ? enUS : ro;
   const [events, setEvents] = useState<CalendarEventItem[]>(initialEvents);
   const [view, setView] = useState<CalendarView>("month");
   const [focusedDate, setFocusedDate] = useState<Date>(new Date());
@@ -139,7 +137,7 @@ export function CalendarBoard({
 
   function openCreateDialog(defaultDate?: string) {
     if (!canWrite) {
-      toast("Nu ai permisiunea de a adăuga evenimente.", "info");
+      toast(t("modules.calendar.needWriteAdd"), "info");
       return;
     }
     setDialogState({ open: true, mode: "create", defaultDate });
@@ -168,10 +166,10 @@ export function CalendarBoard({
 
   async function handleDelete(eventItem: CalendarEventItem) {
     if (!canWrite) {
-      toast("Nu ai permisiunea de a șterge evenimente.", "info");
+      toast(t("modules.calendar.needWriteDelete"), "info");
       return;
     }
-    const confirmed = window.confirm(`Sigur vrei să ștergi evenimentul „${eventItem.title}”?`);
+    const confirmed = window.confirm(t("modules.calendar.deleteConfirm", { title: eventItem.title }));
     if (!confirmed) return;
 
     setPendingId(eventItem.id);
@@ -184,7 +182,7 @@ export function CalendarBoard({
     }
 
     setEvents((current) => current.filter((item) => item.id !== eventItem.id));
-    toast(result?.success ?? "Eveniment șters.", "success");
+    toast(result?.success ?? t("modules.calendar.deleted"), "success");
   }
 
   async function handleQuickMove(eventItem: CalendarEventItem, deltaDays: number) {
@@ -229,25 +227,25 @@ export function CalendarBoard({
     if (view === "week") {
       const start = startOfWeek(focusedDate, { weekStartsOn: 1 });
       const end = endOfWeek(focusedDate, { weekStartsOn: 1 });
-      return `${format(start, "d MMM", { locale: ro })} – ${format(end, "d MMM yyyy", { locale: ro })}`;
+      return `${format(start, "d MMM", { locale: dateLocale })} – ${format(end, "d MMM yyyy", { locale: dateLocale })}`;
     }
     if (view === "day") {
-      return format(focusedDate, "EEEE, d MMMM yyyy", { locale: ro });
+      return format(focusedDate, "EEEE, d MMMM yyyy", { locale: dateLocale });
     }
     if (view === "list") {
-      return "Toate evenimentele";
+      return t("modules.calendar.allEvents");
     }
-    return format(focusedDate, "LLLL yyyy", { locale: ro });
-  }, [view, focusedDate]);
+    return format(focusedDate, "LLLL yyyy", { locale: dateLocale });
+  }, [view, focusedDate, dateLocale, t]);
 
   return (
     <ModuleShell
-      title="Calendar"
-      description="Evenimente, întâlniri și termene limită."
+      title={t("modules.calendar.title")}
+      description={t("modules.calendar.description")}
       actions={
         <Button type="button" onClick={() => openCreateDialog()}>
           <Plus data-icon="inline-start" />
-          Eveniment nou
+          {t("modules.calendar.new")}
         </Button>
       }
     >
@@ -264,12 +262,12 @@ export function CalendarBoard({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
             <label className="relative block flex-1 sm:max-w-xs">
-              <span className="sr-only">Căutare evenimente</span>
+              <span className="sr-only">{t("modules.calendar.searchSr")}</span>
               <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Caută după titlu, locație…"
+                placeholder={t("modules.calendar.searchPlaceholder")}
                 className="h-9 pl-9"
               />
             </label>
@@ -285,7 +283,7 @@ export function CalendarBoard({
                 <SelectItem value="all">Toate statusurile</SelectItem>
                 {CALENDAR_EVENT_STATUSES.map((status) => (
                   <SelectItem key={status} value={status}>
-                    {STATUS_LABELS[status]}
+                    {t(`status.calendar.${status}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -319,7 +317,7 @@ export function CalendarBoard({
                   onClick={() => setView(option.value)}
                   aria-pressed={active}
                 >
-                  {option.label}
+                  {t(option.labelKey)}
                 </Button>
               );
             })}
@@ -334,14 +332,14 @@ export function CalendarBoard({
             <div className="flex items-center gap-1.5">
               <Button type="button" variant="outline" size="icon-sm" onClick={() => shiftFocusedDate(-1)}>
                 <ChevronLeft />
-                <span className="sr-only">Perioada precedentă</span>
+                <span className="sr-only">{t("modules.calendar.prevPeriod")}</span>
               </Button>
               <Button type="button" variant="outline" size="sm" onClick={() => setFocusedDate(new Date())}>
                 Astăzi
               </Button>
               <Button type="button" variant="outline" size="icon-sm" onClick={() => shiftFocusedDate(1)}>
                 <ChevronRight />
-                <span className="sr-only">Perioada următoare</span>
+                <span className="sr-only">{t("modules.calendar.nextPeriod")}</span>
               </Button>
             </div>
           ) : null}
@@ -350,8 +348,8 @@ export function CalendarBoard({
         {events.length === 0 ? (
           <EmptyState
             icon={CalendarDays}
-            title="Niciun eveniment"
-            description="Adaugă primul eveniment în calendar."
+            title={t("modules.calendar.empty")}
+            description={t("modules.calendar.emptyHint")}
             action={
               canWrite ? (
                 <Button type="button" onClick={() => openCreateDialog()}>
@@ -364,8 +362,8 @@ export function CalendarBoard({
         ) : filteredEvents.length === 0 ? (
           <EmptyState
             icon={Search}
-            title="Niciun eveniment găsit"
-            description="Ajustează căutarea sau filtrele pentru a vedea evenimente."
+            title={t("modules.calendar.emptyFiltered")}
+            description={t("modules.calendar.emptyFilteredHint")}
           />
         ) : view === "month" ? (
           <MonthGrid
@@ -437,6 +435,8 @@ type MonthGridProps = {
 };
 
 function MonthGrid({ focusedDate, eventsByDay, canWrite, onDayClick, onEventClick }: MonthGridProps) {
+  const { locale } = useI18n();
+  const dateLocale = locale === "en" ? enUS : ro;
   const days = useMemo(() => {
     const monthStart = startOfMonth(focusedDate);
     const monthEnd = endOfMonth(focusedDate);
@@ -448,9 +448,9 @@ function MonthGrid({ focusedDate, eventsByDay, canWrite, onDayClick, onEventClic
   const weekdayLabels = useMemo(() => {
     const start = startOfWeek(new Date(), { weekStartsOn: 1 });
     return eachDayOfInterval({ start, end: addDays(start, 6) }).map((day) =>
-      format(day, "EEE", { locale: ro }),
+      format(day, "EEE", { locale: dateLocale }),
     );
-  }, []);
+  }, [dateLocale]);
 
   return (
     <div className="surface-card overflow-hidden p-0">
@@ -531,6 +531,8 @@ function MonthGrid({ focusedDate, eventsByDay, canWrite, onDayClick, onEventClic
 type WeekGridProps = MonthGridProps;
 
 function WeekGrid({ focusedDate, eventsByDay, canWrite, onDayClick, onEventClick }: WeekGridProps) {
+  const { t, locale } = useI18n();
+  const dateLocale = locale === "en" ? enUS : ro;
   const days = useMemo(() => {
     const start = startOfWeek(focusedDate, { weekStartsOn: 1 });
     return eachDayOfInterval({ start, end: addDays(start, 6) });
@@ -551,7 +553,7 @@ function WeekGrid({ focusedDate, eventsByDay, canWrite, onDayClick, onEventClick
               className="flex items-center justify-between text-left"
             >
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                {format(day, "EEE", { locale: ro })}
+                {format(day, "EEE", { locale: dateLocale })}
               </span>
               <span
                 className={cn(
@@ -565,7 +567,7 @@ function WeekGrid({ focusedDate, eventsByDay, canWrite, onDayClick, onEventClick
 
             <div className="flex flex-col gap-1.5">
               {dayEvents.length === 0 ? (
-                <p className="text-xs text-muted-soft">Fără evenimente</p>
+                <p className="text-xs text-muted-soft">{t("modules.calendar.noEvents")}</p>
               ) : (
                 dayEvents.map((event) => (
                   <button
@@ -578,7 +580,7 @@ function WeekGrid({ focusedDate, eventsByDay, canWrite, onDayClick, onEventClick
                     <span className="min-w-0">
                       <span className="block truncate font-medium">{event.title}</span>
                       <span className="text-muted-soft">
-                        {event.allDay ? "Toată ziua" : formatEventTime(event.startsAt)}
+                        {event.allDay ? t("modules.calendar.allDay") : formatEventTime(event.startsAt)}
                       </span>
                     </span>
                   </button>
@@ -611,14 +613,15 @@ function DayAgenda({
   onDelete,
   onQuickMove,
 }: DayAgendaProps) {
+  const { t } = useI18n();
   const dayEvents = eventsByDay.get(dayKey(focusedDate)) ?? [];
 
   if (dayEvents.length === 0) {
     return (
       <EmptyState
         icon={CalendarDays}
-        title="Fără evenimente în această zi"
-        description="Alege o altă zi sau adaugă un eveniment nou."
+        title={t("modules.calendar.emptyDay")}
+        description={t("modules.calendar.emptyDayHint")}
       />
     );
   }
@@ -658,6 +661,8 @@ function EventsListView({
   onDelete,
   onQuickMove,
 }: EventsListViewProps) {
+  const { locale } = useI18n();
+  const dateLocale = locale === "en" ? enUS : ro;
   const grouped = useMemo(() => {
     const map = new Map<string, CalendarEventItem[]>();
     for (const event of events) {
@@ -674,7 +679,7 @@ function EventsListView({
       {grouped.map(([key, dayEvents]) => (
         <div key={key} className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-            {format(new Date(`${key}T00:00:00`), "EEEE, d MMMM yyyy", { locale: ro })}
+            {format(new Date(`${key}T00:00:00`), "EEEE, d MMMM yyyy", { locale: dateLocale })}
           </p>
           <div className="surface-card divide-y divide-border">
             {dayEvents.map((event) => (
@@ -707,6 +712,8 @@ type EventRowProps = {
 };
 
 function EventRow({ event, canWrite, pending, onEventClick, onDelete, onQuickMove, showDate }: EventRowProps) {
+  const { t, locale } = useI18n();
+  const dateLocale = locale === "en" ? enUS : ro;
   return (
     <div className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
       <button
@@ -721,9 +728,9 @@ function EventRow({ event, canWrite, pending, onEventClick, onDelete, onQuickMov
             <span className="inline-flex items-center gap-1">
               <Clock className="h-3 w-3" aria-hidden />
               {event.allDay
-                ? "Toată ziua"
+                ? t("modules.calendar.allDay")
                 : `${formatEventTime(event.startsAt)} – ${formatEventTime(event.endsAt)}`}
-              {showDate ? ` · ${format(new Date(event.startsAt), "d MMM", { locale: ro })}` : ""}
+              {showDate ? ` · ${format(new Date(event.startsAt), "d MMM", { locale: dateLocale })}` : ""}
             </span>
             {event.location ? (
               <span className="inline-flex items-center gap-1">
@@ -737,7 +744,7 @@ function EventRow({ event, canWrite, pending, onEventClick, onDelete, onQuickMov
       </button>
 
       <div className="flex items-center gap-2 sm:justify-end">
-        <StatusBadge label={STATUS_LABELS[event.status]} tone={STATUS_TONE[event.status]} />
+        <StatusBadge label={t(`status.calendar.${event.status}`)} tone={STATUS_TONE[event.status]} />
         {canWrite ? (
           <div className="flex items-center gap-1">
             <Button
@@ -746,7 +753,7 @@ function EventRow({ event, canWrite, pending, onEventClick, onDelete, onQuickMov
               size="icon-sm"
               disabled={pending}
               onClick={() => onQuickMove(event, -1)}
-              aria-label="Reprogramează o zi mai devreme"
+              aria-label={t("modules.calendar.rescheduleEarlier")}
             >
               <ChevronLeft className="h-3.5 w-3.5" />
             </Button>
@@ -756,7 +763,7 @@ function EventRow({ event, canWrite, pending, onEventClick, onDelete, onQuickMov
               size="icon-sm"
               disabled={pending}
               onClick={() => onQuickMove(event, 1)}
-              aria-label="Reprogramează o zi mai târziu"
+              aria-label={t("modules.calendar.rescheduleLater")}
             >
               <ChevronRight className="h-3.5 w-3.5" />
             </Button>
@@ -766,7 +773,7 @@ function EventRow({ event, canWrite, pending, onEventClick, onDelete, onQuickMov
               size="icon-sm"
               disabled={pending}
               onClick={() => onDelete(event)}
-              aria-label="Șterge evenimentul"
+              aria-label={t("modules.calendar.deleteAria")}
               className="text-muted-foreground hover:text-destructive"
             >
               <Trash2 className="h-3.5 w-3.5" />

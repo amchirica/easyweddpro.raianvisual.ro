@@ -1,0 +1,7 @@
+{
+  "required": "Câmp obligatoriu",
+  "email": "Email invalid",
+  "min": "Prea scurt",
+  "max": "Prea lung",
+  "generic": "Date invalide"
+}

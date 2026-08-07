@@ -10,25 +10,27 @@ import { listClients } from "@/lib/data/clients";
 import { listWorkspaceMemberOptions } from "@/lib/data/tasks";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { requireWorkspace } from "@/lib/workspace/session";
+import { getTranslator } from "@/lib/i18n/t";
 
 export const metadata: Metadata = {
   title: "Task nou · EasyWedd Pro",
 };
 
 export default async function NewTaskPage() {
+  const { t } = await getTranslator();
   const ctx = await requireWorkspace();
   const permissions = permissionsForRole(ctx.role);
 
   if (!permissions.canWriteTasks) {
     return (
-      <ModuleShell title="Task nou" description="Creează un task nou pentru echipa ta.">
+      <ModuleShell title={t("modules.tasks.new")} description={t("modules.tasks.description")}>
         <EmptyState
           icon={Lock}
-          title="Nu ai permisiunea necesară"
-          description="Contactează un administrator al workspace-ului pentru acces la crearea task-urilor."
+          title={t("modules.permissionDenied")}
+          description={t("modules.permissionDeniedHint")}
           action={
             <Button type="button" variant="outline" render={<Link href="/dashboard/tasks" />} nativeButton={false}>
-              Înapoi la task-uri
+              {t("modules.backToList")}
             </Button>
           }
         />
@@ -52,7 +54,7 @@ export default async function NewTaskPage() {
   const projects = (projectRows.data ?? []).map((project) => ({ id: project.id, name: project.name }));
 
   return (
-    <ModuleShell title="Task nou" description="Creează un task nou pentru echipa ta.">
+    <ModuleShell title={t("modules.tasks.new")} description={t("modules.tasks.description")}>
       <NewTaskDialogPage
         members={members}
         clients={clients}

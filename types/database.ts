@@ -1070,6 +1070,36 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["user_feedback"]["Insert"]>;
         Relationships: [];
       };
+      assistant_events: {
+        Row: {
+          id: string;
+          user_id: string;
+          workspace_id: string | null;
+          surface: string;
+          module_key: string | null;
+          intent: string | null;
+          resolved: boolean;
+          provider: string;
+          latency_ms: number | null;
+          helpful: boolean | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          workspace_id?: string | null;
+          surface: string;
+          module_key?: string | null;
+          intent?: string | null;
+          resolved?: boolean;
+          provider?: string;
+          latency_ms?: number | null;
+          helpful?: boolean | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["assistant_events"]["Insert"]>;
+        Relationships: [];
+      };
       stripe_webhook_events: {
         Row: {
           id: string;

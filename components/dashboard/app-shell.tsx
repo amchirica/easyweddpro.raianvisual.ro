@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Topbar } from "@/components/dashboard/topbar";
+import { AssistantWidget } from "@/components/assistant/assistant-widget";
 import { FeedbackButton } from "@/components/feedback/feedback-button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
@@ -55,6 +56,7 @@ export function AppShell({ children, workspaceName, userName, isDemo = false }: 
         <main className="flex-1 px-4 py-6 md:px-6 md:py-8">{children}</main>
       </div>
 
+      <AssistantWidget surface="dashboard" />
       {!isDemo ? <FeedbackButton /> : null}
     </div>
   );

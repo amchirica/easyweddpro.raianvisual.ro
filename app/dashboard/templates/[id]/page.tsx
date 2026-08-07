@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { getTemplateById } from "@/lib/data/templates";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { getWorkspaceOrDemo } from "@/lib/workspace/session";
+import { getTranslator } from "@/lib/i18n/t";
 
 type TemplatePageParams = { id: string };
 
@@ -22,6 +23,7 @@ export default async function TemplateDetailPage({
 }: {
   params: Promise<TemplatePageParams>;
 }) {
+  const { t } = await getTranslator();
   const { id } = await params;
   const ctx = await getWorkspaceOrDemo();
 
@@ -35,8 +37,8 @@ export default async function TemplateDetailPage({
       <ModuleShell title={template.name} description="Detalii template.">
         <EmptyState
           icon={Lock}
-          title="Nu ai permisiunea necesară"
-          description="Contactează un administrator al workspace-ului pentru acces la editarea template-urilor."
+          title={t("modules.permissionDenied")}
+          description={t("modules.permissionDeniedHint")}
           action={
             <Button
               type="button"
@@ -44,7 +46,7 @@ export default async function TemplateDetailPage({
               render={<Link href="/dashboard/templates" />}
               nativeButton={false}
             >
-              Înapoi la template-uri
+              {t("modules.backToList")}
             </Button>
           }
         />
@@ -53,7 +55,7 @@ export default async function TemplateDetailPage({
   }
 
   return (
-    <ModuleShell title={template.name} description="Editează template-ul și previzualizează conținutul.">
+    <ModuleShell title={template.name} description={t("modules.templates.description")}>
       <TemplateForm mode="edit" initial={template} />
     </ModuleShell>
   );

@@ -14,6 +14,7 @@ import {
   Users,
 } from "lucide-react";
 
+import { useI18n } from "@/components/providers/i18n-provider";
 import { useToast } from "@/components/shared/toast-provider";
 import { EmptyState } from "@/components/shared/empty-state";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -27,7 +28,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { updateLeadStatusAction } from "@/lib/actions/leads";
-import { LEAD_STATUSES, LEAD_STATUS_LABELS, type LeadStatus } from "@/lib/constants";
+import { LEAD_STATUSES, type LeadStatus } from "@/lib/constants";
 import type { LeadViewModel } from "@/lib/crm/mappers";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -54,10 +55,10 @@ const LEAD_STATUS_TONE: Record<LeadStatus, "neutral" | "accent" | "success" | "w
   lost: "danger",
 };
 
-const VIEW_OPTIONS: { value: BoardView; label: string; icon: typeof Table2 }[] = [
-  { value: "table", label: "Tabel", icon: Table2 },
-  { value: "kanban", label: "Kanban", icon: Kanban },
-  { value: "list", label: "Listă", icon: List },
+const VIEW_OPTIONS: { value: BoardView; labelKey: string; icon: typeof Table2 }[] = [
+  { value: "table", labelKey: "common.table", icon: Table2 },
+  { value: "kanban", labelKey: "common.kanban", icon: Kanban },
+  { value: "list", labelKey: "common.list", icon: List },
 ];
 
 function matchesSearch(lead: LeadViewModel, query: string) {
@@ -67,6 +68,7 @@ function matchesSearch(lead: LeadViewModel, query: string) {
 }
 
 export function LeadsBoard({ initialLeads, mode, currency = "RON", error }: LeadsBoardProps) {
+  const { t } = useI18n();
   const [leads, setLeads] = useState<LeadViewModel[]>(initialLeads);
   const [view, setView] = useState<BoardView>("table");
   const [search, setSearch] = useState("");
@@ -120,12 +122,12 @@ export function LeadsBoard({ initialLeads, mode, currency = "RON", error }: Lead
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
           <label className="relative block flex-1 sm:max-w-xs">
-            <span className="sr-only">Căutare leaduri</span>
+            <span className="sr-only">{t("modules.leads.searchSr")}</span>
             <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Caută după nume, email, oraș…"
+              placeholder={t("modules.leads.searchPlaceholder")}
               className="h-9 pl-9"
             />
           </label>
@@ -135,13 +137,13 @@ export function LeadsBoard({ initialLeads, mode, currency = "RON", error }: Lead
             onValueChange={(value) => setStatusFilter((value as StatusFilter) ?? "all")}
           >
             <SelectTrigger className="h-9 w-full sm:w-48">
-              <SelectValue placeholder="Toate statusurile" />
+              <SelectValue placeholder={t("common.allStatuses")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Toate statusurile</SelectItem>
+              <SelectItem value="all">{t("common.allStatuses")}</SelectItem>
               {LEAD_STATUSES.map((status) => (
                 <SelectItem key={status} value={status}>
-                  {LEAD_STATUS_LABELS[status]}
+                  {t(`status.lead.${status}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -180,7 +182,7 @@ export function LeadsBoard({ initialLeads, mode, currency = "RON", error }: Lead
                 aria-pressed={active}
               >
                 <Icon data-icon="inline-start" />
-                {option.label}
+                {t(option.labelKey)}
               </Button>
             );
           })}
@@ -195,8 +197,8 @@ export function LeadsBoard({ initialLeads, mode, currency = "RON", error }: Lead
       {filteredLeads.length === 0 ? (
         <EmptyState
           icon={Users}
-          title="Niciun lead găsit"
-          description="Ajustează căutarea sau filtrele pentru a vedea leaduri."
+          title={t("modules.leads.emptyFiltered")}
+          description={t("modules.leads.emptyFilteredHint")}
         />
       ) : view === "table" ? (
         <LeadsTable leads={filteredLeads} onStatusChange={updateLeadStatus} currency={currency} />
@@ -224,6 +226,7 @@ function LeadStatusSelect({
   onStatusChange: (id: string, status: LeadStatus) => void;
   className?: string;
 }) {
+  const { t } = useI18n();
   return (
     <Select
       value={lead.status}
@@ -235,7 +238,7 @@ function LeadStatusSelect({
       <SelectContent>
         {LEAD_STATUSES.map((status) => (
           <SelectItem key={status} value={status}>
-            {LEAD_STATUS_LABELS[status]}
+            {t(`status.lead.${status}`)}
           </SelectItem>
         ))}
       </SelectContent>
@@ -255,6 +258,7 @@ function LeadNameLink({ lead }: { lead: LeadViewModel }) {
 }
 
 function LeadsTable({ leads, onStatusChange, currency }: LeadsViewProps) {
+  const { t } = useI18n();
   return (
     <div className="surface-card overflow-x-auto">
       <table className="w-full min-w-[880px] text-left text-sm">
@@ -262,9 +266,9 @@ function LeadsTable({ leads, onStatusChange, currency }: LeadsViewProps) {
           <tr className="border-b border-border text-xs text-muted-foreground uppercase tracking-[0.08em]">
             <th className="px-4 py-3 font-medium">Client</th>
             <th className="px-4 py-3 font-medium">Eveniment</th>
-            <th className="px-4 py-3 font-medium">Oraș</th>
-            <th className="px-4 py-3 font-medium">Sursă</th>
-            <th className="px-4 py-3 font-medium">Valoare estimată</th>
+            <th className="px-4 py-3 font-medium">{t("common.city")}</th>
+            <th className="px-4 py-3 font-medium">{t("common.source")}</th>
+            <th className="px-4 py-3 font-medium">{t("common.estimatedValue")}</th>
             <th className="px-4 py-3 font-medium">Follow-up</th>
             <th className="px-4 py-3 font-medium">Status</th>
           </tr>
@@ -304,6 +308,7 @@ function LeadsTable({ leads, onStatusChange, currency }: LeadsViewProps) {
 }
 
 function LeadsKanban({ leads, onStatusChange, currency }: LeadsViewProps) {
+  const { t } = useI18n();
   return (
     <div className="flex gap-4 overflow-x-auto pb-2">
       {LEAD_STATUSES.map((status) => {
@@ -315,7 +320,7 @@ function LeadsKanban({ leads, onStatusChange, currency }: LeadsViewProps) {
             <div className="flex items-center justify-between rounded-xl border border-border bg-background/40 px-3 py-2">
               <div>
                 <p className="text-sm font-medium text-foreground">
-                  {LEAD_STATUS_LABELS[status]}
+                  {t(`status.lead.${status}`)}
                 </p>
                 <p className="text-xs text-muted-soft">{formatCurrency(columnValue, currency)}</p>
               </div>
@@ -325,7 +330,7 @@ function LeadsKanban({ leads, onStatusChange, currency }: LeadsViewProps) {
             <div className="space-y-3">
               {columnLeads.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border/70 px-3 py-6 text-center text-xs text-muted-soft">
-                  Fără leaduri
+                  {t("modules.leads.emptyColumn")}
                 </div>
               ) : (
                 columnLeads.map((lead) => (

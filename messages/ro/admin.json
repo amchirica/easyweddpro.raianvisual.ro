@@ -1,0 +1,12 @@
+{
+  "title": "Admin platformă",
+  "overview": "Prezentare generală",
+  "users": "Utilizatori",
+  "workspaces": "Workspace-uri",
+  "subscriptions": "Abonamente",
+  "plans": "Planuri",
+  "feedback": "Feedback",
+  "health": "Health",
+  "searchPlaceholder": "Caută pe platformă…",
+  "noAccess": "Nu ai acces la această zonă"
+}

@@ -1,0 +1,25 @@
+{
+  "placeholder": "Search leads, clients, proposals…",
+  "title": "Global search",
+  "noResults": "No results",
+  "minChars": "Type at least 2 characters",
+  "shortcut": "⌘K",
+  "groups": {
+    "leads": "Leads",
+    "clients": "Clients",
+    "proposals": "Proposals",
+    "contracts": "Contracts",
+    "projects": "Projects",
+    "tasks": "Tasks",
+    "payments": "Payments",
+    "calendar": "Calendar",
+    "templates": "Templates",
+    "team": "Team",
+    "users": "Users",
+    "workspaces": "Workspaces",
+    "subscriptions": "Subscriptions",
+    "plans": "Plans",
+    "help": "Help"
+  },
+  "helpLink": "Help: How does {module} work?"
+}

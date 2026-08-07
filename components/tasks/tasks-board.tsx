@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -26,9 +28,7 @@ import {
   softDeleteTaskAction,
 } from "@/lib/actions/tasks";
 import {
-  TASK_PRIORITY_LABELS,
   TASK_STATUSES,
-  TASK_STATUS_LABELS,
   type TaskPriority,
   type TaskStatus,
 } from "@/lib/constants";
@@ -57,11 +57,11 @@ const PRIORITY_TONE: Record<TaskPriority, "neutral" | "accent" | "warning" | "da
 };
 
 const QUICK_FILTERS = [
-  { id: "all", label: "Toate" },
-  { id: "mine", label: "Ale mele" },
-  { id: "unassigned", label: "Neasignate" },
-  { id: "overdue", label: "Întârziate" },
-  { id: "dueToday", label: "Astăzi" },
+  { id: "all", labelKey: "common.all" },
+  { id: "mine", labelKey: "modules.tasks.mine" },
+  { id: "unassigned", labelKey: "modules.tasks.unassigned" },
+  { id: "overdue", labelKey: "modules.tasks.overdue" },
+  { id: "dueToday", labelKey: "modules.tasks.dueToday" },
 ] as const;
 
 type QuickFilter = (typeof QUICK_FILTERS)[number]["id"];
@@ -100,6 +100,7 @@ export function TasksBoard({
   isAssigneeOnly,
   error,
 }: TasksBoardProps) {
+  const { t } = useI18n();
   const [tasks, setTasks] = useState<TaskListItem[]>(initialTasks);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
@@ -136,10 +137,10 @@ export function TasksBoard({
     () =>
       TASK_STATUSES.map((status) => ({
         status,
-        label: TASK_STATUS_LABELS[status],
+        label: t(`status.task.${status}`),
         tasks: filtered.filter((task) => task.status === status),
       })),
-    [filtered],
+    [filtered, t],
   );
 
   function canManage(task: TaskListItem): boolean {
@@ -169,7 +170,7 @@ export function TasksBoard({
 
   async function handleDelete(task: TaskListItem) {
     if (pendingId) return;
-    if (!window.confirm(`Ștergi task-ul „${task.title}”?`)) return;
+    if (!window.confirm(t("modules.tasks.deleteConfirm", { title: task.title }))) return;
     setPendingId(task.id);
     const result = await softDeleteTaskAction(task.id);
     setPendingId(null);
@@ -180,7 +181,7 @@ export function TasksBoard({
     }
 
     setTasks((current) => current.filter((item) => item.id !== task.id));
-    toast(result.success ?? "Task șters.", "success");
+    toast(result.success ?? t("modules.tasks.deleted"), "success");
   }
 
   function openCreateDialog() {
@@ -195,8 +196,8 @@ export function TasksBoard({
 
   return (
     <ModuleShell
-      title="Task-uri"
-      description="Task-urile echipei, organizate pe stadiu de progres."
+      title={t("modules.tasks.title")}
+      description={t("modules.tasks.description")}
       actions={
         canWrite ? (
           <Button type="button" onClick={openCreateDialog}>
@@ -218,12 +219,12 @@ export function TasksBoard({
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <label className="relative block max-w-sm flex-1">
-            <span className="sr-only">Căutare task-uri</span>
+            <span className="sr-only">{t("modules.tasks.searchSr")}</span>
             <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Caută după titlu, notițe, responsabil…"
+              placeholder={t("modules.tasks.searchPlaceholder")}
               className="h-9 pl-9"
             />
           </label>
@@ -239,7 +240,7 @@ export function TasksBoard({
               <SelectItem value="all">Toate statusurile</SelectItem>
               {TASK_STATUSES.map((status) => (
                 <SelectItem key={status} value={status}>
-                  {TASK_STATUS_LABELS[status]}
+                  {t(`status.task.${status}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -259,7 +260,7 @@ export function TasksBoard({
                   : "border-border text-muted-foreground hover:text-foreground",
               )}
             >
-              {filter.label}
+              {t(filter.labelKey)}
             </button>
           ))}
         </div>
@@ -267,11 +268,11 @@ export function TasksBoard({
         {filtered.length === 0 ? (
           <EmptyState
             icon={CheckSquare}
-            title={tasks.length === 0 ? "Niciun task" : "Niciun task găsit"}
+            title={tasks.length === 0 ? t("modules.tasks.empty") : t("modules.tasks.emptyFiltered")}
             description={
               tasks.length === 0
-                ? "Adaugă primul task pentru echipa ta."
-                : "Încearcă alți termeni de căutare sau alt filtru."
+                ? t("modules.tasks.emptyHint")
+                : t("common.searchNoResultsHint")
             }
             action={
               tasks.length === 0 && canWrite ? (
@@ -308,7 +309,7 @@ export function TasksBoard({
                               onCheckedChange={(checked) => handleToggleDone(task, checked === true)}
                               disabled={!manageable || pendingId === task.id}
                               className="mt-0.5"
-                              aria-label={`Marchează „${task.title}” ca finalizat`}
+                              aria-label={t("modules.tasks.markDoneAria", { title: task.title })}
                             />
                             <Link
                               href={`/dashboard/tasks/${task.id}`}
@@ -334,10 +335,10 @@ export function TasksBoard({
                                 {formatDate(task.dueDate)}
                               </span>
                             ) : (
-                              <span className="text-xs text-muted-soft">Fără termen</span>
+                              <span className="text-xs text-muted-soft">{t("modules.tasks.noDueDate")}</span>
                             )}
                             <StatusBadge
-                              label={TASK_PRIORITY_LABELS[task.priority]}
+                              label={t(`status.priority.${task.priority}`)}
                               tone={PRIORITY_TONE[task.priority]}
                             />
                           </div>
@@ -360,7 +361,7 @@ export function TasksBoard({
                                     onClick={() => handleDelete(task)}
                                     disabled={pendingId === task.id}
                                     className="text-muted-foreground hover:text-destructive"
-                                    aria-label={`Șterge task-ul ${task.title}`}
+                                    aria-label={t("modules.tasks.deleteAria", { title: task.title })}
                                   >
                                     <Trash2 className="h-3.5 w-3.5" />
                                   </button>

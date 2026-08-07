@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ArrowUpRight, Contact, Mail, MapPin, Phone, Search, UserPlus } from "lucide-react";
 
+import { useI18n } from "@/components/providers/i18n-provider";
 import { DemoBanner } from "@/components/shared/demo-banner";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ModuleShell } from "@/components/shared/module-shell";
@@ -34,6 +35,7 @@ type ClientsPageClientProps = {
 };
 
 export function ClientsPageClient({ initialClients, mode, error }: ClientsPageClientProps) {
+  const { t } = useI18n();
   const [clients, setClients] = useState<ClientViewModel[]>(initialClients);
   const [search, setSearch] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
@@ -51,7 +53,7 @@ export function ClientsPageClient({ initialClients, mode, error }: ClientsPageCl
 
   function handleCreateClick() {
     if (mode !== "live") {
-      toast("Creează-ți un cont pentru a adăuga clienți reali.", "info");
+      toast(t("common.needAccountAction"), "info");
       return;
     }
     setCreateOpen(true);
@@ -59,12 +61,12 @@ export function ClientsPageClient({ initialClients, mode, error }: ClientsPageCl
 
   return (
     <ModuleShell
-      title="Clienți"
-      description="Toți clienții tăi, activi sau anteriori, într-un singur loc."
+      title={t("modules.clients.title")}
+      description={t("modules.clients.description")}
       actions={
         <Button type="button" onClick={handleCreateClick}>
           <UserPlus data-icon="inline-start" />
-          Client nou
+          {t("modules.clients.new")}
         </Button>
       }
     >
@@ -81,12 +83,12 @@ export function ClientsPageClient({ initialClients, mode, error }: ClientsPageCl
         ) : null}
 
         <label className="relative block max-w-sm">
-          <span className="sr-only">Căutare clienți</span>
+          <span className="sr-only">{t("modules.clients.searchSr")}</span>
           <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Caută după nume, email, oraș…"
+            placeholder={t("modules.clients.searchPlaceholder")}
             className="h-9 pl-9"
           />
         </label>
@@ -94,8 +96,8 @@ export function ClientsPageClient({ initialClients, mode, error }: ClientsPageCl
         {filtered.length === 0 ? (
           <EmptyState
             icon={Contact}
-            title="Niciun client încă"
-            description="Clienții apar automat după ce un lead este câștigat sau adăugat manual."
+            title={t("modules.clients.empty")}
+            description={t("modules.clients.emptyHint")}
           />
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

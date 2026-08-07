@@ -7,25 +7,27 @@ import { ModuleShell } from "@/components/shared/module-shell";
 import { countAutomationRunOutcomes, listAutomations } from "@/lib/data/automations";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { requireWorkspace } from "@/lib/workspace/session";
+import { getTranslator } from "@/lib/i18n/t";
 
 export const metadata: Metadata = {
   title: "Automatizări · EasyWedd Pro",
 };
 
 export default async function AutomationsPage() {
+  const { t } = await getTranslator();
   const ctx = await requireWorkspace();
   const permissions = permissionsForRole(ctx.role);
 
   if (!permissions.canManageAutomations) {
     return (
       <ModuleShell
-        title="Automatizări"
-        description="Reguli automate care trimit mesaje și reminder-e fără intervenție manuală."
+        title={t("modules.automations.title")}
+        description={t("modules.automations.description")}
       >
         <EmptyState
           icon={Lock}
-          title="Nu ai permisiunea necesară"
-          description="Contactează un administrator al workspace-ului pentru acces la automatizări."
+          title={t("modules.permissionDenied")}
+          description={t("modules.permissionDeniedHint")}
         />
       </ModuleShell>
     );
@@ -53,13 +55,13 @@ export default async function AutomationsPage() {
       };
     });
   } catch (error) {
-    loadError = error instanceof Error ? error.message : "Nu am putut încărca automatizările.";
+    loadError = error instanceof Error ? error.message : t("common.loadFailed");
   }
 
   if (loadError) {
     return (
-      <ModuleShell title="Automatizări" description="Reguli automate pentru workspace-ul tău.">
-        <EmptyState title="Eroare la încărcare" description={loadError} />
+      <ModuleShell title={t("modules.automations.title")} description={t("modules.automations.description")}>
+        <EmptyState title={t("modules.loadError")} description={loadError} />
       </ModuleShell>
     );
   }

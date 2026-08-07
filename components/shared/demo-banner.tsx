@@ -1,5 +1,8 @@
+"use client";
+
 import { Info } from "lucide-react";
 
+import { useI18n } from "@/components/providers/i18n-provider";
 import { cn } from "@/lib/utils";
 
 type DemoBannerProps = {
@@ -7,6 +10,7 @@ type DemoBannerProps = {
 };
 
 export function DemoBanner({ className }: DemoBannerProps) {
+  const { t } = useI18n();
   return (
     <div
       className={cn(
@@ -16,7 +20,7 @@ export function DemoBanner({ className }: DemoBannerProps) {
       role="status"
     >
       <Info className="h-4 w-4 shrink-0" aria-hidden />
-      <span>Mod demo — datele nu sunt persistate.</span>
+      <span>{t("common.demoMode")}</span>
     </div>
   );
 }

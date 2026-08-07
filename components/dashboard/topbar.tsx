@@ -1,10 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, Plus, Search } from "lucide-react";
+import { Menu, Plus } from "lucide-react";
 
 import { LogoutButton } from "@/components/auth/logout-button";
+import { LocaleSwitcher } from "@/components/i18n/locale-switcher";
 import { NotificationsBell } from "@/components/notifications/notifications-bell";
+import { useI18n } from "@/components/providers/i18n-provider";
+import { GlobalSearch } from "@/components/search/global-search";
+import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +18,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 
 type TopbarProps = {
   onOpenMobileNav: () => void;
@@ -37,10 +40,16 @@ function getInitials(name: string): string {
 }
 
 export function Topbar({ onOpenMobileNav, workspaceName, userName, isDemo = false }: TopbarProps) {
+  const { t } = useI18n();
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Bună dimineața" : hour < 18 ? "Bună ziua" : "Bună seara";
-  const displayUserName = userName || "Utilizator";
-  const displayWorkspaceName = workspaceName || "Workspace";
+  const greeting =
+    hour < 12
+      ? t("nav.greetingMorning")
+      : hour < 18
+        ? t("nav.greetingAfternoon")
+        : t("nav.greetingEvening");
+  const displayUserName = userName || t("nav.userFallback");
+  const displayWorkspaceName = workspaceName || t("nav.workspaceFallback");
   const avatarInitials = getInitials(displayUserName);
 
   return (
@@ -52,7 +61,7 @@ export function Topbar({ onOpenMobileNav, workspaceName, userName, isDemo = fals
           size="icon"
           className="lg:hidden"
           onClick={onOpenMobileNav}
-          aria-label="Deschide meniul"
+          aria-label={t("common.openMenu")}
         >
           <Menu className="h-5 w-5" />
         </Button>
@@ -65,28 +74,27 @@ export function Topbar({ onOpenMobileNav, workspaceName, userName, isDemo = fals
         </div>
 
         <div className="hidden max-w-xs flex-1 md:block lg:max-w-sm">
-          <label className="relative block">
-            <span className="sr-only">Căutare globală</span>
-            <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Caută leaduri, clienți, oferte, contracte, proiecte, evenimente…"
-              className="h-10 bg-card/60 pl-9"
-            />
-          </label>
+          <GlobalSearch mode="workspace" enableShortcut />
+        </div>
+
+        <div className="md:hidden">
+          <GlobalSearch mode="workspace" compact enableShortcut={false} />
         </div>
 
         <Button type="button" className="hidden sm:inline-flex" render={<Link href="/dashboard/leads" />} nativeButton={false}>
           <Plus data-icon="inline-start" />
-          Quick action
+          {t("nav.quickAction")}
         </Button>
+
+        <LocaleSwitcher className="hidden sm:inline-flex" />
+        <ThemeSwitcher />
 
         <NotificationsBell enabled={!isDemo} />
 
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
-              <Button type="button" variant="ghost" size="icon" className="rounded-full" aria-label="Meniu profil" />
+              <Button type="button" variant="ghost" size="icon" className="rounded-full" aria-label={t("nav.profileMenu")} />
             }
           >
             <Avatar className="h-8 w-8">
@@ -97,15 +105,15 @@ export function Topbar({ onOpenMobileNav, workspaceName, userName, isDemo = fals
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52">
             <DropdownMenuItem nativeButton={false} render={<Link href="/dashboard/settings" />}>
-              Setări
+              {t("nav.settings")}
             </DropdownMenuItem>
             <DropdownMenuItem nativeButton={false} render={<Link href="/dashboard/team" />}>
-              Echipă
+              {t("nav.team")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             {isDemo ? (
               <DropdownMenuItem nativeButton={false} render={<Link href="/login" />}>
-                Ieși din demo
+                {t("common.signOut")}
               </DropdownMenuItem>
             ) : (
               <LogoutButton />

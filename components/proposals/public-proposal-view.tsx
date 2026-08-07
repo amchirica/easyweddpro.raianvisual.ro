@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { useI18n } from "@/components/providers/i18n-provider";
 import { useToast } from "@/components/shared/toast-provider";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -57,16 +58,17 @@ type PublicProposalViewProps = {
   demo: boolean;
 };
 
-const STATUS_LABELS: Record<PublicProposalStatus, string> = {
-  sent: "Trimisă",
-  viewed: "Vizualizată",
-  accepted: "Acceptată",
-  rejected: "Refuzată",
-  expired: "Expirată",
-  cancelled: "Anulată",
+const STATUS_KEYS: Record<PublicProposalStatus, string> = {
+  sent: "portal.sent",
+  viewed: "portal.viewed",
+  accepted: "portal.accepted",
+  rejected: "portal.declined",
+  expired: "portal.expired",
+  cancelled: "status.proposal.declined",
 };
 
 export function PublicProposalView({ token, data, demo }: PublicProposalViewProps) {
+  const { t } = useI18n();
   const [status, setStatus] = useState<PublicProposalStatus>(data.status);
   const [showReject, setShowReject] = useState(false);
   const [fullName, setFullName] = useState("");
@@ -169,7 +171,7 @@ export function PublicProposalView({ token, data, demo }: PublicProposalViewProp
             </div>
           </div>
           <span className="inline-flex items-center gap-2 rounded-full border border-champagne/30 bg-champagne/10 px-3 py-1 text-xs font-medium text-champagne-soft">
-            {STATUS_LABELS[status]}
+            {t(STATUS_KEYS[status])}
           </span>
         </div>
 
@@ -357,7 +359,7 @@ export function PublicProposalView({ token, data, demo }: PublicProposalViewProp
 
                 <div className="flex flex-col items-center gap-3">
                   <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={submitting}>
-                    {submitting ? "Se trimite…" : "Acceptă oferta"}
+                    {submitting ? t("common.loading") : t("portal.acceptProposal")}
                   </Button>
                   <button
                     type="button"

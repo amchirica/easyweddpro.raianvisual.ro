@@ -1,0 +1,12 @@
+{
+  "title": "Platform admin",
+  "overview": "Overview",
+  "users": "Users",
+  "workspaces": "Workspaces",
+  "subscriptions": "Subscriptions",
+  "plans": "Plans",
+  "feedback": "Feedback",
+  "health": "Health",
+  "searchPlaceholder": "Search platform…",
+  "noAccess": "You don't have access to this area"
+}

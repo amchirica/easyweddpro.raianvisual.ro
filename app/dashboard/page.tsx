@@ -19,6 +19,7 @@ import { mapActivityRow } from "@/lib/crm/mappers";
 import { getDashboardStats as getLiveDashboardStats } from "@/lib/data/dashboard";
 import { LEAD_STATUSES, LEAD_STATUS_LABELS } from "@/lib/constants";
 import { formatCurrency, formatDate, formatPercent } from "@/lib/format";
+import { getTranslator } from "@/lib/i18n/t";
 import { getWorkspaceOrDemo } from "@/lib/workspace/session";
 
 export const metadata: Metadata = {
@@ -56,6 +57,7 @@ async function LiveDashboard({
   workspaceId: string;
   currency: string;
 }) {
+  const { t } = await getTranslator();
   const stats = await getLiveDashboardStats(supabase, workspaceId);
   const recentActivity = stats.recentActivity.map(mapActivityRow);
 
@@ -64,86 +66,93 @@ async function LiveDashboard({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
           <h1 className="font-heading text-3xl font-medium tracking-tight text-foreground md:text-4xl">
-            Dashboard
+            {t("dashboard.title")}
           </h1>
           <p className="max-w-2xl text-sm text-muted-foreground md:text-base">
-            Privire de ansamblu asupra afacerii tale — leaduri, clienți și pipeline.
+            {t("dashboard.overview")}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" render={<Link href="/dashboard/clients" />} nativeButton={false}>
-            Vezi clienți
+            {t("dashboard.viewClients")}
           </Button>
           <Button render={<Link href="/dashboard/leads" />} nativeButton={false}>
             <UserPlus data-icon="inline-start" />
-            Lead nou
+            {t("dashboard.createLead")}
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
         <StatCard
-          label="Leaduri noi"
+          label={t("dashboard.newLeads")}
           value={String(stats.newLeadsThisMonth)}
-          hint="Luna curentă"
+          hint={t("dashboard.hintThisMonth")}
           icon={UserPlus}
         />
         <StatCard
-          label="Leaduri active"
+          label={t("dashboard.activeLeads")}
           value={String(stats.activeLeads)}
-          hint="În pipeline"
+          hint={t("dashboard.hintInPipeline")}
           icon={TrendingUp}
         />
         <StatCard
-          label="Rata de conversie"
+          label={t("dashboard.conversionRate")}
           value={formatPercent(stats.conversionRate)}
-          hint="Leaduri câștigate vs. închise"
+          hint={t("dashboard.hintWonVsClosed")}
           icon={TrendingUp}
         />
         <StatCard
-          label="Valoare pipeline"
+          label={t("dashboard.pipelineValue")}
           value={formatCurrency(stats.pipelineValue, currency)}
-          hint="Leaduri active"
+          hint={t("dashboard.hintActiveLeads")}
           icon={Wallet}
         />
         <StatCard
-          label="Clienți"
+          label={t("dashboard.clients")}
           value={String(stats.clientsCount)}
-          hint="Total activi"
+          hint={t("dashboard.hintActiveTotal")}
           icon={Contact}
         />
         <StatCard
-          label="Follow-up-uri restante"
+          label={t("dashboard.overdueFollowUps")}
           value={String(stats.dueFollowUps)}
-          hint="Necesită urmărire"
+          hint={t("dashboard.hintNeedsFollowUp")}
           icon={AlertTriangle}
         />
       </div>
 
       <section className="surface-card p-5">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-heading text-lg font-medium text-foreground">Pipeline leaduri</h2>
+          <h2 className="font-heading text-lg font-medium text-foreground">
+            {t("dashboard.leadsPipeline")}
+          </h2>
           <Button variant="ghost" size="sm" render={<Link href="/dashboard/leads" />} nativeButton={false}>
-            Vezi toate
+            {t("dashboard.viewAll")}
             <ArrowUpRight data-icon="inline-end" />
           </Button>
         </div>
         {stats.pipelineByStatus.length === 0 ? (
           <EmptyState
             icon={UserPlus}
-            title="Niciun lead încă"
-            description="Adaugă primul lead pentru a vedea pipeline-ul aici."
+            title={t("dashboard.noLeadsYet")}
+            description={t("dashboard.noLeadsYetHint")}
           />
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
             {LEAD_STATUSES.map((status) => {
               const entry = stats.pipelineByStatus.find((item) => item.status === status);
+              const statusLabel = t(`status.lead.${status}`);
               return (
                 <div
                   key={status}
                   className="rounded-xl border border-border bg-background/40 p-3 transition-colors hover:border-champagne/25"
                 >
-                  <p className="text-xs text-muted-foreground">{LEAD_STATUS_LABELS[status]}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {statusLabel === `status.lead.${status}`
+                      ? LEAD_STATUS_LABELS[status]
+                      : statusLabel}
+                  </p>
                   <p className="mt-1 font-heading text-xl font-medium text-foreground">
                     {entry?.count ?? 0}
                   </p>
@@ -161,10 +170,10 @@ async function LiveDashboard({
         <div className="space-y-6 lg:col-span-2">
           <section className="surface-card p-5">
             <h2 className="mb-5 font-heading text-lg font-medium text-foreground">
-              Surse de leaduri
+              {t("dashboard.leadSources")}
             </h2>
             {stats.leadSources.length === 0 ? (
-              <EmptyState icon={TrendingUp} title="Fără date de sursă încă" />
+              <EmptyState icon={TrendingUp} title={t("dashboard.noSourceData")} />
             ) : (
               <div className="space-y-3">
                 {stats.leadSources.map((source) => {
@@ -174,7 +183,7 @@ async function LiveDashboard({
                       <span className="w-24 shrink-0 truncate text-sm text-muted-foreground">
                         {source.source}
                       </span>
-                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/5">
+                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-black/5 dark:bg-white/5">
                         <div
                           className="h-full rounded-full bg-champagne"
                           style={{ width: `${(source.count / maxCount) * 100}%` }}
@@ -192,22 +201,19 @@ async function LiveDashboard({
 
           <section className="surface-card p-5">
             <h2 className="mb-2 font-heading text-lg font-medium text-foreground">
-              Module în curs de conectare
+              {t("dashboard.modulesConnecting")}
             </h2>
-            <p className="text-sm text-muted-foreground">
-              Contracte, plăți, proiecte, calendar și task-uri nu sunt încă legate de date reale —
-              vor apărea aici pe măsură ce sunt activate pentru workspace-ul tău.
-            </p>
+            <p className="text-sm text-muted-foreground">{t("dashboard.modulesConnectingHint")}</p>
           </section>
         </div>
 
         <div className="space-y-6">
           <section className="surface-card p-5">
             <h2 className="mb-4 font-heading text-lg font-medium text-foreground">
-              Activitate recentă
+              {t("dashboard.recentActivity")}
             </h2>
             {recentActivity.length === 0 ? (
-              <EmptyState icon={Activity} title="Fără activitate" />
+              <EmptyState icon={Activity} title={t("dashboard.noActivity")} />
             ) : (
               <ul className="space-y-4">
                 {recentActivity.map((item) => {

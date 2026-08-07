@@ -16,5 +16,8 @@ interface CloudflareEnv {
   STRIPE_SECRET_KEY?: string;
   STRIPE_WEBHOOK_SECRET?: string;
   CRON_SECRET?: string;
+  ASSISTANT_AI_BASE_URL?: string;
+  ASSISTANT_AI_API_KEY?: string;
+  ASSISTANT_AI_MODEL?: string;
   [key: string]: unknown;
 }

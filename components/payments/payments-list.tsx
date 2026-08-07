@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, Plus, Search, Trash2, Wallet } from "lucide-react";
@@ -24,9 +26,7 @@ import {
 } from "@/components/ui/select";
 import { markPaidAction, softDeletePaymentAction } from "@/lib/actions/payments";
 import {
-  PAYMENT_METHOD_LABELS,
   PAYMENT_STATUSES,
-  PAYMENT_STATUS_LABELS,
   type PaymentMethod,
   type PaymentStatus,
 } from "@/lib/constants";
@@ -85,6 +85,7 @@ export function PaymentsList({
   canDelete,
   error,
 }: PaymentsListProps) {
+  const { t } = useI18n();
   const [payments, setPayments] = useState<PaymentListItem[]>(initialPayments);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<PaymentStatus | "all">("all");
@@ -117,7 +118,7 @@ export function PaymentsList({
     setPendingId(null);
 
     if (result.error || !result.data) {
-      toast(result.error ?? "Nu am putut marca plata ca încasată.", "error");
+      toast(result.error ?? t("modules.payments.markPaidFailed"), "error");
       return;
     }
 
@@ -128,12 +129,12 @@ export function PaymentsList({
           : item,
       ),
     );
-    toast(result.success ?? "Plată încasată.", "success");
+    toast(result.success ?? t("modules.payments.markedPaid"), "success");
   }
 
   async function handleDelete(payment: PaymentListItem) {
     if (pendingId) return;
-    if (!window.confirm(`Ștergi plata „${payment.label}”?`)) return;
+    if (!window.confirm(t("modules.payments.deleteConfirm", { label: payment.label }))) return;
     setPendingId(payment.id);
     const result = await softDeletePaymentAction(payment.id);
     setPendingId(null);
@@ -144,13 +145,13 @@ export function PaymentsList({
     }
 
     setPayments((current) => current.filter((item) => item.id !== payment.id));
-    toast(result.success ?? "Plată ștearsă.", "success");
+    toast(result.success ?? t("modules.payments.deleted"), "success");
   }
 
   return (
     <ModuleShell
-      title="Plăți"
-      description="Avansuri, tranșe și plăți restante pentru toți clienții."
+      title={t("modules.payments.title")}
+      description={t("modules.payments.description")}
       actions={
         canWrite ? (
           <Button type="button" onClick={() => setDialogOpen(true)}>
@@ -172,33 +173,33 @@ export function PaymentsList({
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <StatCard
-            label="Total încasat"
+            label={t("modules.payments.totalCollected")}
             value={formatCurrency(totalPaid, kpiCurrency)}
             icon={Wallet}
             hint={kpis.length > 1 ? `+${kpis.length - 1} alte valute` : undefined}
           />
           <StatCard
-            label="Total de încasat"
+            label={t("modules.payments.totalOutstanding")}
             value={formatCurrency(totalOutstanding, kpiCurrency)}
-            hint="Sume rămase de colectat"
+            hint={t("modules.payments.outstandingHint")}
             icon={CheckCircle2}
           />
           <StatCard
             label="Restante"
             value={formatCurrency(totalOverdue, kpiCurrency)}
-            hint={`${overdueCount} plăți întârziate`}
+            hint={t("modules.payments.overdueHint", { count: overdueCount })}
             icon={AlertTriangle}
           />
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <label className="relative block max-w-sm flex-1">
-            <span className="sr-only">Căutare plăți</span>
+            <span className="sr-only">{t("modules.payments.searchSr")}</span>
             <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Caută după denumire, referință, client…"
+              placeholder={t("modules.payments.searchPlaceholder")}
               className="h-9 pl-9"
             />
           </label>
@@ -214,7 +215,7 @@ export function PaymentsList({
               <SelectItem value="all">Toate statusurile</SelectItem>
               {PAYMENT_STATUSES.map((status) => (
                 <SelectItem key={status} value={status}>
-                  {PAYMENT_STATUS_LABELS[status]}
+                  {t(`status.payment.${status}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -224,11 +225,11 @@ export function PaymentsList({
         {filtered.length === 0 ? (
           <EmptyState
             icon={Wallet}
-            title={payments.length === 0 ? "Nicio plată" : "Nicio plată găsită"}
+            title={payments.length === 0 ? t("modules.payments.empty") : t("modules.payments.emptyFiltered")}
             description={
               payments.length === 0
-                ? "Nu există plăți înregistrate."
-                : "Încearcă alți termeni de căutare sau alt filtru de status."
+                ? t("modules.payments.emptyHint")
+                : t("common.searchNoResultsHint")
             }
             action={
               payments.length === 0 && canWrite ? (
@@ -246,12 +247,12 @@ export function PaymentsList({
                 <tr className="border-b border-border text-xs text-muted-foreground uppercase tracking-[0.08em]">
                   <th className="px-4 py-3 font-medium">Denumire</th>
                   <th className="px-4 py-3 font-medium">Client / Contract</th>
-                  <th className="px-4 py-3 font-medium">Sumă</th>
-                  <th className="px-4 py-3 font-medium">Încasat</th>
+                  <th className="px-4 py-3 font-medium">{t("common.amount")}</th>
+                  <th className="px-4 py-3 font-medium">{t("common.collected")}</th>
                   <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">Scadență</th>
-                  <th className="px-4 py-3 font-medium">Metodă</th>
-                  <th className="px-4 py-3 font-medium">Acțiuni</th>
+                  <th className="px-4 py-3 font-medium">{t("common.dueDate")}</th>
+                  <th className="px-4 py-3 font-medium">{t("common.method")}</th>
+                  <th className="px-4 py-3 font-medium">{t("common.actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -276,7 +277,7 @@ export function PaymentsList({
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge
-                        label={PAYMENT_STATUS_LABELS[payment.status]}
+                        label={t(`status.payment.${payment.status}`)}
                         tone={STATUS_TONE[payment.status]}
                       />
                     </td>
@@ -284,7 +285,7 @@ export function PaymentsList({
                       {payment.dueDate ? formatDate(payment.dueDate) : "—"}
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">
-                      {payment.method ? PAYMENT_METHOD_LABELS[payment.method] : "—"}
+                      {payment.method ? t(`status.paymentMethod.${payment.method}`) : "—"}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
@@ -298,7 +299,7 @@ export function PaymentsList({
                             disabled={pendingId === payment.id}
                             className="text-xs text-champagne hover:text-champagne-soft"
                           >
-                            Încasează
+                            {t("modules.payments.markPaid")}
                           </button>
                         ) : null}
                         {canDelete ? (
@@ -307,7 +308,7 @@ export function PaymentsList({
                             onClick={() => handleDelete(payment)}
                             disabled={pendingId === payment.id}
                             className="text-muted-foreground hover:text-destructive"
-                            aria-label={`Șterge plata ${payment.label}`}
+                            aria-label={t("modules.payments.deleteAria", { label: payment.label })}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>

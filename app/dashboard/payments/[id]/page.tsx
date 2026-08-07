@@ -7,6 +7,7 @@ import { listClients } from "@/lib/data/clients";
 import { getPaymentById } from "@/lib/data/payments";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { requireWorkspace } from "@/lib/workspace/session";
+import { getTranslator } from "@/lib/i18n/t";
 
 type PaymentPageParams = { id: string };
 
@@ -21,6 +22,7 @@ export default async function PaymentDetailPage({
 }: {
   params: Promise<PaymentPageParams>;
 }) {
+  const { t } = await getTranslator();
   const { id } = await params;
   const ctx = await requireWorkspace();
 
@@ -79,7 +81,7 @@ export default async function PaymentDetailPage({
   };
 
   return (
-    <ModuleShell title={payment.label} description="Detalii plată">
+    <ModuleShell title={payment.label} description={t("common.details")}>
       <PaymentDetail
         payment={payment}
         clients={clientRows.map((client) => ({ id: client.id, name: client.name }))}

@@ -1,0 +1,9 @@
+{
+  "title": "Billing",
+  "currentPlan": "Plan curent",
+  "upgrade": "Upgrade",
+  "usage": "Utilizare",
+  "invoices": "Facturi",
+  "manage": "Gestionează abonamentul",
+  "limits": "Limite"
+}

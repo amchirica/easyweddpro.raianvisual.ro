@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -61,7 +63,6 @@ import {
 } from "@/lib/actions/contracts";
 import {
   CONTRACT_STATUSES,
-  CONTRACT_STATUS_LABELS,
   type ContractStatus,
 } from "@/lib/constants";
 import {
@@ -119,6 +120,7 @@ export function ContractsList({
   clients,
   error,
 }: ContractsListProps) {
+  const { t } = useI18n();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<ContractStatus | "all">("all");
   const [clientId, setClientId] = useState<string>("all");
@@ -153,7 +155,7 @@ export function ContractsList({
   }, [initialContracts, search, status, clientId, eventFrom, eventTo]);
 
   async function handlePublish(contract: ContractListItem) {
-    if (!requireLive("Publicarea contractelor necesită un cont conectat.")) {
+    if (!requireLive(t("modules.contracts.needAccountPublish"))) {
       setPublishTarget(null);
       return;
     }
@@ -171,7 +173,7 @@ export function ContractsList({
   }
 
   async function handleCancel(contract: ContractListItem) {
-    if (!requireLive("Anularea contractelor necesită un cont conectat.")) {
+    if (!requireLive(t("modules.contracts.needAccountCancel"))) {
       setCancelTarget(null);
       return;
     }
@@ -189,7 +191,7 @@ export function ContractsList({
   }
 
   async function handleDuplicate(contractId: string) {
-    if (!requireLive("Duplicarea contractelor necesită un cont conectat.")) return;
+    if (!requireLive(t("modules.contracts.needAccountDuplicate"))) return;
     setBusyId(contractId);
     const result = await duplicateContractAction(contractId);
     setBusyId(null);
@@ -205,7 +207,7 @@ export function ContractsList({
   }
 
   async function handleNewVersion(contractId: string) {
-    if (!requireLive("Versiunea nouă necesită un cont conectat.")) return;
+    if (!requireLive(t("modules.contracts.needAccountVersion"))) return;
     setBusyId(contractId);
     const result = await createContractVersionAction(contractId);
     setBusyId(null);
@@ -214,7 +216,7 @@ export function ContractsList({
       toast(result.error, "error");
       return;
     }
-    toast(result?.success ?? "Versiune nouă creată.", "success");
+    toast(result?.success ?? t("modules.contracts.versionCreated"), "success");
     if (result?.data?.contractId) {
       router.push(`/dashboard/contracts/${result.data.contractId}?edit=1`);
     }
@@ -225,14 +227,14 @@ export function ContractsList({
     const url = `${window.location.origin}/c/${contract.publicToken}`;
     try {
       await navigator.clipboard.writeText(url);
-      toast("Link copiat în clipboard.", "success");
+      toast(t("common.linkCopied"), "success");
     } catch {
       toast("Nu am putut copia linkul.", "error");
     }
   }
 
   async function handleCreate() {
-    if (!requireLive("Crearea contractelor necesită un cont conectat.")) return;
+    if (!requireLive(t("modules.contracts.needAccountCreate"))) return;
     setBusyId("new");
     const result = await createContractAction({ title: "Contract nou" });
     setBusyId(null);
@@ -247,10 +249,10 @@ export function ContractsList({
   }
 
   async function handleSoftDelete(contract: ContractListItem) {
-    if (!requireLive("Ștergerea contractelor necesită un cont conectat.")) return;
+    if (!requireLive(t("modules.contracts.needAccountDelete"))) return;
     if (
       !window.confirm(
-        `Ștergi draftul „${contract.title}”? Contractul acceptat nu poate fi șters destructiv.`,
+        t("modules.contracts.deleteDraftConfirm", { title: contract.title }),
       )
     ) {
       return;
@@ -262,12 +264,12 @@ export function ContractsList({
       toast(result.error, "error");
       return;
     }
-    toast(result?.success ?? "Contract șters.", "success");
+    toast(result?.success ?? t("modules.contracts.deleted"), "success");
     router.refresh();
   }
 
   async function handleArchive(contract: ContractListItem) {
-    if (!requireLive("Arhivarea contractelor necesită un cont conectat.")) return;
+    if (!requireLive(t("modules.contracts.needAccountArchive"))) return;
     if (!window.confirm(`Arhivezi contractul „${contract.title}”?`)) return;
     setBusyId(contract.id);
     const result = await archiveContractAction(contract.id);
@@ -285,7 +287,7 @@ export function ContractsList({
       toast("Contractul nu are client asociat.", "error");
       return;
     }
-    if (!requireLive("Portalul client necesită un cont conectat.")) return;
+    if (!requireLive(t("modules.contracts.needAccountPortal"))) return;
     setBusyId(contract.id);
     const result = await createPortalTokenAction(contract.clientId);
     setBusyId(null);
@@ -298,17 +300,17 @@ export function ContractsList({
       const url = `${window.location.origin}${result.data.portalUrlPath}`;
       try {
         await navigator.clipboard.writeText(url);
-        toast("Link portal copiat în clipboard.", "success");
+        toast(t("modules.contracts.portalLinkCopied"), "success");
       } catch {
-        toast("Link portal generat.", "success");
+        toast(t("modules.contracts.portalLinkCopied"), "success");
       }
     }
   }
 
   return (
     <ModuleShell
-      title="Contracte"
-      description="Contractele semnate și în curs de negociere cu clienții tăi."
+      title={t("modules.contracts.title")}
+      description={t("modules.contracts.description")}
     >
       <div className="space-y-5">
         {mode === "demo" ? <DemoBanner /> : null}
@@ -325,12 +327,12 @@ export function ContractsList({
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <label className="relative block max-w-sm flex-1">
-              <span className="sr-only">Căutare contracte</span>
+              <span className="sr-only">{t("modules.contracts.searchSr")}</span>
               <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Caută după titlu, număr sau client…"
+                placeholder={t("modules.contracts.searchPlaceholder")}
                 className="h-9 pl-9"
               />
             </label>
@@ -338,7 +340,7 @@ export function ContractsList({
             {canWrite ? (
               <Button type="button" size="sm" onClick={handleCreate} disabled={busyId === "new"}>
                 <Plus data-icon="inline-start" />
-                {busyId === "new" ? "Se creează…" : "Contract nou"}
+                {busyId === "new" ? t("common.creating") : t("modules.contracts.new")}
               </Button>
             ) : null}
 
@@ -350,10 +352,10 @@ export function ContractsList({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Toate statusurile</SelectItem>
+                <SelectItem value="all">{t("common.allStatuses")}</SelectItem>
                 {CONTRACT_STATUSES.map((item) => (
                   <SelectItem key={item} value={item}>
-                    {CONTRACT_STATUS_LABELS[item]}
+                    {t(`status.contract.${item}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -362,10 +364,10 @@ export function ContractsList({
             {clients && clients.length > 0 ? (
               <Select value={clientId} onValueChange={(value) => setClientId(value ?? "all")}>
                 <SelectTrigger className="h-9 w-full sm:w-52">
-                  <SelectValue placeholder="Toți clienții" />
+                  <SelectValue placeholder={t("common.allClients")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Toți clienții</SelectItem>
+                  <SelectItem value="all">{t("common.allClients")}</SelectItem>
                   {clients.map((client) => (
                     <SelectItem key={client.id} value={client.id}>
                       {client.name}
@@ -389,7 +391,7 @@ export function ContractsList({
               value={eventTo}
               onChange={(event) => setEventTo(event.target.value)}
               className="h-9 w-full sm:w-44"
-              aria-label="Eveniment până la"
+              aria-label={t("modules.contracts.eventUntil")}
             />
           </div>
         </div>
@@ -397,11 +399,11 @@ export function ContractsList({
         {filtered.length === 0 ? (
           <EmptyState
             icon={ScrollText}
-            title={initialContracts.length === 0 ? "Niciun contract" : "Niciun contract găsit"}
+            title={initialContracts.length === 0 ? t("modules.contracts.empty") : t("modules.contracts.emptyFiltered")}
             description={
               initialContracts.length === 0
-                ? "Creează un contract manual sau generează-l dintr-o ofertă acceptată."
-                : "Încearcă alți termeni de căutare sau alți filtre."
+                ? t("modules.contracts.emptyHint")
+                : t("common.searchNoResultsHint")
             }
             action={
               canWrite && initialContracts.length === 0 ? (
@@ -417,7 +419,7 @@ export function ContractsList({
             <table className="w-full min-w-[1080px] text-left text-sm">
               <thead>
                 <tr className="border-b border-border text-xs text-muted-foreground uppercase tracking-[0.08em]">
-                  <th className="px-4 py-3 font-medium">Număr</th>
+                  <th className="px-4 py-3 font-medium">{t("common.number")}</th>
                   <th className="px-4 py-3 font-medium">Client</th>
                   <th className="px-4 py-3 font-medium">Titlu</th>
                   <th className="px-4 py-3 font-medium">Total</th>
@@ -426,7 +428,7 @@ export function ContractsList({
                   <th className="px-4 py-3 font-medium">Status</th>
                   <th className="px-4 py-3 font-medium">Eveniment</th>
                   <th className="px-4 py-3 font-medium">Actualizat</th>
-                  <th className="px-4 py-3 font-medium">Acțiuni</th>
+                  <th className="px-4 py-3 font-medium">{t("common.actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -458,7 +460,7 @@ export function ContractsList({
                       </td>
                       <td className="px-4 py-3">
                         <StatusBadge
-                          label={CONTRACT_STATUS_LABELS[contract.effectiveStatus]}
+                          label={t(`status.contract.${contract.effectiveStatus}`)}
                           tone={CONTRACT_STATUS_TONE[contract.effectiveStatus]}
                         />
                       </td>
@@ -484,7 +486,7 @@ export function ContractsList({
                                   variant="ghost"
                                   size="icon-sm"
                                   disabled={isBusy}
-                                  aria-label="Mai multe acțiuni"
+                                  aria-label={t("common.moreActions")}
                                 />
                               }
                             >
@@ -498,24 +500,24 @@ export function ContractsList({
                                   }}
                                 >
                                   <Pencil className="h-3.5 w-3.5" />
-                                  Editează draft
+                                  {t("modules.contracts.editDraft")}
                                 </DropdownMenuItem>
                               ) : null}
                               {showPublish ? (
                                 <DropdownMenuItem onClick={() => setPublishTarget(contract)}>
                                   <Send className="h-3.5 w-3.5" />
-                                  Publică
+                                  {t("modules.contracts.publish")}
                                 </DropdownMenuItem>
                               ) : null}
                               {hasPublicLink ? (
                                 <DropdownMenuItem onClick={() => handleCopyLink(contract)}>
                                   <Copy className="h-3.5 w-3.5" />
-                                  Copiază link
+                                  {t("common.copyLink")}
                                 </DropdownMenuItem>
                               ) : null}
                               <DropdownMenuItem onClick={() => handleDuplicate(contract.id)}>
                                 <Files className="h-3.5 w-3.5" />
-                                Duplică
+                                {t("common.duplicate")}
                               </DropdownMenuItem>
                               {showCancel ? (
                                 <>
@@ -525,14 +527,14 @@ export function ContractsList({
                                     onClick={() => setCancelTarget(contract)}
                                   >
                                     <Ban className="h-3.5 w-3.5" />
-                                    Anulează
+                                    {t("common.cancel")}
                                   </DropdownMenuItem>
                                 </>
                               ) : null}
                               {showVersion ? (
                                 <DropdownMenuItem onClick={() => handleNewVersion(contract.id)}>
                                   <Plus className="h-3.5 w-3.5" />
-                                  Versiune nouă
+                                  {t("modules.contracts.newVersion")}
                                 </DropdownMenuItem>
                               ) : null}
                               <DropdownMenuItem
@@ -551,7 +553,7 @@ export function ContractsList({
                               {contract.clientId ? (
                                 <DropdownMenuItem onClick={() => handlePortal(contract)}>
                                   <Globe className="h-3.5 w-3.5" />
-                                  Link portal
+                                  {t("modules.contracts.portalLink")}
                                 </DropdownMenuItem>
                               ) : null}
                               {hasPublicLink ? (
@@ -562,7 +564,7 @@ export function ContractsList({
                                   }
                                 >
                                   <ExternalLink className="h-3.5 w-3.5" />
-                                  Deschide public
+                                  {t("modules.contracts.openPublic")}
                                 </DropdownMenuItem>
                               ) : null}
                               {canWrite &&
@@ -571,7 +573,7 @@ export function ContractsList({
                                 contract.effectiveStatus === "viewed") ? (
                                 <DropdownMenuItem onClick={() => handleArchive(contract)}>
                                   <Archive className="h-3.5 w-3.5" />
-                                  Arhivează
+                                  {t("common.archive")}
                                 </DropdownMenuItem>
                               ) : null}
                               {canWrite &&
@@ -584,7 +586,7 @@ export function ContractsList({
                                     onClick={() => handleSoftDelete(contract)}
                                   >
                                     <Trash2 className="h-3.5 w-3.5" />
-                                    Șterge
+                                    {t("common.delete")}
                                   </DropdownMenuItem>
                                 </>
                               ) : null}
@@ -604,22 +606,21 @@ export function ContractsList({
       <Dialog open={Boolean(publishTarget)} onOpenChange={(open) => !open && setPublishTarget(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Publici acest contract?</DialogTitle>
+            <DialogTitle>{t("modules.contracts.publishTitle")}</DialogTitle>
             <DialogDescription>
-              Clientul va primi un link public pentru vizualizare și acceptare digitală. Contractul
-              nu va mai putea fi editat liber după publicare.
+              {t("modules.contracts.publishConfirm")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setPublishTarget(null)}>
-              Renunță
+              {t("common.dismiss")}
             </Button>
             <Button
               type="button"
               onClick={() => publishTarget && handlePublish(publishTarget)}
               disabled={Boolean(busyId)}
             >
-              {busyId ? "Se publică…" : "Publică contract"}
+              {busyId ? t("common.publishing") : t("modules.contracts.publishContract")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -628,14 +629,14 @@ export function ContractsList({
       <Dialog open={Boolean(cancelTarget)} onOpenChange={(open) => !open && setCancelTarget(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Anulezi acest contract?</DialogTitle>
+            <DialogTitle>{t("modules.contracts.cancelTitle")}</DialogTitle>
             <DialogDescription>
-              Contractul va fi marcat drept anulat și nu va mai putea fi acceptat de client.
+              {t("modules.contracts.cancelConfirm")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setCancelTarget(null)}>
-              Renunță
+              {t("common.dismiss")}
             </Button>
             <Button
               type="button"
@@ -643,7 +644,7 @@ export function ContractsList({
               onClick={() => cancelTarget && handleCancel(cancelTarget)}
               disabled={Boolean(busyId)}
             >
-              {busyId ? "Se anulează…" : "Anulează contract"}
+              {busyId ? t("common.cancelling") : t("modules.contracts.cancelContract")}
             </Button>
           </DialogFooter>
         </DialogContent>

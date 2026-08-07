@@ -1,0 +1,105 @@
+{
+  "lead": {
+    "new": "Lead nou",
+    "contacted": "Contactat",
+    "qualified": "Calificat",
+    "proposal_sent": "Ofertă trimisă",
+    "negotiation": "Negociere",
+    "won": "Contract câștigat",
+    "lost": "Pierdut"
+  },
+  "client": {
+    "active": "Activ",
+    "past": "Finalizat",
+    "lead_converted": "Convertit din lead"
+  },
+  "proposal": {
+    "draft": "Ciornă",
+    "sent": "Trimisă",
+    "viewed": "Vizualizată",
+    "accepted": "Acceptată",
+    "declined": "Refuzată",
+    "rejected": "Refuzată",
+    "expired": "Expirată",
+    "cancelled": "Anulată"
+  },
+  "contract": {
+    "draft": "Ciornă",
+    "published": "Publicat",
+    "sent": "Trimis",
+    "viewed": "Vizualizat",
+    "accepted": "Acceptat",
+    "declined": "Refuzat",
+    "expired": "Expirat",
+    "cancelled": "Anulat",
+    "superseded": "Înlocuit"
+  },
+  "project": {
+    "booked": "Rezervare",
+    "prep": "Pregătire",
+    "logistics": "Confirmare logistică",
+    "event_done": "Eveniment",
+    "follow_up": "Follow-up",
+    "backup": "Backup",
+    "selection": "Selecție",
+    "photo_edit": "Editare foto",
+    "video_edit": "Editare video",
+    "album": "Album",
+    "review": "Verificare",
+    "delivery": "Livrare",
+    "completed": "Închidere",
+    "active": "Activ",
+    "on_hold": "În așteptare",
+    "cancelled": "Anulat"
+  },
+  "task": {
+    "todo": "De făcut",
+    "in_progress": "În lucru",
+    "blocked": "Blocat",
+    "done": "Finalizat",
+    "cancelled": "Anulat",
+    "unassigned": "Neasignat"
+  },
+  "priority": {
+    "low": "Scăzută",
+    "normal": "Normală",
+    "high": "Ridicată",
+    "urgent": "Urgentă"
+  },
+  "paymentMethod": {
+    "cash": "Numerar",
+    "bank_transfer": "Transfer bancar",
+    "card": "Card",
+    "online": "Online",
+    "other": "Altele"
+  },
+  "payment": {
+    "pending": "În așteptare",
+    "partial": "Parțial",
+    "paid": "Plătit",
+    "overdue": "Întârziat",
+    "cancelled": "Anulat",
+    "refunded": "Rambursat"
+  },
+  "subscription": {
+    "active": "Activ",
+    "trialing": "Trial",
+    "past_due": "Restant",
+    "canceled": "Anulat",
+    "incomplete": "Incomplet"
+  },
+  "role": {
+    "owner": "Proprietar",
+    "admin": "Administrator",
+    "manager": "Manager",
+    "sales": "Vânzări",
+    "editor": "Editor",
+    "collaborator": "Colaborator",
+    "viewer": "Vizitator"
+  },
+  "calendar": {
+    "confirmed": "Confirmat",
+    "tentative": "Provizoriu",
+    "cancelled": "Anulat"
+  }
+}

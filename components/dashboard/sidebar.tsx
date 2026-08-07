@@ -6,6 +6,7 @@ import { ChevronsLeft, ChevronsRight } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { DASHBOARD_NAV } from "@/components/dashboard/nav-config";
+import { useI18n } from "@/components/providers/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +27,8 @@ export function Sidebar({
   workspaceName,
 }: SidebarProps) {
   const pathname = usePathname();
-  const displayWorkspaceName = workspaceName || "Workspace";
+  const { t } = useI18n();
+  const displayWorkspaceName = workspaceName || t("nav.workspaceFallback");
 
   return (
     <aside
@@ -44,8 +46,9 @@ export function Sidebar({
         />
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-4" aria-label="Navigare principală">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-4" aria-label={t("nav.dashboard")}>
         {DASHBOARD_NAV.map((item) => {
+          const label = t(`nav.${item.labelKey}`);
           const active =
             item.href === "/dashboard"
               ? pathname === "/dashboard"
@@ -62,13 +65,13 @@ export function Sidebar({
                 collapsed && "justify-center px-0",
                 active
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-muted-foreground hover:bg-white/5 hover:text-foreground",
+                  : "text-muted-foreground hover:bg-black/5 hover:text-foreground dark:hover:bg-white/5",
               )}
               aria-current={active ? "page" : undefined}
-              title={collapsed ? item.label : undefined}
+              title={collapsed ? label : undefined}
             >
               <Icon className="h-4 w-4 shrink-0" aria-hidden />
-              {!collapsed ? <span>{item.label}</span> : null}
+              {!collapsed ? <span>{label}</span> : null}
             </Link>
           );
         })}
@@ -77,7 +80,9 @@ export function Sidebar({
       <div className="border-t border-sidebar-border p-3">
         {!collapsed ? (
           <div className="mb-3 rounded-xl border border-border bg-background/40 px-3 py-2">
-            <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Workspace</p>
+            <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+              {t("nav.workspaceFallback")}
+            </p>
             <p className="truncate text-sm text-foreground">{displayWorkspaceName}</p>
           </div>
         ) : null}
@@ -87,10 +92,10 @@ export function Sidebar({
           size="sm"
           className="w-full justify-center"
           onClick={onToggle}
-          aria-label={collapsed ? "Extinde sidebar" : "Restrânge sidebar"}
+          aria-label={collapsed ? t("common.openMenu") : t("common.close")}
         >
           {collapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
-          {!collapsed ? <span className="ml-2">Restrânge</span> : null}
+          {!collapsed ? <span className="ml-2">{t("common.close")}</span> : null}
         </Button>
       </div>
     </aside>

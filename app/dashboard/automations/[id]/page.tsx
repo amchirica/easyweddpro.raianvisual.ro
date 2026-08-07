@@ -11,6 +11,7 @@ import { getAutomationById, listAutomationRuns } from "@/lib/data/automations";
 import { formatDateTime } from "@/lib/format";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { requireWorkspace } from "@/lib/workspace/session";
+import { getTranslator } from "@/lib/i18n/t";
 
 export const metadata: Metadata = {
   title: "Editează automatizare · EasyWedd Pro",
@@ -29,17 +30,18 @@ type AutomationDetailPageProps = {
 };
 
 export default async function AutomationDetailPage({ params }: AutomationDetailPageProps) {
+  const { t } = await getTranslator();
   const { id } = await params;
   const ctx = await requireWorkspace();
   const permissions = permissionsForRole(ctx.role);
 
   if (!permissions.canManageAutomations) {
     return (
-      <ModuleShell title="Automatizare" description="Editează o automatizare existentă.">
+      <ModuleShell title={t("modules.automations.edit")} description={t("modules.automations.editDescription")}>
         <EmptyState
           icon={Lock}
-          title="Nu ai permisiunea necesară"
-          description="Contactează un administrator al workspace-ului pentru acces la automatizări."
+          title={t("modules.permissionDenied")}
+          description={t("modules.permissionDeniedHint")}
         />
       </ModuleShell>
     );
@@ -53,7 +55,7 @@ export default async function AutomationDetailPage({ params }: AutomationDetailP
   return (
     <ModuleShell
       title={automation.name}
-      description="Actualizează declanșatorul, condițiile și acțiunile acestei automatizări."
+      description={t("modules.automations.editDescription")}
     >
       <div className="space-y-8">
         <AutomationForm
@@ -75,9 +77,9 @@ export default async function AutomationDetailPage({ params }: AutomationDetailP
         />
 
         <div className="surface-card p-6">
-          <p className="font-heading text-lg font-medium text-foreground">Istoric rulări</p>
+          <p className="font-heading text-lg font-medium text-foreground">{t("modules.automations.runHistory")}</p>
           {runs.length === 0 ? (
-            <p className="mt-3 text-sm text-muted-soft">Automatizarea nu a rulat încă.</p>
+            <p className="mt-3 text-sm text-muted-soft">{t("modules.automations.neverRan")}</p>
           ) : (
             <div className="mt-4 overflow-x-auto">
               <table className="w-full min-w-[520px] border-collapse text-sm">

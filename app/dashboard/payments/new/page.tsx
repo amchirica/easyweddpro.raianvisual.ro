@@ -9,22 +9,24 @@ import { Button } from "@/components/ui/button";
 import { listClients } from "@/lib/data/clients";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { requireWorkspace } from "@/lib/workspace/session";
+import { getTranslator } from "@/lib/i18n/t";
 
 export const metadata: Metadata = {
   title: "Plată nouă · EasyWedd Pro",
 };
 
 export default async function NewPaymentPage() {
+  const { t } = await getTranslator();
   const ctx = await requireWorkspace();
   const permissions = permissionsForRole(ctx.role);
 
   if (!permissions.canWritePayments) {
     return (
-      <ModuleShell title="Plată nouă" description="Înregistrează un avans, o tranșă sau o plată.">
+      <ModuleShell title={t("modules.payments.new")} description={t("modules.payments.description")}>
         <EmptyState
           icon={Lock}
-          title="Nu ai permisiunea necesară"
-          description="Contactează un administrator al workspace-ului pentru acces la crearea plăților."
+          title={t("modules.permissionDenied")}
+          description={t("modules.permissionDeniedHint")}
           action={
             <Button
               type="button"
@@ -32,7 +34,7 @@ export default async function NewPaymentPage() {
               render={<Link href="/dashboard/payments" />}
               nativeButton={false}
             >
-              Înapoi la plăți
+              {t("modules.backToList")}
             </Button>
           }
         />
@@ -59,7 +61,7 @@ export default async function NewPaymentPage() {
   ]);
 
   return (
-    <ModuleShell title="Plată nouă" description="Înregistrează un avans, o tranșă sau o plată.">
+    <ModuleShell title={t("modules.payments.new")} description={t("modules.payments.description")}>
       <NewPaymentDialogPage
         clients={clientRows.map((client) => ({ id: client.id, name: client.name }))}
         contracts={(contractRows.data ?? []).map((contract) => ({ id: contract.id, name: contract.title }))}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 
+import { useI18n } from "@/components/providers/i18n-provider";
 import { useToast } from "@/components/shared/toast-provider";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ type LogoutButtonProps = {
 };
 
 export function LogoutButton({ variant = "menu-item", className }: LogoutButtonProps) {
+  const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
   const [pending, setPending] = useState(false);
@@ -34,7 +36,7 @@ export function LogoutButton({ variant = "menu-item", className }: LogoutButtonP
         if (process.env.NODE_ENV === "development") {
           console.error("Logout failed", { status: response.status });
         }
-        toast("Deconectarea a eșuat. Încearcă din nou.", "error");
+        toast(t("auth.logoutFailed"), "error");
         setPending(false);
         return;
       }
@@ -47,7 +49,7 @@ export function LogoutButton({ variant = "menu-item", className }: LogoutButtonP
           message: error instanceof Error ? error.message : String(error),
         });
       }
-      toast("Deconectarea a eșuat. Încearcă din nou.", "error");
+      toast(t("auth.logoutFailed"), "error");
       setPending(false);
     }
   }
@@ -62,7 +64,7 @@ export function LogoutButton({ variant = "menu-item", className }: LogoutButtonP
         onClick={handleLogout}
       >
         <LogOut data-icon="inline-start" />
-        {pending ? "Se deconectează…" : "Deconectare"}
+        {pending ? t("common.loading") : t("common.signOut")}
       </Button>
     );
   }
@@ -77,7 +79,7 @@ export function LogoutButton({ variant = "menu-item", className }: LogoutButtonP
       className={cn("cursor-pointer", className)}
     >
       <LogOut className="h-3.5 w-3.5" />
-      {pending ? "Se deconectează…" : "Deconectare"}
+      {pending ? t("common.loading") : t("common.signOut")}
     </DropdownMenuItem>
   );
 }

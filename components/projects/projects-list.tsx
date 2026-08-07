@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { FolderKanban, Lock, Plus, Search } from "lucide-react";
@@ -59,6 +61,7 @@ type ProjectsListProps = {
 };
 
 export function ProjectsList({ initialProjects, mode, canWrite, error }: ProjectsListProps) {
+  const { t } = useI18n();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<ProjectStatus | "all">("all");
   const canCreate = mode === "demo" || canWrite;
@@ -75,8 +78,8 @@ export function ProjectsList({ initialProjects, mode, canWrite, error }: Project
 
   return (
     <ModuleShell
-      title="Proiecte"
-      description="Pipeline configurabil — de la rezervare la închiderea proiectului."
+      title={t("modules.projects.title")}
+      description={t("modules.projects.description")}
       actions={
         canCreate ? (
           <Button type="button" render={<Link href="/dashboard/projects/new" />} nativeButton={false}>
@@ -101,18 +104,18 @@ export function ProjectsList({ initialProjects, mode, canWrite, error }: Project
         {!canWrite && mode === "live" ? (
           <div className="flex items-center gap-2 rounded-md border border-border bg-surface-elevated/40 px-3 py-2 text-sm text-muted-foreground">
             <Lock className="h-3.5 w-3.5 shrink-0" aria-hidden />
-            Ai acces doar de vizualizare la proiecte în acest workspace.
+            {t("modules.projects.viewOnly")}
           </div>
         ) : null}
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <label className="relative block max-w-sm flex-1">
-            <span className="sr-only">Căutare proiecte</span>
+            <span className="sr-only">{t("modules.projects.searchSr")}</span>
             <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Caută după nume proiect sau client…"
+              placeholder={t("modules.projects.searchPlaceholder")}
               className="h-9 pl-9"
             />
           </label>
@@ -135,11 +138,11 @@ export function ProjectsList({ initialProjects, mode, canWrite, error }: Project
         {filtered.length === 0 ? (
           <EmptyState
             icon={FolderKanban}
-            title={initialProjects.length === 0 ? "Niciun proiect" : "Niciun proiect găsit"}
+            title={initialProjects.length === 0 ? t("modules.projects.empty") : t("modules.projects.emptyFiltered")}
             description={
               initialProjects.length === 0
-                ? "Proiectele apar automat după acceptarea unui contract sau pot fi create manual."
-                : "Încearcă alți termeni de căutare sau alt filtru de status."
+                ? t("modules.projects.emptyHint")
+                : t("common.searchNoResultsHint")
             }
             action={
               initialProjects.length === 0 && canCreate ? (
@@ -163,7 +166,7 @@ export function ProjectsList({ initialProjects, mode, canWrite, error }: Project
                     <p className="truncate font-heading text-lg font-medium text-foreground">
                       {project.name}
                     </p>
-                    <p className="text-xs text-muted-foreground">{project.clientName ?? "Fără client"}</p>
+                    <p className="text-xs text-muted-foreground">{project.clientName ?? t("common.noClient")}</p>
                   </div>
                   <StatusBadge
                     label={PROJECT_STATUS_LABELS[project.status]}
@@ -186,7 +189,7 @@ export function ProjectsList({ initialProjects, mode, canWrite, error }: Project
                 <div className="mt-auto flex items-center justify-between border-t border-border pt-3">
                   <div>
                     <p className="text-xs text-muted-soft">
-                      {project.eventDate ? formatDate(project.eventDate) : "Fără dată eveniment"}
+                      {project.eventDate ? formatDate(project.eventDate) : t("modules.projects.noEventDate")}
                     </p>
                     <p className="font-heading text-lg font-medium text-champagne">
                       {formatCurrency(project.estimatedRevenue || project.budget, project.currency)}

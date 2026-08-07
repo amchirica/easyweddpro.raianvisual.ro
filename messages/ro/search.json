@@ -1,0 +1,25 @@
+{
+  "placeholder": "Caută leaduri, clienți, oferte…",
+  "title": "Căutare globală",
+  "noResults": "Niciun rezultat",
+  "minChars": "Tastează cel puțin 2 caractere",
+  "shortcut": "Ctrl+K",
+  "groups": {
+    "leads": "Leaduri",
+    "clients": "Clienți",
+    "proposals": "Oferte",
+    "contracts": "Contracte",
+    "projects": "Proiecte",
+    "tasks": "Task-uri",
+    "payments": "Plăți",
+    "calendar": "Calendar",
+    "templates": "Template-uri",
+    "team": "Echipă",
+    "users": "Utilizatori",
+    "workspaces": "Workspace-uri",
+    "subscriptions": "Abonamente",
+    "plans": "Planuri",
+    "help": "Ajutor"
+  },
+  "helpLink": "Ajutor: Cum funcționează {module}?"
+}

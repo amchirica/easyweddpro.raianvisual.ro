@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -66,6 +68,7 @@ function AutomationToggle({
 }
 
 export function AutomationsListClient({ initialAutomations }: { initialAutomations: AutomationListItem[] }) {
+  const { t } = useI18n();
   const [automations, setAutomations] = useState(initialAutomations);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const router = useRouter();
@@ -96,12 +99,12 @@ export function AutomationsListClient({ initialAutomations }: { initialAutomatio
       toast(result.error, "error");
       return;
     }
-    toast(result.success ?? "Automatizare duplicată.", "success");
+    toast(result.success ?? t("modules.automations.duplicated"), "success");
     router.refresh();
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Ștergi această automatizare?")) return;
+    if (!window.confirm(t("modules.automations.deleteConfirm"))) return;
     setPendingId(id);
     const result = await deleteAutomationAction(id);
     setPendingId(null);
@@ -110,13 +113,13 @@ export function AutomationsListClient({ initialAutomations }: { initialAutomatio
       return;
     }
     setAutomations((current) => current.filter((item) => item.id !== id));
-    toast(result.success ?? "Automatizare ștearsă.", "success");
+    toast(result.success ?? t("modules.automations.deleted"), "success");
   }
 
   return (
     <ModuleShell
-      title="Automatizări"
-      description="Reguli automate care trimit mesaje, creează task-uri și reminder-e fără intervenție manuală."
+      title={t("modules.automations.title")}
+      description={t("modules.automations.description")}
       actions={
         <Button type="button" render={<Link href="/dashboard/automations/new" />} nativeButton={false}>
           <Plus data-icon="inline-start" />
@@ -127,8 +130,8 @@ export function AutomationsListClient({ initialAutomations }: { initialAutomatio
       {automations.length === 0 ? (
         <EmptyState
           icon={Zap}
-          title="Nicio automatizare"
-          description="Creează prima automatizare pentru a economisi timp."
+          title={t("modules.automations.empty")}
+          description={t("modules.automations.emptyHint")}
           action={
             <Button type="button" render={<Link href="/dashboard/automations/new" />} nativeButton={false}>
               <Plus data-icon="inline-start" />
@@ -153,7 +156,7 @@ export function AutomationsListClient({ initialAutomations }: { initialAutomatio
                       {automation.name}
                     </Link>
                     <p className="text-xs text-muted-foreground">
-                      Declanșator:{" "}
+                      {t("modules.automations.trigger")}:{" "}
                       {AUTOMATION_TRIGGER_LABELS[automation.triggerKey as AutomationTriggerKey] ??
                         automation.triggerKey}
                     </p>
@@ -162,7 +165,7 @@ export function AutomationsListClient({ initialAutomations }: { initialAutomatio
                 <AutomationToggle
                   enabled={automation.enabled}
                   onToggle={() => handleToggle(automation.id, !automation.enabled)}
-                  label={`Comută automatizarea ${automation.name}`}
+                  label={t("modules.automations.toggleAria", { name: automation.name })}
                   disabled={pendingId === automation.id}
                 />
               </div>
@@ -174,10 +177,10 @@ export function AutomationsListClient({ initialAutomations }: { initialAutomatio
               <div className="flex items-center justify-between border-t border-border pt-3">
                 <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Mail className="h-3.5 w-3.5" aria-hidden />
-                  {automation.channel === "email" ? "Email" : "Notificare internă"}
+                  {automation.channel === "email" ? t("modules.automations.channelEmail") : t("modules.automations.channelInternal")}
                 </span>
                 <StatusBadge
-                  label={automation.enabled ? "Activă" : "Dezactivată"}
+                  label={automation.enabled ? t("modules.automations.enabled") : t("modules.automations.disabled")}
                   tone={automation.enabled ? "success" : "neutral"}
                 />
               </div>
@@ -185,9 +188,9 @@ export function AutomationsListClient({ initialAutomations }: { initialAutomatio
               <p className="text-xs text-muted-soft">
                 {automation.lastRunAt
                   ? `Ultima rulare: ${formatDate(automation.lastRunAt)}`
-                  : "Nu a rulat încă"}
+                  : t("modules.automations.neverRanShort")}
                 {automation.successCount || automation.failedCount
-                  ? ` · ${automation.successCount} succes / ${automation.failedCount} eșec`
+                  ? t("modules.automations.runStats", { success: automation.successCount, failed: automation.failedCount })
                   : ""}
               </p>
 

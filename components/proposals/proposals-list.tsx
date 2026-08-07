@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ExternalLink, FileText, Plus, Search } from "lucide-react";
@@ -52,6 +54,7 @@ type ProposalsListProps = {
 };
 
 export function ProposalsList({ initialProposals, mode, canWrite, error }: ProposalsListProps) {
+  const { t } = useI18n();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<ProposalStatus | "all">("all");
   const canCreate = mode === "demo" || canWrite;
@@ -68,8 +71,8 @@ export function ProposalsList({ initialProposals, mode, canWrite, error }: Propo
 
   return (
     <ModuleShell
-      title="Oferte"
-      description="Creează, trimite și urmărește ofertele pentru clienți și leaduri."
+      title={t("modules.proposals.title")}
+      description={t("modules.proposals.description")}
       actions={
         canCreate ? (
           <Button type="button" render={<Link href="/dashboard/proposals/new" />} nativeButton={false}>

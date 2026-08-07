@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import { Info } from "lucide-react";
 import { z } from "zod";
 
+import { useI18n } from "@/components/providers/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,17 +13,8 @@ import { mapAuthError } from "@/lib/auth/map-auth-error";
 import { hasSupabaseEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/client";
 
-const passwordSchema = z
-  .object({
-    password: z.string().min(8, "Minim 8 caractere"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Parolele nu coincid",
-    path: ["confirmPassword"],
-  });
-
 export function UpdatePasswordForm() {
+  const { t } = useI18n();
   const router = useRouter();
 
   const [password, setPassword] = useState("");
@@ -31,20 +23,28 @@ export function UpdatePasswordForm() {
   const [pending, setPending] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  const passwordSchema = z
+    .object({
+      password: z.string().min(8, t("auth.minPassword")),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t("auth.passwordMismatch"),
+      path: ["confirmPassword"],
+    });
+
   if (!hasSupabaseEnv()) {
     return (
       <div className="flex items-start gap-3 rounded-lg border border-champagne/30 bg-champagne/10 p-4 text-sm text-champagne-soft">
         <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-        <p>Mod demo — Supabase nu este configurat, actualizarea parolei nu este disponibilă.</p>
+        <p>{t("auth.demoNoSupabase")}</p>
       </div>
     );
   }
 
   if (success) {
     return (
-      <p className="text-center text-sm text-muted-foreground">
-        Parola a fost actualizată. Te redirecționăm către autentificare…
-      </p>
+      <p className="text-center text-sm text-muted-foreground">{t("auth.passwordUpdated")}</p>
     );
   }
 
@@ -55,7 +55,7 @@ export function UpdatePasswordForm() {
 
     const result = passwordSchema.safeParse({ password, confirmPassword });
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? "Date invalide.");
+      setError(result.error.issues[0]?.message ?? t("validation.generic"));
       return;
     }
 
@@ -73,7 +73,6 @@ export function UpdatePasswordForm() {
       }
 
       setSuccess(true);
-      // Optional logout after successful password change.
       try {
         await supabase.auth.signOut({ scope: "local" });
       } catch {
@@ -90,7 +89,7 @@ export function UpdatePasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="space-y-2">
-        <Label htmlFor="password">Parolă nouă</Label>
+        <Label htmlFor="password">{t("auth.newPassword")}</Label>
         <Input
           id="password"
           name="password"
@@ -98,7 +97,7 @@ export function UpdatePasswordForm() {
           autoComplete="new-password"
           required
           minLength={8}
-          placeholder="Minim 8 caractere"
+          placeholder={t("auth.minPassword")}
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           disabled={pending || success}
@@ -106,7 +105,7 @@ export function UpdatePasswordForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="confirmPassword">Confirmă parola nouă</Label>
+        <Label htmlFor="confirmPassword">{t("auth.confirmNewPassword")}</Label>
         <Input
           id="confirmPassword"
           name="confirmPassword"
@@ -114,7 +113,7 @@ export function UpdatePasswordForm() {
           autoComplete="new-password"
           required
           minLength={8}
-          placeholder="Repetă parola"
+          placeholder={t("auth.repeatPassword")}
           value={confirmPassword}
           onChange={(event) => setConfirmPassword(event.target.value)}
           disabled={pending || success}
@@ -131,7 +130,7 @@ export function UpdatePasswordForm() {
       ) : null}
 
       <Button type="submit" className="w-full" disabled={pending || success}>
-        {pending ? "Se actualizează…" : "Actualizează parola"}
+        {pending ? t("auth.updatingPassword") : t("auth.updatePasswordCta")}
       </Button>
     </form>
   );
