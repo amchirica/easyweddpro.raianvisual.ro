@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useRouter } from "next/navigation";
 
 import { AdminConfirmDialog } from "@/components/admin/admin-confirm-dialog";
@@ -8,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { resolveSystemErrorAction } from "@/lib/actions/platform-admin";
 
 export function SystemErrorActions({ errorId }: { errorId: string }) {
+  const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -15,12 +18,12 @@ export function SystemErrorActions({ errorId }: { errorId: string }) {
     <AdminConfirmDialog
       trigger={
         <Button type="button" size="xs" variant="outline">
-          Marchează rezolvat
+          {t("admin.markResolved")}
         </Button>
       }
-      title="Rezolvă eroarea de sistem"
-      description="Eroarea va fi marcată ca rezolvată. Poți adăuga o notă în motiv."
-      confirmLabel="Rezolvă"
+      title={t("admin.resolveErrorTitle")}
+      description={t("admin.resolveErrorDesc")}
+      confirmLabel={t("admin.resolve")}
       onConfirm={async (reason) => {
         const result = await resolveSystemErrorAction({
           errorId,

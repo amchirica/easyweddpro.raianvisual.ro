@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { logActivity } from "@/lib/activity/log";
 import { actionError, actionSuccess, type ActionResult } from "@/lib/actions/types";
 import { softDeleteRow } from "@/lib/data/soft-delete";
+import { notifyTaskAssigned } from "@/lib/notifications/events";
 import { taskFormSchema } from "@/lib/validations/tasks";
 import { permissionsForRole, requireWorkspaceAction } from "@/lib/workspace/permissions";
 import type { WorkspaceContext } from "@/lib/workspace/session";
@@ -111,6 +112,14 @@ export async function createTaskAction(
     description: task.title,
   });
 
+  if (task.assignee_id && task.assignee_id !== ctx.user.id) {
+    void notifyTaskAssigned(ctx.supabase, ctx.activeWorkspace.id, {
+      id: task.id,
+      title: task.title,
+      assigneeId: task.assignee_id,
+    });
+  }
+
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/tasks");
   return actionSuccess("Task creat.", { task });
@@ -187,6 +196,18 @@ export async function updateTaskAction(
     title: "Task actualizat",
     description: task.title,
   });
+
+  if (
+    task.assignee_id &&
+    task.assignee_id !== existing.assignee_id &&
+    task.assignee_id !== ctx.user.id
+  ) {
+    void notifyTaskAssigned(ctx.supabase, ctx.activeWorkspace.id, {
+      id: task.id,
+      title: task.title,
+      assigneeId: task.assignee_id,
+    });
+  }
 
   revalidatePath("/dashboard/tasks");
   revalidatePath(`/dashboard/tasks/${taskId}`);

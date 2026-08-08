@@ -32,8 +32,9 @@ function mapProjectRowToInitial(row: ProjectDetailRow): ProjectFormInitialData {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getTranslator();
   return {
-    title: "Editează proiect · EasyWedd Pro",
+    title: `${t("modules.projects.editTitle")} · EasyWedd Pro`,
   };
 }
 

@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useMemo, useState } from "react";
 import { Check, Upload } from "lucide-react";
 
@@ -38,22 +40,7 @@ function isRedirectError(error: unknown): boolean {
   );
 }
 
-const TEAM_SIZE_OPTIONS = [
-  { value: "Solo", label: "Solo" },
-  { value: "2-5", label: "2-5 persoane" },
-  { value: "6-15", label: "6-15 persoane" },
-  { value: "15+", label: "15+ persoane" },
-];
-
 const CURRENCY_OPTIONS = ["RON", "EUR", "USD"];
-
-const STEPS = [
-  { id: 1, title: "Business", description: "Ce tip de business administrezi." },
-  { id: 2, title: "Servicii", description: "Detalii adaptate tipului tău de activitate." },
-  { id: 3, title: "Branding & fiscal", description: "Identitate vizuală și date fiscale." },
-  { id: 4, title: "Import date", description: "Importă leaduri și clienți existenți." },
-  { id: 5, title: "Primul pas", description: "Creează primul pachet sau serviciu." },
-];
 
 type CompanyData = {
   companyName: string;
@@ -101,6 +88,20 @@ const EMPTY_SPECIALTY: SpecialtyFields = {
 };
 
 export function OnboardingWizard() {
+  const { t } = useI18n();
+  const STEPS = [
+    { id: 1, title: t("modules.onboarding.stepBusiness"), description: t("modules.onboarding.stepBusinessDesc") },
+    { id: 2, title: t("modules.onboarding.stepServices"), description: t("modules.onboarding.stepServicesDesc") },
+    { id: 3, title: t("modules.onboarding.stepBranding"), description: t("modules.onboarding.stepBrandingDesc") },
+    { id: 4, title: t("modules.onboarding.stepImport"), description: t("modules.onboarding.stepImportDesc") },
+    { id: 5, title: t("modules.onboarding.stepFirst"), description: t("modules.onboarding.stepFirstDesc") },
+  ];
+  const TEAM_SIZE_OPTIONS = [
+    { value: "Solo", label: "Solo" },
+    { value: "2-5", label: t("modules.onboarding.team2_5") },
+    { value: "6-15", label: t("modules.onboarding.team6_15") },
+    { value: "15+", label: t("modules.onboarding.team15") },
+  ];
   const [step, setStep] = useState(1);
   const [finishing, setFinishing] = useState(false);
   const [finishError, setFinishError] = useState<string | null>(null);
@@ -192,8 +193,8 @@ export function OnboardingWizard() {
       if (!result.success || businessTypes.length === 0) {
         setCompanyError(
           businessTypes.length === 0
-            ? "Selectează cel puțin un tip de business."
-            : (result.error?.issues[0]?.message ?? "Completează toate câmpurile."),
+            ? t("modules.onboarding.selectBusiness")
+            : (result.error?.issues[0]?.message ?? t("modules.onboarding.fillAll")),
         );
         return;
       }
@@ -245,7 +246,7 @@ export function OnboardingWizard() {
       }
     } catch (error) {
       if (isRedirectError(error)) throw error;
-      setFinishError("Nu am putut finaliza onboarding-ul. Încearcă din nou.");
+      setFinishError(t("modules.onboarding.finishFailed"));
       setFinishing(false);
     }
   }
@@ -255,7 +256,7 @@ export function OnboardingWizard() {
       <div className="mb-8">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>
-            Pasul {step} din {STEPS.length}
+            {t("modules.onboarding.stepOf", { step, total: STEPS.length })}
           </span>
           <span>{STEPS[step - 1]?.title}</span>
         </div>
@@ -307,7 +308,7 @@ export function OnboardingWizard() {
 
               <div className="space-y-2">
                 <Label>Ce tip de business administrezi?</Label>
-                <p className="text-xs text-muted-soft">Poți selecta mai multe categorii.</p>
+                <p className="text-xs text-muted-soft">{t("modules.onboarding.multiCategory")}</p>
                 <div className="grid gap-2.5 sm:grid-cols-2">
                   {VENDOR_CATEGORY_GROUPS.map((group) => {
                     const active = businessTypes.includes(group.code);
@@ -336,7 +337,7 @@ export function OnboardingWizard() {
 
               {businessTypes.length > 0 ? (
                 <div className="space-y-2">
-                  <Label>Categorii de furnizor (opțional)</Label>
+                  <Label>{t("modules.onboarding.vendorCategories")}</Label>
                   <div className="grid gap-2 sm:grid-cols-2">
                     {businessTypes.flatMap((group) =>
                       getVendorTypesByCategory(group).map((vendor) => {
@@ -364,10 +365,10 @@ export function OnboardingWizard() {
 
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="city">Oraș</Label>
+                  <Label htmlFor="city">{t("common.city")}</Label>
                   <Input
                     id="city"
-                    placeholder="București"
+                    placeholder={t("modules.onboarding.cityPh")}
                     value={company.city}
                     onChange={(event) =>
                       setCompany((prev) => ({ ...prev, city: event.target.value }))
@@ -375,10 +376,10 @@ export function OnboardingWizard() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="country">Țară</Label>
+                  <Label htmlFor="country">{t("modules.onboarding.country")}</Label>
                   <Input
                     id="country"
-                    placeholder="România"
+                    placeholder={t("modules.onboarding.countryPh")}
                     value={company.country}
                     onChange={(event) =>
                       setCompany((prev) => ({ ...prev, country: event.target.value }))
@@ -401,7 +402,7 @@ export function OnboardingWizard() {
           {step === 2 ? (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Alege serviciile pe care le oferi — le poți edita oricând din setări.
+                {t("modules.onboarding.servicesIntro")}
               </p>
               <div className="grid gap-2.5 sm:grid-cols-2">
                 {serviceSuggestions.map((service) => {
@@ -438,10 +439,10 @@ export function OnboardingWizard() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="teamSize">Mărimea echipei</Label>
+                  <Label htmlFor="teamSize">{t("modules.onboarding.teamSize")}</Label>
                   <Select value={teamSize} onValueChange={(value) => setTeamSize(value ?? "")}>
                     <SelectTrigger id="teamSize" className="h-8 w-full">
-                      <SelectValue placeholder="Selectează" />
+                      <SelectValue placeholder={t("modules.onboarding.select")} />
                     </SelectTrigger>
                     <SelectContent>
                       {TEAM_SIZE_OPTIONS.map((option) => (
@@ -471,7 +472,7 @@ export function OnboardingWizard() {
               {showMusicFields ? (
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="lineup">Componență / formație</Label>
+                    <Label htmlFor="lineup">{t("modules.onboarding.lineup")}</Label>
                     <Input
                       id="lineup"
                       placeholder="DJ solo, 4 instrumente…"
@@ -482,7 +483,7 @@ export function OnboardingWizard() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="performanceDuration">Durată prestație</Label>
+                    <Label htmlFor="performanceDuration">{t("modules.onboarding.performanceDuration")}</Label>
                     <Input
                       id="performanceDuration"
                       placeholder="4–6 ore"
@@ -523,10 +524,10 @@ export function OnboardingWizard() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="halls">Săli</Label>
+                    <Label htmlFor="halls">{t("modules.onboarding.halls")}</Label>
                     <Input
                       id="halls"
-                      placeholder="2 săli + terasă"
+                      placeholder={t("modules.onboarding.hallsPh")}
                       value={specialty.halls}
                       onChange={(event) =>
                         setSpecialty((prev) => ({ ...prev, halls: event.target.value }))
@@ -553,7 +554,7 @@ export function OnboardingWizard() {
                     <Label htmlFor="setupTeardown">Montaj / demontaj</Label>
                     <Input
                       id="setupTeardown"
-                      placeholder="Montaj cu o zi înainte"
+                      placeholder={t("modules.onboarding.setupPh")}
                       value={specialty.setupTeardown}
                       onChange={(event) =>
                         setSpecialty((prev) => ({ ...prev, setupTeardown: event.target.value }))
@@ -564,7 +565,7 @@ export function OnboardingWizard() {
                     <Label htmlFor="inventory">Inventar / materiale</Label>
                     <Input
                       id="inventory"
-                      placeholder="Stâlpi, textile, flori…"
+                      placeholder={t("modules.onboarding.decorPh")}
                       value={specialty.inventory}
                       onChange={(event) =>
                         setSpecialty((prev) => ({ ...prev, inventory: event.target.value }))
@@ -606,7 +607,7 @@ export function OnboardingWizard() {
           {step === 3 ? (
             <div className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="currency">Monedă</Label>
+                <Label htmlFor="currency">{t("common.currency")}</Label>
                 <Select value={currency} onValueChange={(value) => setCurrency(value ?? "RON")}>
                   <SelectTrigger id="currency" className="h-8 w-full sm:w-40">
                     <SelectValue />
@@ -647,10 +648,10 @@ export function OnboardingWizard() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="address">Adresă sediu</Label>
+                <Label htmlFor="address">{t("modules.onboarding.hqAddress")}</Label>
                 <Input
                   id="address"
-                  placeholder="Str. Exemplu nr. 1, București"
+                  placeholder={t("modules.onboarding.addressPh")}
                   value={branding.address}
                   onChange={(event) =>
                     setBranding((prev) => ({ ...prev, address: event.target.value }))
@@ -671,12 +672,12 @@ export function OnboardingWizard() {
                 <div className="flex h-11 w-11 items-center justify-center rounded-full border border-champagne/30 bg-champagne/10 text-champagne">
                   <Upload className="h-5 w-5" aria-hidden />
                 </div>
-                <p className="text-sm text-foreground">Importă leaduri și clienți din CSV</p>
+                <p className="text-sm text-foreground">{t("modules.onboarding.importTitle")}</p>
                 <p className="max-w-sm text-xs text-muted-soft">
-                  Poți importa oricând mai târziu din Setări → Import date.
+                  {t("modules.onboarding.importHint")}
                 </p>
                 <Button variant="outline" size="sm" type="button" disabled>
-                  Alege fișier CSV
+                  {t("modules.onboarding.chooseCsv")}
                 </Button>
               </div>
               <label className="flex items-center gap-2.5 text-sm text-muted-foreground">
@@ -686,7 +687,7 @@ export function OnboardingWizard() {
                   onChange={(event) => setImportSkipped(event.target.checked)}
                   className="size-4 accent-[var(--champagne)]"
                 />
-                Sar peste acest pas — voi importa datele mai târziu
+                {t("modules.onboarding.skipImport")}
               </label>
             </div>
           ) : null}
@@ -694,7 +695,7 @@ export function OnboardingWizard() {
           {step === 5 ? (
             <div className="space-y-5">
               <p className="text-sm text-muted-foreground">
-                Creează primul pachet sau serviciu — îl poți folosi imediat într-o ofertă.
+                {t("modules.onboarding.firstPackageIntro")}
               </p>
               <div className="space-y-2">
                 <Label htmlFor="packageName">Nume pachet / serviciu</Label>
@@ -708,7 +709,7 @@ export function OnboardingWizard() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="packagePrice">Preț (RON)</Label>
+                <Label htmlFor="packagePrice">{t("modules.onboarding.packagePrice")}</Label>
                 <Input
                   id="packagePrice"
                   type="number"
@@ -726,7 +727,7 @@ export function OnboardingWizard() {
                 ) : null}
               </div>
               <p className="text-xs text-muted-soft">
-                Poți sări și acest pas — pachetul se poate crea oricând din Dashboard → Template-uri.
+                {t("modules.onboarding.skipPackage")}
               </p>
             </div>
           ) : null}
@@ -744,13 +745,13 @@ export function OnboardingWizard() {
 
       <div className="mt-6 flex items-center justify-between">
         <Button variant="ghost" onClick={goBack} disabled={step === 1 || finishing}>
-          Înapoi
+          {t("common.back")}
         </Button>
         {step < STEPS.length ? (
-          <Button onClick={goNext}>Continuă</Button>
+          <Button onClick={goNext}>{t("modules.onboarding.continue")}</Button>
         ) : (
           <Button onClick={handleFinish} disabled={finishing}>
-            {finishing ? "Se finalizează…" : "Finalizează"}
+            {finishing ? t("modules.onboarding.finishing") : t("modules.onboarding.finish")}
           </Button>
         )}
       </div>

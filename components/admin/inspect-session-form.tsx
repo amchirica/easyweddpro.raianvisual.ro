@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
@@ -10,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { startInspectSessionAction } from "@/lib/actions/platform-admin";
 
 export function InspectSessionForm({ workspaceId }: { workspaceId: string }) {
+  const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
   const [reason, setReason] = useState("");
@@ -19,7 +22,7 @@ export function InspectSessionForm({ workspaceId }: { workspaceId: string }) {
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     if (reason.trim().length < 10) {
-      setError("Motivul trebuie să aibă cel puțin 10 caractere.");
+      setError(t("admin.reasonMin10"));
       return;
     }
     setBusy(true);
@@ -34,7 +37,7 @@ export function InspectSessionForm({ workspaceId }: { workspaceId: string }) {
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Acțiunea a eșuat.");
+      setError(err instanceof Error ? err.message : t("admin.actionFailed"));
     } finally {
       setBusy(false);
     }
@@ -48,19 +51,19 @@ export function InspectSessionForm({ workspaceId }: { workspaceId: string }) {
           id="inspect-reason"
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder="Explică de ce inspectezi acest workspace (min. 10 caractere)…"
+          placeholder={t("admin.inspectReasonPh")}
           rows={4}
           required
           minLength={10}
           maxLength={500}
         />
         <p className="text-xs text-muted-soft">
-          Sesiunea este read-only, expiră în 60 de minute și este jurnalizată în audit.
+          {t("admin.inspectSessionHint")}
         </p>
       </div>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
       <Button type="submit" disabled={busy}>
-        {busy ? "Se deschide…" : "Pornește inspectarea"}
+        {busy ? t("billing.opening") : t("admin.startInspect")}
       </Button>
     </form>
   );

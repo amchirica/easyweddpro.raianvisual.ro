@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -128,6 +130,7 @@ const STATUS_TONE: Record<ProjectStatus, "neutral" | "accent" | "warning" | "suc
 };
 
 export function ProjectDetail({ project, mode, canWrite, canDelete }: ProjectDetailProps) {
+  const { t } = useI18n();
   const [archiving, setArchiving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [restoring, setRestoring] = useState(false);
@@ -145,7 +148,7 @@ export function ProjectDetail({ project, mode, canWrite, canDelete }: ProjectDet
   }
 
   async function handleArchive() {
-    if (!requireLive("Arhivarea proiectelor necesită un cont conectat.")) {
+    if (!requireLive(t("modules.projects.needAccountArchive"))) {
       setArchiveOpen(false);
       return;
     }
@@ -163,7 +166,7 @@ export function ProjectDetail({ project, mode, canWrite, canDelete }: ProjectDet
   }
 
   async function handleRestore() {
-    if (!requireLive("Restaurarea proiectelor necesită un cont conectat.")) return;
+    if (!requireLive(t("modules.projects.needAccountRestore"))) return;
     setRestoring(true);
     const result = await restoreProjectAction(project.id);
     setRestoring(false);
@@ -177,7 +180,7 @@ export function ProjectDetail({ project, mode, canWrite, canDelete }: ProjectDet
   }
 
   async function handleDelete() {
-    if (!requireLive("Ștergerea proiectelor necesită un cont conectat.")) {
+    if (!requireLive(t("modules.projects.needAccountDelete"))) {
       setDeleteOpen(false);
       return;
     }
@@ -203,7 +206,7 @@ export function ProjectDetail({ project, mode, canWrite, canDelete }: ProjectDet
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-        Înapoi la proiecte
+        {t("modules.projects.backToList")}
       </Link>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -225,7 +228,7 @@ export function ProjectDetail({ project, mode, canWrite, canDelete }: ProjectDet
                 {project.clientName ?? "Client"}
               </Link>
             ) : (
-              project.clientName ?? "Fără client"
+              project.clientName ?? t("common.noClient")
             )}
             {project.location ? ` · ${project.location}` : ""}
           </p>
@@ -241,24 +244,24 @@ export function ProjectDetail({ project, mode, canWrite, canDelete }: ProjectDet
               nativeButton={false}
             >
               <Pencil data-icon="inline-start" />
-              Editează
+              {t("common.edit")}
             </Button>
           ) : null}
           {canWrite && !project.archivedAt ? (
             <Button type="button" variant="outline" size="sm" onClick={() => setArchiveOpen(true)}>
-              Arhivează
+              {t("common.archive")}
             </Button>
           ) : null}
           {canWrite && project.archivedAt ? (
             <Button type="button" variant="outline" size="sm" onClick={handleRestore} disabled={restoring}>
               <RotateCcw data-icon="inline-start" />
-              {restoring ? "Se restaurează…" : "Restaurează"}
+              {restoring ? t("modules.projects.restoring") : t("common.restore")}
             </Button>
           ) : null}
           {canDelete ? (
             <Button type="button" variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
               <Trash2 data-icon="inline-start" />
-              Șterge
+              {t("common.delete")}
             </Button>
           ) : null}
         </div>
@@ -284,7 +287,7 @@ export function ProjectDetail({ project, mode, canWrite, canDelete }: ProjectDet
           </p>
         </div>
         <div className="surface-card space-y-2 p-5">
-          <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">Marjă</p>
+          <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">{t("modules.projects.margin")}</p>
           <p className={`font-heading text-xl font-medium ${margin >= 0 ? "text-foreground" : "text-destructive"}`}>
             {formatCurrency(margin, project.currency)}
           </p>
@@ -308,14 +311,14 @@ export function ProjectDetail({ project, mode, canWrite, canDelete }: ProjectDet
         <div className="surface-card space-y-2 p-5">
           <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">Eveniment</p>
           <p className="text-sm text-foreground">
-            {project.eventDate ? formatDate(project.eventDate) : "Fără dată setată"}
+            {project.eventDate ? formatDate(project.eventDate) : t("modules.projects.noDateSet")}
           </p>
           <p className="text-xs text-muted-soft">
             Termen livrare: {project.deadline ? formatDate(project.deadline) : "—"}
           </p>
         </div>
         <div className="surface-card space-y-2 p-5">
-          <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">Echipă</p>
+          <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">{t("modules.projects.team")}</p>
           {project.team.length ? (
             <div className="flex flex-wrap gap-1.5">
               {project.team.map((member) => (
@@ -323,7 +326,7 @@ export function ProjectDetail({ project, mode, canWrite, canDelete }: ProjectDet
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-soft">Nicio persoană asignată încă.</p>
+            <p className="text-sm text-muted-soft">{t("modules.projects.noAssignees")}</p>
           )}
         </div>
       </div>
@@ -346,7 +349,7 @@ export function ProjectDetail({ project, mode, canWrite, canDelete }: ProjectDet
 
       {project.notes ? (
         <div className="surface-card space-y-2 p-5">
-          <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">Notițe</p>
+          <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">{t("modules.leads.notesLabel")}</p>
           <p className="text-sm whitespace-pre-wrap text-foreground">{project.notes}</p>
         </div>
       ) : null}
@@ -367,15 +370,15 @@ export function ProjectDetail({ project, mode, canWrite, canDelete }: ProjectDet
           <DialogHeader>
             <DialogTitle>Arhivezi acest proiect?</DialogTitle>
             <DialogDescription>
-              Proiectul rămâne disponibil în istoric, dar nu va mai apărea în lista activă.
+              {t("modules.projects.archiveConfirm")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setArchiveOpen(false)} disabled={archiving}>
-              Renunță
+              {t("common.dismiss")}
             </Button>
             <Button type="button" onClick={handleArchive} disabled={archiving}>
-              {archiving ? "Se arhivează…" : "Arhivează proiect"}
+              {archiving ? t("modules.projects.archiving") : t("modules.projects.archiveProject")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -384,17 +387,17 @@ export function ProjectDetail({ project, mode, canWrite, canDelete }: ProjectDet
       <Dialog open={deleteOpen} onOpenChange={(next) => !deleting && setDeleteOpen(next)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Ștergi acest proiect?</DialogTitle>
+            <DialogTitle>{t("modules.projects.deleteTitle")}</DialogTitle>
             <DialogDescription>
-              Proiectul va fi marcat ca șters și eliminat din listă. Poate fi restaurat ulterior.
+              {t("modules.projects.deleteConfirm")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setDeleteOpen(false)} disabled={deleting}>
-              Renunță
+              {t("common.dismiss")}
             </Button>
             <Button type="button" variant="destructive" onClick={handleDelete} disabled={deleting}>
-              {deleting ? "Se șterge…" : "Șterge proiect"}
+              {deleting ? t("modules.projects.deleting") : t("modules.projects.deleteProject")}
             </Button>
           </DialogFooter>
         </DialogContent>

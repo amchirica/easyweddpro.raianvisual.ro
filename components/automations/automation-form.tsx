@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Plus, Trash2 } from "lucide-react";
@@ -201,6 +203,7 @@ type AutomationFormProps = {
 };
 
 export function AutomationForm({ mode, initial }: AutomationFormProps) {
+  const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -258,11 +261,11 @@ export function AutomationForm({ mode, initial }: AutomationFormProps) {
 
     const parsed = automationFormSchema.safeParse(payload);
     if (!parsed.success) {
-      setFormError(parsed.error.issues[0]?.message ?? "Verifică datele completate.");
+      setFormError(parsed.error.issues[0]?.message ?? t("common.verifyData"));
       return;
     }
     if (!parsed.data.actions.length) {
-      setFormError("Adaugă cel puțin o acțiune validă.");
+      setFormError(t("modules.automations.addActionRequired"));
       return;
     }
 
@@ -296,11 +299,11 @@ export function AutomationForm({ mode, initial }: AutomationFormProps) {
               id="automation-name"
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="Ex: Email după lead nou"
+              placeholder={t("modules.automations.namePh")}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="automation-trigger">Declanșator</Label>
+            <Label htmlFor="automation-trigger">{t("modules.automations.trigger")}</Label>
             <Select value={triggerKey} onValueChange={(value) => setTriggerKey(value as AutomationTriggerKey)}>
               <SelectTrigger id="automation-trigger" className="h-8 w-full">
                 <SelectValue />
@@ -318,28 +321,28 @@ export function AutomationForm({ mode, initial }: AutomationFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="automation-description">Descriere (opțional)</Label>
+          <Label htmlFor="automation-description">{t("modules.automations.descriptionOptional")}</Label>
           <Textarea
             id="automation-description"
             rows={2}
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder="Notează scopul acestei automatizări."
+            placeholder={t("modules.automations.descriptionPh")}
           />
         </div>
 
         <div className="flex items-center justify-between rounded-xl border border-border bg-surface-elevated/60 px-4 py-3">
           <div>
-            <p className="text-sm font-medium text-foreground">Activă</p>
+            <p className="text-sm font-medium text-foreground">{t("modules.automations.active")}</p>
             <p className="text-xs text-muted-soft">
-              Automatizările dezactivate nu rulează la niciun declanșator.
+              {t("modules.automations.disabledHint")}
             </p>
           </div>
           <button
             type="button"
             role="switch"
             aria-checked={enabled}
-            aria-label="Comută starea automatizării"
+            aria-label={t("modules.automations.toggleAriaState")}
             onClick={() => setEnabled((current) => !current)}
             className={
               enabled
@@ -361,25 +364,25 @@ export function AutomationForm({ mode, initial }: AutomationFormProps) {
       <div className="surface-card space-y-4 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-heading text-lg font-medium text-foreground">Condiții (opțional)</p>
+            <p className="font-heading text-lg font-medium text-foreground">{t("modules.automations.conditionsOptional")}</p>
             <p className="text-xs text-muted-soft">
-              Toate condițiile trebuie să fie adevărate pentru ca automatizarea să ruleze.
+              {t("modules.automations.conditionsHint")}
             </p>
           </div>
           <Button type="button" variant="outline" size="sm" onClick={() => setConditions((c) => [...c, emptyConditionItem()])}>
             <Plus data-icon="inline-start" />
-            Condiție
+            {t("modules.automations.condition")}
           </Button>
         </div>
 
         {conditions.length === 0 ? (
-          <p className="text-xs text-muted-soft">Fără condiții — automatizarea rulează de fiecare dată.</p>
+          <p className="text-xs text-muted-soft">{t("modules.automations.noConditions")}</p>
         ) : (
           <div className="space-y-3">
             {conditions.map((condition) => (
               <div key={condition.key} className="grid gap-3 rounded-xl border border-border p-3 sm:grid-cols-[1fr_1fr_1fr_auto]">
                 <Input
-                  placeholder="câmp (ex: source)"
+                  placeholder={t("modules.automations.fieldPh")}
                   value={condition.field}
                   onChange={(event) => updateCondition(condition.key, "field", event.target.value)}
                 />
@@ -421,12 +424,12 @@ export function AutomationForm({ mode, initial }: AutomationFormProps) {
       <div className="surface-card space-y-4 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-heading text-lg font-medium text-foreground">Acțiuni</p>
-            <p className="text-xs text-muted-soft">Acțiunile rulează în ordine, la fiecare declanșare.</p>
+            <p className="font-heading text-lg font-medium text-foreground">{t("modules.automations.actions")}</p>
+            <p className="text-xs text-muted-soft">{t("modules.automations.actionsHint")}</p>
           </div>
           <Button type="button" variant="outline" size="sm" onClick={() => setActions((a) => [...a, emptyActionItem()])}>
             <Plus data-icon="inline-start" />
-            Acțiune
+            {t("modules.automations.action")}
           </Button>
         </div>
 
@@ -517,7 +520,7 @@ export function AutomationForm({ mode, initial }: AutomationFormProps) {
 
               {(action.type === "create_task" || action.type === "create_reminder") ? (
                 <div className="space-y-1.5">
-                  <Label>Note (opțional)</Label>
+                  <Label>{t("modules.automations.notesOptional")}</Label>
                   <Textarea
                     rows={2}
                     value={action.notes}
@@ -528,7 +531,7 @@ export function AutomationForm({ mode, initial }: AutomationFormProps) {
 
               {action.type === "log_activity" ? (
                 <div className="space-y-1.5">
-                  <Label>Descriere (opțional)</Label>
+                  <Label>{t("modules.automations.descriptionOptional")}</Label>
                   <Textarea
                     rows={2}
                     value={action.description}
@@ -563,7 +566,7 @@ export function AutomationForm({ mode, initial }: AutomationFormProps) {
                       }
                     >
                       <SelectTrigger className="h-8 w-full">
-                        <SelectValue placeholder="Selectează statusul" />
+                        <SelectValue placeholder={t("modules.automations.selectStatus")} />
                       </SelectTrigger>
                       <SelectContent>
                         {(action.entityType === "lead" ? LEAD_STATUSES : PROJECT_STATUSES).map((status) => (
@@ -587,7 +590,7 @@ export function AutomationForm({ mode, initial }: AutomationFormProps) {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label>Conținut</Label>
+                    <Label>{t("modules.automations.content")}</Label>
                     <Textarea
                       rows={4}
                       value={action.body}
@@ -596,7 +599,7 @@ export function AutomationForm({ mode, initial }: AutomationFormProps) {
                   </div>
                   {action.type === "send_email" ? (
                     <div className="space-y-1.5">
-                      <Label>Destinatar (opțional — implicit clientul asociat)</Label>
+                      <Label>{t("modules.automations.recipientOptional")}</Label>
                       <Input
                         type="email"
                         value={action.to}
@@ -604,7 +607,7 @@ export function AutomationForm({ mode, initial }: AutomationFormProps) {
                         placeholder="client@exemplu.ro"
                       />
                       <p className="text-xs text-muted-soft">
-                        Trimiterea reală necesită RESEND_API_KEY configurat. Fără el, emailul este
+                        {t("modules.automations.resendHint")}
                         marcat drept omis, nu se pretinde trimiterea.
                       </p>
                     </div>
@@ -629,10 +632,10 @@ export function AutomationForm({ mode, initial }: AutomationFormProps) {
           onClick={() => router.push("/dashboard/automations")}
           disabled={submitting}
         >
-          Anulează
+          {t("common.cancel")}
         </Button>
         <Button type="submit" disabled={submitting}>
-          {submitting ? "Se salvează…" : mode === "create" ? "Creează automatizare" : "Salvează modificările"}
+          {submitting ? t("common.saving") : mode === "create" ? t("modules.automations.createAutomation") : t("common.saveChanges")}
         </Button>
       </div>
     </form>

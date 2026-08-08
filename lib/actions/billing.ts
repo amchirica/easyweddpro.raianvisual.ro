@@ -36,7 +36,7 @@ export async function createCheckoutSessionAction(
   const priceId = getPriceId(planId, interval);
   if (!priceId) {
     return actionError(
-      `Planul nu are un preț ${INTERVAL_LABEL[interval]} configurat momentan. Contactează suportul.`,
+      `Prețul Stripe pentru planul ${planId} (${INTERVAL_LABEL[interval]}) lipsește sau este invalid. Setează STRIPE_PRICE_* cu un id price_... (nu prod_...).`,
     );
   }
 

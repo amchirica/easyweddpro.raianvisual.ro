@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslator } from "@/lib/i18n/t";
 import { Shield } from "lucide-react";
 
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
@@ -12,6 +13,7 @@ import { PLATFORM_ROLE_LABELS, isPlatformRole } from "@/lib/platform/roles";
 import { requirePlatformPermission } from "@/lib/platform/session";
 
 export default async function AdminAdminsPage() {
+  const { t } = await getTranslator();
   const admin = await requirePlatformPermission("admins.read");
   const canWrite = canPerformPlatformAction(admin.platformRole, "admins.write");
 
@@ -51,7 +53,7 @@ export default async function AdminAdminsPage() {
         <AdminEmptyState
           icon={Shield}
           title="Niciun admin"
-          description="Nu există înregistrări în platform_admins."
+          description={t("admin.noAdmins")}
         />
       ) : null}
 
@@ -108,7 +110,7 @@ export default async function AdminAdminsPage() {
               },
               {
                 key: "actions",
-                header: "Acțiuni",
+                header: t("common.actions"),
                 cell: (row) => (
                   <AdminRoleActions
                     userId={row.id}

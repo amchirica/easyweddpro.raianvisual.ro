@@ -8,6 +8,9 @@ import { actionError, actionSuccess, type ActionResult } from "@/lib/actions/typ
 import { canCreateResource, getUsageForWorkspace } from "@/lib/billing/plans";
 import type { WorkspaceRole } from "@/lib/constants";
 import { hashPublicToken } from "@/lib/contracts/token";
+import { sendWorkspaceEmail } from "@/lib/email/send";
+import { renderInvitationEmail } from "@/lib/email/templates/transactional";
+import { notifyRoleChanged, notifyTeamInvite } from "@/lib/notifications/events";
 import {
   canChangeMemberRole,
   canDisableMember,
@@ -84,9 +87,48 @@ export async function inviteMemberAction(
       metadata: { role: parsed.data.role, has_token: true },
     });
 
+    const invitePath = `/invite/${token}`;
+
+    void notifyTeamInvite(ctx.supabase, ctx.activeWorkspace.id, {
+      id: invitation.id,
+      email,
+      invitedBy: ctx.user.id,
+    });
+
+    try {
+      const { data: profile } = await ctx.supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", ctx.user.id)
+        .maybeSingle();
+      const inviterName = profile?.full_name?.trim() || ctx.user.email || "Un coleg";
+      const rendered = renderInvitationEmail({
+        workspaceName: ctx.activeWorkspace.name,
+        inviterName,
+        role: parsed.data.role,
+        invitePath,
+      });
+      await sendWorkspaceEmail({
+        supabase: ctx.supabase,
+        workspaceId: ctx.activeWorkspace.id,
+        to: email,
+        template: "invitation",
+        subject: rendered.subject,
+        html: rendered.html,
+        entityType: "invitation",
+        entityId: invitation.id,
+        idempotencyKey: `invitation:${invitation.id}`,
+        metadata: { role: parsed.data.role },
+      });
+    } catch (emailError) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("[team.invite.email]", emailError);
+      }
+    }
+
     revalidatePath("/dashboard/team");
     return actionSuccess("Invitație creată. Copiază linkul și trimite-l colegului.", {
-      invitePath: `/invite/${token}`,
+      invitePath,
       email,
     });
   } catch (error) {
@@ -247,6 +289,11 @@ export async function changeMemberRoleAction(
       action: "member.role_changed",
       title: "Rol membru actualizat",
       metadata: { from: membership.role, to: parsed.data.role },
+    });
+
+    void notifyRoleChanged(ctx.supabase, ctx.activeWorkspace.id, {
+      userId: membership.user_id,
+      role: parsed.data.role,
     });
 
     revalidatePath("/dashboard/team");

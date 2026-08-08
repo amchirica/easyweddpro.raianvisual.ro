@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useMemo } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
@@ -99,6 +101,7 @@ export function ProposalItemsEditor({
   disabled = false,
   itemErrors,
 }: ProposalItemsEditorProps) {
+  const { t } = useI18n();
   function updateItem(index: number, patch: Partial<ProposalItemDraft>) {
     onChange(items.map((item, i) => (i === index ? { ...item, ...patch } : item)));
   }
@@ -134,7 +137,7 @@ export function ProposalItemsEditor({
     } catch {
       return {
         totals: null,
-        computeError: "Verifică cantitățile și prețurile — trebuie să fie valori pozitive.",
+        computeError: t("modules.proposals.computeError"),
       };
     }
   }, [items, discountType, discountValue, taxRate]);
@@ -142,12 +145,12 @@ export function ProposalItemsEditor({
   return (
     <div className="space-y-4">
       <div className="hidden gap-3 px-1 text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase sm:grid sm:grid-cols-[minmax(0,2fr)_110px_90px_120px_100px_120px_32px]">
-        <span>Denumire &amp; descriere</span>
-        <span>Unitate</span>
-        <span>Cant.</span>
-        <span>Preț unitar</span>
-        <span>Discount</span>
-        <span className="text-right">Total linie</span>
+        <span>{t("modules.proposals.nameAndDescription")}</span>
+        <span>{t("modules.proposals.unit")}</span>
+        <span>{t("modules.proposals.qtyShort")}</span>
+        <span>{t("modules.proposals.unitPrice")}</span>
+        <span>{t("modules.proposals.discount")}</span>
+        <span className="text-right">{t("modules.proposals.lineTotal")}</span>
         <span aria-hidden />
       </div>
 
@@ -163,13 +166,13 @@ export function ProposalItemsEditor({
               <div className="space-y-2">
                 <div className="space-y-1.5">
                   <Label htmlFor={`item-name-${item.key}`} className="sm:sr-only">
-                    Denumire item
+                    {t("modules.proposals.itemNameLabel")}
                   </Label>
                   <Input
                     id={`item-name-${item.key}`}
                     value={item.name}
                     onChange={(event) => updateItem(index, { name: event.target.value })}
-                    placeholder="Ex: Serviciu principal / pachet / oră"
+                    placeholder={t("modules.proposals.itemNamePh")}
                     aria-invalid={Boolean(errors?.name)}
                     disabled={disabled}
                   />
@@ -179,14 +182,14 @@ export function ProposalItemsEditor({
                   rows={2}
                   value={item.description}
                   onChange={(event) => updateItem(index, { description: event.target.value })}
-                  placeholder="Descriere (opțional) — transport, montaj, garanție…"
+                  placeholder={t("modules.proposals.itemDescPh")}
                   disabled={disabled}
                 />
               </div>
 
               <div className="space-y-1.5">
                 <Label htmlFor={`item-unit-${item.key}`} className="sm:sr-only">
-                  Unitate
+                  {t("modules.proposals.unit")}
                 </Label>
                 <Select
                   value={item.unit}
@@ -208,7 +211,7 @@ export function ProposalItemsEditor({
 
               <div className="space-y-1.5">
                 <Label htmlFor={`item-qty-${item.key}`} className="sm:sr-only">
-                  Cantitate
+                  {t("modules.proposals.qty")}
                 </Label>
                 <Input
                   id={`item-qty-${item.key}`}
@@ -225,7 +228,7 @@ export function ProposalItemsEditor({
 
               <div className="space-y-1.5">
                 <Label htmlFor={`item-price-${item.key}`} className="sm:sr-only">
-                  Preț unitar
+                  {t("modules.proposals.unitPrice")}
                 </Label>
                 <Input
                   id={`item-price-${item.key}`}
@@ -242,7 +245,7 @@ export function ProposalItemsEditor({
 
               <div className="space-y-1.5">
                 <Label htmlFor={`item-discount-${item.key}`} className="sm:sr-only">
-                  Discount linie
+                  {t("modules.proposals.lineDiscount")}
                 </Label>
                 <Input
                   id={`item-discount-${item.key}`}
@@ -258,7 +261,7 @@ export function ProposalItemsEditor({
               </div>
 
               <div className="flex items-center justify-between sm:justify-end sm:pt-1.5">
-                <span className="text-xs text-muted-foreground sm:hidden">Total linie</span>
+                <span className="text-xs text-muted-foreground sm:hidden">{t("modules.proposals.lineTotal")}</span>
                 <span className="font-medium text-foreground">
                   {lineTotal === null ? "—" : formatCurrency(lineTotal, currency)}
                 </span>
@@ -271,7 +274,7 @@ export function ProposalItemsEditor({
                   size="icon-sm"
                   onClick={() => removeItem(index)}
                   disabled={disabled || items.length <= 1}
-                  aria-label="Șterge item"
+                  aria-label={t("modules.proposals.removeItem")}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -283,24 +286,24 @@ export function ProposalItemsEditor({
 
       <Button type="button" variant="outline" size="sm" onClick={addItem} disabled={disabled}>
         <Plus data-icon="inline-start" />
-        Adaugă item
+        {t("modules.proposals.addItem")}
       </Button>
 
       <div className="surface-card space-y-2 p-4">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Subtotal</span>
+          <span className="text-muted-foreground">{t("common.subtotal")}</span>
           <span className="text-foreground">{formatCurrency(totals?.subtotal ?? 0, currency)}</span>
         </div>
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Discount</span>
+          <span className="text-muted-foreground">{t("modules.proposals.discount")}</span>
           <span className="text-foreground">-{formatCurrency(totals?.discountAmount ?? 0, currency)}</span>
         </div>
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">TVA</span>
+          <span className="text-muted-foreground">{t("modules.proposals.taxShort")}</span>
           <span className="text-foreground">{formatCurrency(totals?.taxAmount ?? 0, currency)}</span>
         </div>
         <div className="flex items-center justify-between border-t border-border pt-2">
-          <span className="text-sm font-medium text-foreground">Total ofertă</span>
+          <span className="text-sm font-medium text-foreground">{t("modules.proposals.totalProposal")}</span>
           <span className="font-heading text-lg font-medium text-champagne">
             {formatCurrency(totals?.total ?? 0, currency)}
           </span>

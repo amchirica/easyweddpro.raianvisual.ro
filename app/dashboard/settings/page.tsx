@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslator } from "@/lib/i18n/t";
 
 import {
   SettingsPageClient,
@@ -10,9 +11,10 @@ import type { WorkspaceRole } from "@/lib/constants";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { requireWorkspace, type WorkspaceSettings } from "@/lib/workspace/session";
 
-export const metadata: Metadata = {
-  title: "Setări · EasyWedd Pro",
-};
+export async function generateMetadata() {
+  const { t } = await getTranslator();
+  return { title: `${t("modules.settings.title")} · EasyWedd Pro` };
+}
 
 type WorkspaceNotifications = {
   emailNotifications: boolean;

@@ -17,7 +17,8 @@ import { getTranslator } from "@/lib/i18n/t";
 type TeamMemberPageParams = { id: string };
 
 export async function generateMetadata(): Promise<Metadata> {
-  return { title: "Membru echipă · EasyWedd Pro" };
+  const { t } = await getTranslator();
+  return { title: `${t("modules.team.memberTitle")} · EasyWedd Pro` };
 }
 
 export default async function TeamMemberPage({

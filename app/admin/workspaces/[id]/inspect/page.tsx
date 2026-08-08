@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslator } from "@/lib/i18n/t";
 import { notFound } from "next/navigation";
 
 import { AdminDetailPanel } from "@/components/admin/admin-detail-panel";
@@ -11,6 +12,7 @@ export default async function AdminWorkspaceInspectPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { t } = await getTranslator();
   const { id } = await params;
   const admin = await requirePlatformPermission("workspaces.inspect");
   const { data: workspace, error } = await admin.supabase
@@ -36,14 +38,13 @@ export default async function AdminWorkspaceInspectPage({
           href={`/admin/workspaces/${workspace.id}`}
           className="text-sm text-muted-soft hover:text-foreground"
         >
-          ← Înapoi la workspace
+          {t("admin.backToWorkspace")}
         </Link>
         <h1 className="font-heading text-3xl font-medium text-foreground">
           Inspectare: {workspace.name}
         </h1>
         <p className="max-w-2xl text-sm text-muted-foreground">
-          Deschide o sesiune read-only în dashboard-ul workspace-ului. Nu poți modifica date, șterge
-          înregistrări sau trimite invitații în timpul inspectării.
+          {t("admin.inspectIntro")}
         </p>
       </div>
 

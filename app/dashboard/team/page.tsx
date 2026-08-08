@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslator } from "@/lib/i18n/t";
 
 import {
   TeamPageClient,
@@ -10,11 +11,13 @@ import type { WorkspaceRole } from "@/lib/constants";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { getWorkspaceOrDemo } from "@/lib/workspace/session";
 
-export const metadata: Metadata = {
-  title: "Echipă · EasyWedd Pro",
-};
+export async function generateMetadata() {
+  const { t } = await getTranslator();
+  return { title: `${t("modules.team.title")} · EasyWedd Pro` };
+}
 
 export default async function TeamPage() {
+  const { t } = await getTranslator();
   const ctx = await getWorkspaceOrDemo();
   const permissions = permissionsForRole(ctx.role);
 
@@ -49,7 +52,7 @@ export default async function TeamPage() {
       expired: false,
     }));
   } catch (err) {
-    error = err instanceof Error ? err.message : "Nu am putut încărca echipa.";
+    error = err instanceof Error ? err.message : t("modules.team.loadFailed");
   }
 
   return (

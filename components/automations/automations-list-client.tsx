@@ -123,7 +123,7 @@ export function AutomationsListClient({ initialAutomations }: { initialAutomatio
       actions={
         <Button type="button" render={<Link href="/dashboard/automations/new" />} nativeButton={false}>
           <Plus data-icon="inline-start" />
-          Automatizare nouă
+          {t("modules.automations.new")}
         </Button>
       }
     >
@@ -135,7 +135,7 @@ export function AutomationsListClient({ initialAutomations }: { initialAutomatio
           action={
             <Button type="button" render={<Link href="/dashboard/automations/new" />} nativeButton={false}>
               <Plus data-icon="inline-start" />
-              Automatizare nouă
+              {t("modules.automations.new")}
             </Button>
           }
         />
@@ -203,7 +203,7 @@ export function AutomationsListClient({ initialAutomations }: { initialAutomatio
                   nativeButton={false}
                 >
                   <Pencil data-icon="inline-start" />
-                  Editează
+                  {t("common.edit")}
                 </Button>
                 <Button
                   type="button"
@@ -213,7 +213,7 @@ export function AutomationsListClient({ initialAutomations }: { initialAutomatio
                   disabled={pendingId === automation.id}
                 >
                   <Copy data-icon="inline-start" />
-                  Duplică
+                  {t("common.duplicate")}
                 </Button>
                 <Button
                   type="button"
@@ -223,7 +223,7 @@ export function AutomationsListClient({ initialAutomations }: { initialAutomatio
                   disabled={pendingId === automation.id}
                 >
                   <Trash2 data-icon="inline-start" />
-                  Șterge
+                  {t("common.delete")}
                 </Button>
               </div>
             </div>

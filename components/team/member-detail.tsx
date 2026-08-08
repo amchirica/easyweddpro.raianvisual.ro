@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Ban, Briefcase, CheckSquare, ClipboardList, ShieldCheck, Trash2 } from "lucide-react";
@@ -37,8 +39,8 @@ const ASSIGNABLE_ROLES: WorkspaceRole[] = [
 ];
 
 const TASK_STATUS_LABELS: Record<string, string> = {
-  todo: "De făcut",
-  in_progress: "În lucru",
+  todo: "todo",
+  in_progress: "in_progress",
   blocked: "Blocat",
   done: "Finalizat",
   cancelled: "Anulat",
@@ -76,18 +78,19 @@ type MemberDetailProps = {
 };
 
 export function MemberDetail({ member, workload, tasks, projects, canManage, isSelf }: MemberDetailProps) {
+  const { t } = useI18n();
   const [busy, setBusy] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
-  const displayName = member.fullName ?? "Membru fără profil";
+  const displayName = member.fullName ?? t("modules.team.memberNoProfile");
 
   async function handleRoleChange(nextRole: WorkspaceRole) {
     if (nextRole === member.role) return;
     let confirmOwnerTransfer = false;
     if (nextRole === "owner") {
       confirmOwnerTransfer = window.confirm(
-        `Confirmă transferul de proprietate: „${displayName}” va deveni owner.`,
+        t("modules.team.transferConfirm", { name: displayName }),
       );
       if (!confirmOwnerTransfer) return;
     }
@@ -173,13 +176,13 @@ export function MemberDetail({ member, workload, tasks, projects, canManage, isS
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard label="Sarcini active" value={String(workload.openTasks)} icon={CheckSquare} />
         <StatCard label="Total sarcini" value={String(workload.totalTasks)} icon={ClipboardList} />
-        <StatCard label="Proiecte în echipă" value={String(workload.projects)} icon={Briefcase} />
+        <StatCard label={t("modules.team.projectsOnTeam")} value={String(workload.projects)} icon={Briefcase} />
       </div>
 
       <section className="surface-card space-y-3 p-5">
         <h2 className="font-heading text-base font-medium text-foreground">Sarcini asignate</h2>
         {tasks.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nicio sarcină asignată.</p>
+          <p className="text-sm text-muted-foreground">{t("modules.team.noTasksAssigned")}</p>
         ) : (
           <ul className="divide-y divide-border">
             {tasks.map((task) => (
@@ -187,7 +190,7 @@ export function MemberDetail({ member, workload, tasks, projects, canManage, isS
                 <span className="min-w-0 truncate text-foreground">{task.title}</span>
                 <span className="flex items-center gap-2 text-xs text-muted-foreground">
                   {task.dueDate ? formatDate(task.dueDate) : "—"}
-                  <StatusBadge label={TASK_STATUS_LABELS[task.status] ?? task.status} tone="neutral" />
+                  <StatusBadge label={t(`status.task.${task.status}`) ?? task.status} tone="neutral" />
                 </span>
               </li>
             ))}
@@ -196,9 +199,9 @@ export function MemberDetail({ member, workload, tasks, projects, canManage, isS
       </section>
 
       <section className="surface-card space-y-3 p-5">
-        <h2 className="font-heading text-base font-medium text-foreground">Proiecte în echipă</h2>
+        <h2 className="font-heading text-base font-medium text-foreground">{t("modules.team.projectsOnTeam")}</h2>
         {projects.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Niciun proiect cu acest membru în echipă.</p>
+          <p className="text-sm text-muted-foreground">{t("modules.team.noProjectsOnTeam")}</p>
         ) : (
           <ul className="divide-y divide-border">
             {projects.map((project) => (
@@ -219,18 +222,18 @@ export function MemberDetail({ member, workload, tasks, projects, canManage, isS
               {member.disabledAt ? (
                 <>
                   <ShieldCheck data-icon="inline-start" />
-                  Reactivează
+                  {t("modules.team.reactivate")}
                 </>
               ) : (
                 <>
                   <Ban data-icon="inline-start" />
-                  Dezactivează
+                  {t("modules.team.deactivate")}
                 </>
               )}
             </Button>
             <Button type="button" variant="destructive" size="sm" disabled={busy} onClick={handleRemove}>
               <Trash2 data-icon="inline-start" />
-              Elimină din workspace
+              {t("modules.team.removeFromWorkspace")}
             </Button>
           </div>
         </section>

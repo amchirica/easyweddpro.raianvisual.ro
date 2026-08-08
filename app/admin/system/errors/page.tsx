@@ -1,4 +1,5 @@
 import { Bug } from "lucide-react";
+import { getTranslator } from "@/lib/i18n/t";
 
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
 import { AdminErrorState } from "@/components/admin/admin-error-state";
@@ -17,6 +18,7 @@ const SEVERITY_TONE: Record<string, "danger" | "warning" | "accent" | "muted"> =
 };
 
 export default async function AdminSystemErrorsPage() {
+  const { t } = await getTranslator();
   const admin = await requirePlatformPermission("system.read");
   const canWrite = canPerformPlatformAction(admin.platformRole, "system.write");
 
@@ -53,8 +55,8 @@ export default async function AdminSystemErrorsPage() {
       {!error && rows.length === 0 ? (
         <AdminEmptyState
           icon={Bug}
-          title="Nicio eroare deschisă"
-          description="Nu există erori nerezolvate în sistem."
+          title={t("admin.noOpenErrors")}
+          description={t("admin.noOpenErrorsDesc")}
         />
       ) : null}
 
@@ -88,21 +90,21 @@ export default async function AdminSystemErrorsPage() {
               },
               {
                 key: "count",
-                header: "Occurențe",
+                header: t("admin.occurrences"),
                 cell: (row) => (
                   <span className="text-muted-foreground">{row.occurrenceCount}</span>
                 ),
               },
               {
                 key: "last",
-                header: "Ultima apariție",
+                header: t("admin.lastSeen"),
                 cell: (row) => (
                   <span className="text-muted-soft">{formatDateTime(row.lastSeenAt)}</span>
                 ),
               },
               {
                 key: "actions",
-                header: "Acțiuni",
+                header: t("common.actions"),
                 cell: (row) =>
                   canWrite ? (
                     <SystemErrorActions errorId={row.id} />

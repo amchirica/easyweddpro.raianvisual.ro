@@ -1,5 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+
 import { useI18n } from "@/components/providers/i18n-provider";
 import { Button } from "@/components/ui/button";
 import type { AppLocale } from "@/lib/i18n/config";
@@ -9,6 +12,16 @@ const OPTIONS: AppLocale[] = ["ro", "en"];
 
 export function LocaleSwitcher({ className }: { className?: string }) {
   const { locale, setLocale, t } = useI18n();
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+
+  function switchLocale(code: AppLocale) {
+    if (code === locale || pending) return;
+    setLocale(code);
+    startTransition(() => {
+      router.refresh();
+    });
+  }
 
   return (
     <div
@@ -23,9 +36,8 @@ export function LocaleSwitcher({ className }: { className?: string }) {
           size="sm"
           variant={locale === code ? "secondary" : "ghost"}
           className="h-7 min-w-9 px-2 text-xs uppercase"
-          onClick={() => {
-            if (code !== locale) setLocale(code);
-          }}
+          disabled={pending}
+          onClick={() => switchLocale(code)}
           aria-pressed={locale === code}
         >
           {code}

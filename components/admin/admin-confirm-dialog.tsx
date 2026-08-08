@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useState, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -29,11 +31,12 @@ export function AdminConfirmDialog({
   trigger,
   title,
   description,
-  confirmLabel = "Confirmă",
+  confirmLabel: confirmLabelProp,
   requireReason = true,
   destructive = false,
   onConfirm,
 }: AdminConfirmDialogProps) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
@@ -41,7 +44,7 @@ export function AdminConfirmDialog({
 
   async function handleConfirm() {
     if (requireReason && reason.trim().length < 10) {
-      setError("Motivul trebuie să aibă cel puțin 10 caractere.");
+      setError(t("admin.reasonMin10"));
       return;
     }
     setBusy(true);
@@ -51,7 +54,7 @@ export function AdminConfirmDialog({
       setOpen(false);
       setReason("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Acțiunea a eșuat.");
+      setError(err instanceof Error ? err.message : t("admin.actionFailed"));
     } finally {
       setBusy(false);
     }
@@ -77,7 +80,7 @@ export function AdminConfirmDialog({
               id="admin-reason"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="Explică pe scurt de ce faci această acțiune…"
+              placeholder={t("admin.reasonPh")}
               rows={3}
             />
           </div>
@@ -85,7 +88,7 @@ export function AdminConfirmDialog({
         {error ? <p className="text-sm text-rose-300">{error}</p> : null}
         <DialogFooter>
           <Button type="button" variant="ghost" onClick={() => setOpen(false)} disabled={busy}>
-            Anulează
+            {t("common.cancel")}
           </Button>
           <Button
             type="button"
@@ -93,7 +96,7 @@ export function AdminConfirmDialog({
             onClick={() => void handleConfirm()}
             disabled={busy}
           >
-            {busy ? "Se procesează…" : confirmLabel}
+            {busy ? t("common.processing") : (confirmLabelProp ?? t("common.confirm"))}
           </Button>
         </DialogFooter>
       </DialogContent>

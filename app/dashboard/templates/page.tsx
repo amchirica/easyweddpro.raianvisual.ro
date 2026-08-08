@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
+import { getTranslator } from "@/lib/i18n/t";
 
 import { TemplatesList, type TemplateListItem } from "@/components/templates/templates-list";
 import { listTemplates, type TemplateRow } from "@/lib/data/templates";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { getWorkspaceOrDemo } from "@/lib/workspace/session";
 
-export const metadata: Metadata = {
-  title: "Template-uri · EasyWedd Pro",
-};
+export async function generateMetadata() {
+  const { t } = await getTranslator();
+  return { title: `${t("modules.templates.title")} · EasyWedd Pro` };
+}
 
 function mapTemplateRow(row: TemplateRow): TemplateListItem {
   return {
@@ -23,6 +25,7 @@ function mapTemplateRow(row: TemplateRow): TemplateListItem {
 }
 
 export default async function TemplatesPage() {
+  const { t } = await getTranslator();
   const ctx = await getWorkspaceOrDemo();
   const permissions = permissionsForRole(ctx.role);
 
@@ -36,7 +39,7 @@ export default async function TemplatesPage() {
     });
     templates = rows.map(mapTemplateRow);
   } catch (err) {
-    error = err instanceof Error ? err.message : "Nu am putut încărca template-urile.";
+    error = err instanceof Error ? err.message : t("modules.templates.loadFailed");
   }
 
   return (

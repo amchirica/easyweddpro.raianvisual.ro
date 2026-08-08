@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useEffect, useState, type FormEvent } from "react";
 import { Check, Copy, UserPlus } from "lucide-react";
 
@@ -42,6 +44,7 @@ type InviteMemberDialogProps = {
 };
 
 export function InviteMemberDialog({ open, onOpenChange, onInvited }: InviteMemberDialogProps) {
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<WorkspaceRole>("collaborator");
   const [fieldError, setFieldError] = useState<string | null>(null);
@@ -77,7 +80,7 @@ export function InviteMemberDialog({ open, onOpenChange, onInvited }: InviteMemb
     setSubmitting(false);
 
     if (result?.error || !result?.data) {
-      setFormError(result?.error ?? "Nu am putut crea invitația.");
+      setFormError(result?.error ?? t("modules.team.inviteFailed"));
       return;
     }
 
@@ -101,17 +104,16 @@ export function InviteMemberDialog({ open, onOpenChange, onInvited }: InviteMemb
     <Dialog open={open} onOpenChange={(next) => !submitting && onOpenChange(next)}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Invită membru</DialogTitle>
+          <DialogTitle>{t("modules.team.inviteTitle")}</DialogTitle>
           <DialogDescription>
-            Trimite o invitație cu rol prestabilit. Linkul este valabil 7 zile și este afișat o
-            singură dată.
+            {t("modules.team.inviteHint")}
           </DialogDescription>
         </DialogHeader>
 
         {invitePath ? (
           <div className="space-y-4">
             <p className="rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success">
-              Invitație creată pentru <strong>{email}</strong>. Copiază linkul acum — nu va mai fi
+              {t("modules.team.inviteCreated", { email })}
               disponibil ulterior.
             </p>
             <div className="flex items-center gap-2">
@@ -169,11 +171,11 @@ export function InviteMemberDialog({ open, onOpenChange, onInvited }: InviteMemb
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
-                Anulează
+                {t("common.cancel")}
               </Button>
               <Button type="submit" disabled={submitting}>
                 <UserPlus data-icon="inline-start" />
-                {submitting ? "Se trimite…" : "Trimite invitația"}
+                {submitting ? t("modules.team.sending") : t("modules.team.sendInvite")}
               </Button>
             </DialogFooter>
           </form>

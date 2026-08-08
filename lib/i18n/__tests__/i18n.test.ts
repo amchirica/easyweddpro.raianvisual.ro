@@ -32,4 +32,30 @@ describe("i18n config", () => {
     expect(script).toContain("classList");
     expect(script).toContain("dark");
   });
+
+  it("keeps RO and EN message keys in parity", () => {
+    const ro = getDictionary("ro");
+    const en = getDictionary("en");
+
+    function flatten(obj: unknown, prefix = ""): string[] {
+      if (!obj || typeof obj !== "object" || Array.isArray(obj)) {
+        return prefix ? [prefix] : [];
+      }
+      const keys: string[] = [];
+      for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+        const next = prefix ? `${prefix}.${k}` : k;
+        if (v && typeof v === "object" && !Array.isArray(v)) keys.push(...flatten(v, next));
+        else keys.push(next);
+      }
+      return keys;
+    }
+
+    const roKeys = new Set(flatten(ro));
+    const enKeys = new Set(flatten(en));
+    const missingInEn = [...roKeys].filter((k) => !enKeys.has(k));
+    const missingInRo = [...enKeys].filter((k) => !roKeys.has(k));
+
+    expect(missingInEn, `Missing in EN: ${missingInEn.slice(0, 20).join(", ")}`).toEqual([]);
+    expect(missingInRo, `Missing in RO: ${missingInRo.slice(0, 20).join(", ")}`).toEqual([]);
+  });
 });

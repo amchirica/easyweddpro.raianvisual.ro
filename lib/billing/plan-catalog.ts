@@ -1,9 +1,13 @@
 export type PlanId = "free" | "solo" | "studio" | "agency";
 
+import { yearlyPriceFromMonthly } from "@/lib/billing/pricing";
+
 export type PlanDefinition = {
   id: PlanId;
   name: string;
   priceMonthlyRon: number;
+  /** Annual total = monthly × 11 (one month free with yearly billing). */
+  priceYearlyRon: number;
   description: string;
   features: string[];
   limits: {
@@ -25,6 +29,7 @@ export const PLAN_CATALOG: PlanDefinition[] = [
     id: "free",
     name: "Free",
     priceMonthlyRon: 0,
+    priceYearlyRon: 0,
     description: "Testează workflow-ul.",
     features: [
       "5 leaduri active",
@@ -49,6 +54,7 @@ export const PLAN_CATALOG: PlanDefinition[] = [
     id: "solo",
     name: "Solo",
     priceMonthlyRon: 79,
+    priceYearlyRon: yearlyPriceFromMonthly(79),
     description: "Pentru profesioniști independenți.",
     features: [
       "Leaduri nelimitate",
@@ -74,6 +80,7 @@ export const PLAN_CATALOG: PlanDefinition[] = [
     id: "studio",
     name: "Studio",
     priceMonthlyRon: 179,
+    priceYearlyRon: yearlyPriceFromMonthly(179),
     description: "Pentru echipe și businessuri în creștere.",
     features: [
       "Până la 5 utilizatori",
@@ -99,6 +106,7 @@ export const PLAN_CATALOG: PlanDefinition[] = [
     id: "agency",
     name: "Agency",
     priceMonthlyRon: 349,
+    priceYearlyRon: yearlyPriceFromMonthly(349),
     description: "Pentru operațiuni complexe și mai multe echipe.",
     features: [
       "Până la 15 utilizatori",

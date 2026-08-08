@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
@@ -95,6 +97,7 @@ type TemplateFormProps = {
 };
 
 export function TemplateForm({ mode, initial }: TemplateFormProps) {
+  const { t } = useI18n();
   const [form, setForm] = useState<TemplateFormState>(() =>
     initial ? formFromTemplate(initial) : emptyForm(),
   );
@@ -158,7 +161,7 @@ export function TemplateForm({ mode, initial }: TemplateFormProps) {
         if (typeof key === "string" && !errors[key]) errors[key] = issue.message;
       }
       setFieldErrors(errors);
-      setFormError("Verifică datele completate.");
+      setFormError(t("common.verifyData"));
       return;
     }
 
@@ -230,7 +233,7 @@ export function TemplateForm({ mode, initial }: TemplateFormProps) {
 
   async function handleDelete() {
     if (!initial) return;
-    if (!window.confirm(`Ștergi template-ul „${initial.name}”? Această acțiune nu poate fi anulată.`)) return;
+    if (!window.confirm(t("modules.templates.deleteConfirm", { name: initial.name }))) return;
     setBusy(true);
     const result = await softDeleteTemplateAction(initial.id);
     setBusy(false);
@@ -249,7 +252,7 @@ export function TemplateForm({ mode, initial }: TemplateFormProps) {
           <div>
             <h2 className="font-heading text-lg font-medium text-foreground">Detalii template</h2>
             <p className="text-sm text-muted-foreground">
-              Alege tipul și denumirea. Tipul nu mai poate fi schimbat după creare.
+              {t("modules.templates.createHint")}
             </p>
           </div>
           <Separator />
@@ -291,14 +294,14 @@ export function TemplateForm({ mode, initial }: TemplateFormProps) {
               id="template-name"
               value={form.name}
               onChange={(event) => updateField("name", event.target.value)}
-              placeholder="Ex: Ofertă foto-video full day"
+              placeholder={t("modules.templates.namePh")}
               aria-invalid={Boolean(fieldErrors.name)}
             />
             {fieldErrors.name ? <p className="text-xs text-destructive">{fieldErrors.name}</p> : null}
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="template-business-type">Tip business (opțional)</Label>
+            <Label htmlFor="template-business-type">{t("modules.templates.businessType")}</Label>
             <Input
               id="template-business-type"
               value={form.businessType}
@@ -313,23 +316,23 @@ export function TemplateForm({ mode, initial }: TemplateFormProps) {
               disabled={isDefault}
               onCheckedChange={(checked) => updateField("isDefault", Boolean(checked))}
             />
-            Setează ca implicit pentru tipul {TEMPLATE_TYPE_LABELS[form.type]}
+            {t("modules.templates.setDefaultForType", { type: TEMPLATE_TYPE_LABELS[form.type] })}
             {isDefault ? " (deja implicit)" : ""}
           </label>
         </section>
 
         <section className="surface-card space-y-4 p-5">
           <div>
-            <h2 className="font-heading text-lg font-medium text-foreground">Conținut</h2>
+            <h2 className="font-heading text-lg font-medium text-foreground">{t("modules.templates.content")}</h2>
             <p className="text-sm text-muted-foreground">
-              Folosește variabile alocate din lista din dreapta — ex. <code>{"{{client_name}}"}</code>. Textul nu
+              {t("modules.templates.contentHint")}
               este interpretat ca HTML sau cod.
             </p>
           </div>
           <Separator />
 
           <div className="space-y-1.5">
-            <Label htmlFor="template-description">Descriere scurtă (afișată în listă)</Label>
+            <Label htmlFor="template-description">{t("modules.templates.shortDescription")}</Label>
             <Textarea
               id="template-description"
               rows={2}
@@ -352,12 +355,12 @@ export function TemplateForm({ mode, initial }: TemplateFormProps) {
 
           {listKey ? (
             <div className="space-y-2">
-              <Label>{listKey === "checklist" ? "Listă de verificare" : "Etape pipeline"}</Label>
+              <Label>{listKey === "checklist" ? t("modules.templates.checklist") : t("modules.templates.pipelineStages")}</Label>
               <div className="flex gap-2">
                 <Input
                   value={listDraft}
                   onChange={(event) => setListDraft(event.target.value)}
-                  placeholder={listKey === "checklist" ? "Ex: Trimite contract" : "Ex: Rezervare confirmată"}
+                  placeholder={listKey === "checklist" ? t("modules.templates.checklistPh") : t("modules.templates.pipelinePh")}
                   onKeyDown={(event) => {
                     if (event.key === "Enter") {
                       event.preventDefault();
@@ -367,7 +370,7 @@ export function TemplateForm({ mode, initial }: TemplateFormProps) {
                 />
                 <Button type="button" variant="outline" size="sm" onClick={addListItem}>
                   <Plus data-icon="inline-start" />
-                  Adaugă
+                  {t("common.add")}
                 </Button>
               </div>
               {form[listKey].length ? (
@@ -386,7 +389,7 @@ export function TemplateForm({ mode, initial }: TemplateFormProps) {
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => removeListItem(index)}
-                        aria-label="Elimină"
+                        aria-label={t("modules.templates.removeAria")}
                       >
                         <X className="h-3.5 w-3.5" />
                       </Button>
@@ -394,18 +397,18 @@ export function TemplateForm({ mode, initial }: TemplateFormProps) {
                   ))}
                 </ul>
               ) : (
-                <p className="text-xs text-muted-soft">Niciun element adăugat încă.</p>
+                <p className="text-xs text-muted-soft">{t("modules.templates.noItemsYet")}</p>
               )}
             </div>
           ) : (
             <div className="space-y-1.5">
-              <Label htmlFor="template-body">Conținut</Label>
+              <Label htmlFor="template-body">{t("modules.templates.content")}</Label>
               <Textarea
                 id="template-body"
                 rows={12}
                 value={form.body}
                 onChange={(event) => updateField("body", event.target.value)}
-                placeholder="Text cu variabile alocate, ex: Bună {{client_name}}, ..."
+                placeholder={t("modules.templates.bodyPh")}
               />
             </div>
           )}
@@ -423,7 +426,7 @@ export function TemplateForm({ mode, initial }: TemplateFormProps) {
         <div className="flex flex-wrap items-center gap-3">
           <Button type="submit" disabled={submitting}>
             <Save data-icon="inline-start" />
-            {submitting ? "Se salvează…" : mode === "create" ? "Creează template" : "Salvează modificările"}
+            {submitting ? t("common.saving") : mode === "create" ? t("modules.templates.createTemplate") : t("common.saveChanges")}
           </Button>
           <Button
             type="button"
@@ -431,7 +434,7 @@ export function TemplateForm({ mode, initial }: TemplateFormProps) {
             render={<Link href="/dashboard/templates" />}
             nativeButton={false}
           >
-            Anulează
+            {t("common.cancel")}
           </Button>
         </div>
 
@@ -442,29 +445,29 @@ export function TemplateForm({ mode, initial }: TemplateFormProps) {
               {!isDefault && !archivedAt ? (
                 <Button type="button" variant="outline" size="sm" disabled={busy} onClick={handleSetDefault}>
                   <Star data-icon="inline-start" />
-                  Setează implicit
+                  {t("modules.templates.setDefault")}
                 </Button>
               ) : null}
               <Button type="button" variant="outline" size="sm" disabled={busy} onClick={handleDuplicate}>
                 <Copy data-icon="inline-start" />
-                Duplică
+                {t("common.duplicate")}
               </Button>
               <Button type="button" variant="outline" size="sm" disabled={busy} onClick={handleArchiveToggle}>
                 {archivedAt ? (
                   <>
                     <ArchiveRestore data-icon="inline-start" />
-                    Restaurează din arhivă
+                    {t("modules.templates.restoreArchive")}
                   </>
                 ) : (
                   <>
                     <Archive data-icon="inline-start" />
-                    Arhivează
+                    {t("common.archive")}
                   </>
                 )}
               </Button>
               <Button type="button" variant="destructive" size="sm" disabled={busy} onClick={handleDelete}>
                 <Trash2 data-icon="inline-start" />
-                Șterge
+                {t("common.delete")}
               </Button>
             </div>
           </section>

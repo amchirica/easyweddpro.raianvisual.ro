@@ -13,9 +13,10 @@ import { permissionsForRole } from "@/lib/workspace/permissions";
 import { requireWorkspace } from "@/lib/workspace/session";
 import { getTranslator } from "@/lib/i18n/t";
 
-export const metadata: Metadata = {
-  title: "Editează automatizare · EasyWedd Pro",
-};
+export async function generateMetadata() {
+  const { t } = await getTranslator();
+  return { title: `${t("modules.automations.editTitle")} · EasyWedd Pro` };
+}
 
 const RUN_STATUS_TONE = {
   success: "success",

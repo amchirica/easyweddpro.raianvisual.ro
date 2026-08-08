@@ -86,15 +86,15 @@ export function PublicProposalView({ token, data, demo }: PublicProposalViewProp
     if (submitting) return;
 
     if (!fullName.trim() || fullName.trim().length < 2) {
-      setFormError("Introdu numele tău complet.");
+      setFormError(t("portal.enterFullName"));
       return;
     }
     if (!email.trim() || !email.includes("@")) {
-      setFormError("Introdu o adresă de email validă.");
+      setFormError(t("portal.enterValidEmail"));
       return;
     }
     if (!acceptedTerms) {
-      setFormError("Trebuie să accepți condițiile ofertei.");
+      setFormError(t("portal.mustAcceptTerms"));
       return;
     }
     setFormError(null);
@@ -104,7 +104,7 @@ export function PublicProposalView({ token, data, demo }: PublicProposalViewProp
       window.setTimeout(() => {
         setSubmitting(false);
         setStatus("accepted");
-        toast("Acceptare simulată — mod demo, nu este salvată.", "info");
+        toast(t("portal.acceptDemo"), "info");
       }, 400);
       return;
     }
@@ -124,7 +124,7 @@ export function PublicProposalView({ token, data, demo }: PublicProposalViewProp
       return;
     }
 
-    toast(result?.success ?? "Ofertă acceptată. Mulțumim!", "success");
+    toast(result?.success ?? t("portal.acceptedThanks"), "success");
     setStatus("accepted");
   }
 
@@ -136,7 +136,7 @@ export function PublicProposalView({ token, data, demo }: PublicProposalViewProp
       window.setTimeout(() => {
         setSubmitting(false);
         setStatus("rejected");
-        toast("Refuz simulat — mod demo, nu este salvat.", "info");
+        toast(t("portal.rejectDemo"), "info");
       }, 400);
       return;
     }
@@ -150,7 +150,7 @@ export function PublicProposalView({ token, data, demo }: PublicProposalViewProp
       return;
     }
 
-    toast(result?.success ?? "Oferta a fost refuzată.", "success");
+    toast(result?.success ?? t("portal.rejectedThanks"), "success");
     setStatus("rejected");
   }
 
@@ -180,13 +180,13 @@ export function PublicProposalView({ token, data, demo }: PublicProposalViewProp
             className="mb-6 rounded-xl border border-champagne/30 bg-champagne/10 px-4 py-2.5 text-sm text-champagne-soft"
             role="status"
           >
-            Pagină demonstrativă — răspunsul tău nu este salvat.
+            {t("portal.demoPageProposal")}
           </div>
         ) : null}
 
         <div className="surface-card p-8 sm:p-10">
           <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
-            Ofertă {data.proposalNumber ? `· ${data.proposalNumber}` : ""} pentru
+            {data.proposalNumber ? t("portal.proposalFor", { number: `· ${data.proposalNumber}` }) : t("portal.proposalForPlain")}
           </p>
           <h1 className="mt-2 font-heading text-3xl font-medium text-foreground sm:text-4xl">
             {data.clientName ?? "Client"}
@@ -195,16 +195,16 @@ export function PublicProposalView({ token, data, demo }: PublicProposalViewProp
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             <div className="rounded-xl border border-border bg-surface-elevated/60 p-4">
-              <p className="text-xs text-muted-foreground">Valoare totală</p>
+              <p className="text-xs text-muted-foreground">{t("portal.totalValue")}</p>
               <p className="mt-1 font-heading text-lg font-medium text-champagne">
                 {formatCurrency(data.total, data.currency)}
               </p>
             </div>
             <div className="rounded-xl border border-border bg-surface-elevated/60 p-4">
-              <p className="text-xs text-muted-foreground">Valabilă până la</p>
+              <p className="text-xs text-muted-foreground">{t("portal.validUntil")}</p>
               <p className="mt-1 flex items-center gap-1.5 font-heading text-lg font-medium text-foreground">
                 <CalendarClock className="h-4 w-4 text-champagne" aria-hidden />
-                {data.validUntil ? formatDate(data.validUntil) : "Fără termen"}
+                {data.validUntil ? formatDate(data.validUntil) : t("portal.noDeadline")}
               </p>
             </div>
           </div>
@@ -214,7 +214,7 @@ export function PublicProposalView({ token, data, demo }: PublicProposalViewProp
           <div>
             <p className="flex items-center gap-2 font-heading text-lg font-medium text-foreground">
               <Sparkles className="h-4 w-4 text-champagne" aria-hidden />
-              Ce include oferta
+              {t("portal.includes")}
             </p>
             <ul className="mt-4 space-y-3">
               {data.items.map((item, index) => (
@@ -240,19 +240,19 @@ export function PublicProposalView({ token, data, demo }: PublicProposalViewProp
 
             <div className="mt-6 space-y-1.5 border-t border-border pt-4 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-muted-foreground">{t("portal.subtotal")}</span>
                 <span className="text-foreground">{formatCurrency(data.subtotal, data.currency)}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Discount</span>
+                <span className="text-muted-foreground">{t("portal.discount")}</span>
                 <span className="text-foreground">-{formatCurrency(data.discountAmount, data.currency)}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">TVA</span>
+                <span className="text-muted-foreground">{t("portal.tax")}</span>
                 <span className="text-foreground">{formatCurrency(data.taxAmount, data.currency)}</span>
               </div>
               <div className="flex items-center justify-between border-t border-border pt-2">
-                <span className="font-medium text-foreground">Total</span>
+                <span className="font-medium text-foreground">{t("portal.total")}</span>
                 <span className="font-heading text-xl font-medium text-champagne">
                   {formatCurrency(data.total, data.currency)}
                 </span>
@@ -264,7 +264,7 @@ export function PublicProposalView({ token, data, demo }: PublicProposalViewProp
             <>
               <Separator className="my-8" />
               <div>
-                <p className="font-heading text-lg font-medium text-foreground">Termeni și condiții</p>
+                <p className="font-heading text-lg font-medium text-foreground">{t("portal.terms")}</p>
                 <p className="mt-3 text-sm whitespace-pre-wrap text-muted-foreground">{data.terms}</p>
               </div>
             </>
@@ -276,57 +276,57 @@ export function PublicProposalView({ token, data, demo }: PublicProposalViewProp
             <div className="flex flex-col items-center gap-2 text-center">
               <ShieldCheck className="h-6 w-6 text-success" aria-hidden />
               <p className="text-sm font-medium text-success">
-                Ofertă acceptată — contractul este în pregătire.
+                {t("portal.acceptedReady")}
               </p>
             </div>
           ) : status === "rejected" ? (
             <div className="flex flex-col items-center gap-2 text-center">
               <XCircle className="h-6 w-6 text-destructive" aria-hidden />
-              <p className="text-sm font-medium text-destructive">Ai refuzat această ofertă.</p>
+              <p className="text-sm font-medium text-destructive">{t("portal.youDeclined")}</p>
             </div>
           ) : status === "cancelled" ? (
             <div className="flex flex-col items-center gap-2 text-center">
               <Ban className="h-6 w-6 text-muted-foreground" aria-hidden />
               <p className="text-sm text-muted-foreground">
-                Această ofertă a fost anulată de furnizor.
+                {t("portal.cancelledByProvider")}
               </p>
             </div>
           ) : status === "expired" ? (
             <div className="flex flex-col items-center gap-2 text-center">
               <Clock className="h-6 w-6 text-muted-foreground" aria-hidden />
-              <p className="text-sm text-muted-foreground">Această ofertă a expirat.</p>
+              <p className="text-sm text-muted-foreground">{t("portal.expiredNotice")}</p>
             </div>
           ) : canRespond ? (
             showReject ? (
               <div className="space-y-4">
-                <p className="text-sm font-medium text-foreground">Motivul refuzului (opțional)</p>
+                <p className="text-sm font-medium text-foreground">{t("portal.rejectReason")}</p>
                 <Textarea
                   value={reason}
                   onChange={(event) => setReason(event.target.value)}
                   rows={3}
-                  placeholder="Spune-ne de ce refuzi oferta…"
+                  placeholder={t("portal.rejectReasonPh")}
                 />
                 <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
                   <Button type="button" variant="outline" onClick={() => setShowReject(false)} disabled={submitting}>
-                    Înapoi
+                    {t("common.back")}
                   </Button>
                   <Button type="button" variant="destructive" onClick={handleReject} disabled={submitting}>
-                    {submitting ? "Se trimite…" : "Confirmă refuzul"}
+                    {submitting ? t("portal.sending") : t("portal.confirmReject")}
                   </Button>
                 </div>
               </div>
             ) : (
               <form onSubmit={handleAccept} className="mx-auto max-w-md space-y-4">
                 <p className="text-center text-sm text-muted-foreground">
-                  Completează datele tale pentru a accepta digital această ofertă.
+                  {t("portal.acceptFormIntro")}
                 </p>
                 <div className="space-y-2">
-                  <Label htmlFor="accept-name">Nume complet</Label>
+                  <Label htmlFor="accept-name">{t("portal.fullName")}</Label>
                   <Input
                     id="accept-name"
                     value={fullName}
                     onChange={(event) => setFullName(event.target.value)}
-                    placeholder="Numele tău complet"
+                    placeholder={t("portal.fullNamePh")}
                   />
                 </div>
                 <div className="space-y-2">
@@ -345,7 +345,7 @@ export function PublicProposalView({ token, data, demo }: PublicProposalViewProp
                     onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
                     className="mt-0.5"
                   />
-                  Am citit și sunt de acord cu termenii și condițiile acestei oferte.
+                  {t("portal.acceptTerms")}
                 </label>
 
                 {formError ? (
@@ -367,7 +367,7 @@ export function PublicProposalView({ token, data, demo }: PublicProposalViewProp
                     className="text-xs text-muted-soft underline-offset-4 hover:text-foreground hover:underline"
                     disabled={submitting}
                   >
-                    Refuz oferta
+                    {t("portal.declineProposal")}
                   </button>
                 </div>
               </form>
@@ -376,7 +376,7 @@ export function PublicProposalView({ token, data, demo }: PublicProposalViewProp
         </div>
 
         <p className="mt-8 text-center text-xs text-muted-soft">
-          Trimisă de {data.providerName ?? "EasyWedd Pro"} · {formatDateTime(data.createdAt)}
+          {t("portal.sentBy", { provider: data.providerName ?? "EasyWedd Pro", date: formatDateTime(data.createdAt) })}
         </p>
       </div>
     </div>

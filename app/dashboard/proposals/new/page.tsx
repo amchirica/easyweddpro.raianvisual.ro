@@ -12,9 +12,10 @@ import { permissionsForRole } from "@/lib/workspace/permissions";
 import { getWorkspaceOrDemo } from "@/lib/workspace/session";
 import { getTranslator } from "@/lib/i18n/t";
 
-export const metadata: Metadata = {
-  title: "Ofertă nouă · EasyWedd Pro",
-};
+export async function generateMetadata() {
+  const { t } = await getTranslator();
+  return { title: `${t("modules.proposals.new")} · EasyWedd Pro` };
+}
 
 type NewProposalPageProps = {
   searchParams: Promise<{ leadId?: string; clientId?: string }>;

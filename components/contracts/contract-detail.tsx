@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -38,7 +40,7 @@ import {
   publishContractAction,
 } from "@/lib/actions/contracts";
 import { createProjectFromContractAction } from "@/lib/actions/projects";
-import { CONTRACT_STATUS_LABELS, type ContractStatus } from "@/lib/constants";
+import { type ContractStatus } from "@/lib/constants";
 import type { ContractSections } from "@/lib/contracts/content";
 import {
   hasUnresolvedCriticalPlaceholders,
@@ -68,29 +70,29 @@ const CONTRACT_STATUS_TONE: Record<
   superseded: "neutral",
 };
 
-const SECTION_LABELS: Partial<Record<keyof ContractSections, string>> = {
-  introduction: "Introducere",
-  object: "Obiectul contractului",
-  provider_obligations: "Obligațiile furnizorului",
-  client_obligations: "Obligațiile clientului",
-  products: "Produse",
-  schedule: "Program",
-  access_logistics: "Acces și logistică",
-  transport: "Transport",
-  setup_teardown: "Montaj și demontaj",
-  delivery: "Livrare",
-  payments: "Plăți",
-  deposit_terms: "Avans",
-  installments_terms: "Tranșe",
-  cancellation: "Anulare",
-  reschedule: "Reprogramare",
-  force_majeure: "Forță majoră",
-  liability: "Răspundere",
-  copyright: "Drepturi de autor",
-  privacy: "Protecția datelor",
-  special_clauses: "Clauze speciale",
-  notes: "Observații",
-};
+const SECTION_KEYS = [
+  "introduction",
+  "object",
+  "provider_obligations",
+  "client_obligations",
+  "products",
+  "schedule",
+  "access_logistics",
+  "transport",
+  "setup_teardown",
+  "delivery",
+  "payments",
+  "deposit_terms",
+  "installments_terms",
+  "cancellation",
+  "reschedule",
+  "force_majeure",
+  "liability",
+  "copyright",
+  "privacy",
+  "special_clauses",
+  "notes",
+] as const;
 
 type ContractDetailProps = {
   contract: ContractDetailData;
@@ -124,6 +126,7 @@ export function ContractDetail({
   canWrite,
   openEditor = false,
 }: ContractDetailProps) {
+  const { t } = useI18n();
   const [publishing, setPublishing] = useState(false);
   const [duplicating, setDuplicating] = useState(false);
   const [cancelling, setCancelling] = useState(false);
@@ -197,7 +200,7 @@ export function ContractDetail({
   }
 
   async function handlePublish() {
-    if (!requireLive("Publicarea contractelor necesită un cont conectat.")) {
+    if (!requireLive(t("modules.contracts.needAccountPublish"))) {
       setPublishOpen(false);
       return;
     }
@@ -210,7 +213,7 @@ export function ContractDetail({
       toast(result.error, "error");
       return;
     }
-    toast(result?.success ?? "Contract publicat.", "success");
+    toast(result?.success ?? t("modules.contracts.published"), "success");
     if (result?.data?.publicUrlPath) {
       setCopiedPublicPath(result.data.publicUrlPath);
     }
@@ -223,14 +226,14 @@ export function ContractDetail({
     const url = `${window.location.origin}${path}`;
     try {
       await navigator.clipboard.writeText(url);
-      toast("Link copiat în clipboard.", "success");
+      toast(t("common.linkCopied"), "success");
     } catch {
-      toast("Nu am putut copia linkul.", "error");
+      toast(t("modules.contracts.linkCopyFailed"), "error");
     }
   }
 
   async function handleDuplicate() {
-    if (!requireLive("Duplicarea contractelor necesită un cont conectat.")) return;
+    if (!requireLive(t("modules.contracts.needAccountDuplicate"))) return;
     setDuplicating(true);
     const result = await duplicateContractAction(contract.id);
     setDuplicating(false);
@@ -239,14 +242,14 @@ export function ContractDetail({
       toast(result.error, "error");
       return;
     }
-    toast(result?.success ?? "Contract duplicat.", "success");
+    toast(result?.success ?? t("modules.contracts.duplicated"), "success");
     if (result?.data?.contractId) {
       router.push(`/dashboard/contracts/${result.data.contractId}?edit=1`);
     }
   }
 
   async function handleCancel() {
-    if (!requireLive("Anularea contractelor necesită un cont conectat.")) {
+    if (!requireLive(t("modules.contracts.needAccountCancel"))) {
       setCancelOpen(false);
       return;
     }
@@ -259,12 +262,12 @@ export function ContractDetail({
       toast(result.error, "error");
       return;
     }
-    toast(result?.success ?? "Contract anulat.", "success");
+    toast(result?.success ?? t("modules.contracts.cancelledToast"), "success");
     router.refresh();
   }
 
   async function handleNewVersion() {
-    if (!requireLive("Versiunea nouă necesită un cont conectat.")) return;
+    if (!requireLive(t("modules.contracts.needAccountVersion"))) return;
     setVersioning(true);
     const result = await createContractVersionAction(contract.id);
     setVersioning(false);
@@ -273,14 +276,14 @@ export function ContractDetail({
       toast(result.error, "error");
       return;
     }
-    toast(result?.success ?? "Versiune nouă creată.", "success");
+    toast(result?.success ?? t("modules.contracts.versionCreated"), "success");
     if (result?.data?.contractId) {
       router.push(`/dashboard/contracts/${result.data.contractId}?edit=1`);
     }
   }
 
   async function handleCreateProject() {
-    if (!requireLive("Crearea proiectelor necesită un cont conectat.")) return;
+    if (!requireLive(t("modules.contracts.needAccountProjects"))) return;
     setCreatingProject(true);
     const result = await createProjectFromContractAction(contract.id);
     setCreatingProject(false);
@@ -289,7 +292,7 @@ export function ContractDetail({
       toast(result.error, "error");
       return;
     }
-    toast(result?.success ?? "Proiect creat.", "success");
+    toast(result?.success ?? t("modules.contracts.projectCreated"), "success");
     if (result?.data?.projectId) {
       router.push(`/dashboard/projects/${result.data.projectId}`);
     }
@@ -297,10 +300,10 @@ export function ContractDetail({
 
   async function handlePortal() {
     if (!contract.clientId) {
-      toast("Contractul nu are client asociat.", "error");
+      toast(t("modules.contracts.noClientLinked"), "error");
       return;
     }
-    if (!requireLive("Portalul client necesită un cont conectat.")) return;
+    if (!requireLive(t("modules.contracts.needAccountPortal"))) return;
     setPortalBusy(true);
     const result = await createPortalTokenAction(contract.clientId);
     setPortalBusy(false);
@@ -313,9 +316,9 @@ export function ContractDetail({
       const url = `${window.location.origin}${result.data.portalUrlPath}`;
       try {
         await navigator.clipboard.writeText(url);
-        toast("Link portal copiat în clipboard.", "success");
+        toast(t("modules.contracts.portalLinkCopied"), "success");
       } catch {
-        toast("Link portal generat.", "success");
+        toast(t("modules.contracts.portalLinkGenerated"), "success");
       }
     }
   }
@@ -327,7 +330,7 @@ export function ContractDetail({
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-        Înapoi la contracte
+        {t("modules.contracts.backToList")}
       </Link>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -335,7 +338,7 @@ export function ContractDetail({
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="font-heading text-2xl font-medium text-foreground">{contract.title}</h1>
             <StatusBadge
-              label={CONTRACT_STATUS_LABELS[contract.effectiveStatus]}
+              label={t(`status.contract.${contract.effectiveStatus}`)}
               tone={CONTRACT_STATUS_TONE[contract.effectiveStatus]}
             />
             {contract.version > 1 ? (
@@ -343,7 +346,7 @@ export function ContractDetail({
             ) : null}
           </div>
           <p className="text-sm text-muted-foreground">
-            {contract.contractNumber ?? "Fără număr"} · {contract.clientName ?? "Fără client"}
+            {contract.contractNumber ?? t("modules.contracts.noNumber")} · {contract.clientName ?? t("common.noClient")}
           </p>
           <ContractStatusStepper effectiveStatus={contract.effectiveStatus} />
         </div>
@@ -357,35 +360,35 @@ export function ContractDetail({
               nativeButton={false}
             >
               <Pencil data-icon="inline-start" />
-              Editează draft
+              {t("modules.contracts.editDraft")}
             </Button>
           ) : null}
           {canPublish ? (
             <Button type="button" variant="outline" size="sm" onClick={() => setPublishOpen(true)}>
               <Send data-icon="inline-start" />
-              Publică
+              {t("common.publish")}
             </Button>
           ) : null}
           {hasPublicLink ? (
             <Button type="button" variant="outline" size="sm" onClick={handleCopyLink}>
               <Copy data-icon="inline-start" />
-              Copiază link
+              {t("common.copyLink")}
             </Button>
           ) : null}
           <Button type="button" variant="outline" size="sm" onClick={handleDuplicate} disabled={duplicating}>
             <Files data-icon="inline-start" />
-            {duplicating ? "Se duplică…" : "Duplică"}
+            {duplicating ? t("modules.proposals.duplicating") : t("common.duplicate")}
           </Button>
           {canVersion ? (
             <Button type="button" variant="outline" size="sm" onClick={handleNewVersion} disabled={versioning}>
               <Plus data-icon="inline-start" />
-              {versioning ? "Se creează…" : "Versiune nouă"}
+              {versioning ? t("common.creating") : t("modules.contracts.newVersion")}
             </Button>
           ) : null}
           {canCancel ? (
             <Button type="button" variant="outline" size="sm" onClick={() => setCancelOpen(true)}>
               <Ban data-icon="inline-start" />
-              Anulează
+              {t("common.cancel")}
             </Button>
           ) : null}
           {contract.effectiveStatus === "accepted" && canWrite ? (
@@ -396,7 +399,7 @@ export function ContractDetail({
               disabled={creatingProject}
             >
               <FolderKanban data-icon="inline-start" />
-              {creatingProject ? "Se creează…" : "Creează proiect"}
+              {creatingProject ? t("common.creating") : t("modules.contracts.createProject")}
             </Button>
           ) : null}
           <Button
@@ -413,7 +416,7 @@ export function ContractDetail({
           {contract.clientId ? (
             <Button type="button" variant="outline" size="sm" onClick={handlePortal} disabled={portalBusy}>
               <Globe data-icon="inline-start" />
-              {portalBusy ? "Se generează…" : "Portal client"}
+              {portalBusy ? t("common.generating") : t("modules.contracts.clientPortal")}
             </Button>
           ) : null}
         </div>
@@ -422,7 +425,7 @@ export function ContractDetail({
       {hasPublicLink && copiedPublicPath ? (
         <div className="surface-card flex flex-wrap items-center justify-between gap-3 p-4">
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">Link public contract</p>
+            <p className="text-xs text-muted-foreground">{t("modules.contracts.publicLink")}</p>
             <p className="truncate text-sm text-foreground">{copiedPublicPath}</p>
           </div>
           <Link
@@ -430,7 +433,7 @@ export function ContractDetail({
             target="_blank"
             className="inline-flex items-center gap-1.5 text-sm text-champagne hover:text-champagne-soft"
           >
-            Deschide
+            {t("common.open")}
             <ExternalLink className="h-3.5 w-3.5" aria-hidden />
           </Link>
         </div>
@@ -438,25 +441,25 @@ export function ContractDetail({
 
       <div className="grid gap-4 lg:grid-cols-4">
         <div className="surface-card space-y-2 p-5">
-          <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">Total</p>
+          <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">{t("modules.proposals.total")}</p>
           <p className="font-heading text-xl font-medium text-champagne">
             {formatCurrency(contract.total, contract.currency)}
           </p>
         </div>
         <div className="surface-card space-y-2 p-5">
-          <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">Avans</p>
+          <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">{t("modules.contracts.deposit")}</p>
           <p className="font-heading text-xl font-medium text-foreground">
             {formatCurrency(contract.depositAmount, contract.currency)}
           </p>
         </div>
         <div className="surface-card space-y-2 p-5">
-          <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">Rest</p>
+          <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">{t("modules.contracts.remaining")}</p>
           <p className="font-heading text-xl font-medium text-foreground">
             {formatCurrency(contract.remainingAmount, contract.currency)}
           </p>
         </div>
         <div className="surface-card space-y-2 p-5">
-          <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">Eveniment</p>
+          <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">{t("modules.contracts.event")}</p>
           <p className="font-heading text-xl font-medium text-foreground">
             {contract.eventDate ? formatDate(contract.eventDate) : "—"}
           </p>
@@ -468,12 +471,12 @@ export function ContractDetail({
 
       {contract.proposalId ? (
         <div className="surface-card p-5">
-          <p className="text-sm text-muted-foreground">Generat din ofertă acceptată.</p>
+          <p className="text-sm text-muted-foreground">{t("modules.contracts.fromAcceptedProposal")}</p>
           <Link
             href={`/dashboard/proposals/${contract.proposalId}`}
             className="mt-2 inline-flex text-sm text-champagne hover:text-champagne-soft"
           >
-            Vezi oferta {contract.proposalNumber ? `· ${contract.proposalNumber}` : ""}
+            {t("modules.contracts.viewProposal", { number: contract.proposalNumber ? `· ${contract.proposalNumber}` : "" })}
           </Link>
         </div>
       ) : null}
@@ -482,7 +485,7 @@ export function ContractDetail({
         <div id="contract-editor" className="space-y-3 scroll-mt-24">
           <div className="surface-card p-4">
             <p className="text-sm text-muted-foreground">
-              Contractul este în draft. Poți modifica liber clauzele și conținutul, apoi salvează.
+              {t("modules.contracts.draftHint")}
             </p>
           </div>
           <ContractEditor
@@ -499,10 +502,9 @@ export function ContractDetail({
       <Dialog open={publishOpen} onOpenChange={(next) => !publishing && setPublishOpen(next)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Publici acest contract?</DialogTitle>
+            <DialogTitle>{t("modules.contracts.publishTitle")}</DialogTitle>
             <DialogDescription>
-              Clientul va primi un link public pentru vizualizare și acceptare digitală. După
-              publicare, conținutul nu mai poate fi editat liber.
+              {t("modules.contracts.publishHintAfter")}
             </DialogDescription>
           </DialogHeader>
           {unresolvedCritical.length > 0 ? (
@@ -510,17 +512,15 @@ export function ContractDetail({
               className="rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning"
               role="alert"
             >
-              Placeholder-uri critice nerezolvate:{" "}
-              {unresolvedCritical.map((v) => `{{${v}}}`).join(", ")}. Publicarea poate eșua până le
-              completezi.
+              {t("modules.contracts.unresolvedCritical", { vars: unresolvedCritical.map((v) => `{{${v}}}`).join(", ") })}
             </div>
           ) : null}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setPublishOpen(false)} disabled={publishing}>
-              Renunță
+              {t("common.dismiss")}
             </Button>
             <Button type="button" onClick={handlePublish} disabled={publishing}>
-              {publishing ? "Se publică…" : "Publică contract"}
+              {publishing ? t("common.publishing") : t("modules.contracts.publishContract")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -529,17 +529,17 @@ export function ContractDetail({
       <Dialog open={cancelOpen} onOpenChange={(next) => !cancelling && setCancelOpen(next)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Anulezi acest contract?</DialogTitle>
+            <DialogTitle>{t("modules.contracts.cancelTitle")}</DialogTitle>
             <DialogDescription>
-              Contractul va fi marcat drept anulat și nu va mai putea fi acceptat de client.
+              {t("modules.contracts.cancelConfirm")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setCancelOpen(false)} disabled={cancelling}>
-              Renunță
+              {t("common.dismiss")}
             </Button>
             <Button type="button" variant="destructive" onClick={handleCancel} disabled={cancelling}>
-              {cancelling ? "Se anulează…" : "Anulează contract"}
+              {cancelling ? t("common.cancelling") : t("modules.contracts.cancelContract")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -549,15 +549,16 @@ export function ContractDetail({
 }
 
 function ContractReadOnlyPreview({ contract }: { contract: ContractDetailData }) {
+  const { t } = useI18n();
   return (
     <div className="space-y-6">
       <div className="grid gap-4 lg:grid-cols-2">
-        <PartyPreview title="Furnizor" party={contract.content.provider} />
-        <PartyPreview title="Client" party={contract.content.client} />
+        <PartyPreview title={t("modules.contracts.providerFallback")} party={contract.content.provider} />
+        <PartyPreview title={t("common.client")} party={contract.content.client} />
       </div>
 
       <div className="surface-card space-y-4 p-5">
-        <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">Servicii</p>
+        <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">{t("modules.contracts.services")}</p>
         <div className="divide-y divide-border">
           {contract.content.services.map((item, index) => (
             <div key={`${item.name}-${index}`} className="flex flex-wrap items-start justify-between gap-3 py-3">
@@ -575,13 +576,13 @@ function ContractReadOnlyPreview({ contract }: { contract: ContractDetailData })
         </div>
       </div>
 
-      {(Object.keys(SECTION_LABELS) as Array<keyof ContractSections>).map((key) => {
+      {(SECTION_KEYS as readonly (keyof ContractSections)[]).map((key) => {
         const body = contract.content.sections[key];
         if (!body?.trim()) return null;
         return (
           <div key={key} className="surface-card space-y-2 p-5">
             <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
-              {SECTION_LABELS[key]}
+              {t(`modules.contracts.sections.${key}`)}
             </p>
             <p className="text-sm whitespace-pre-wrap text-foreground">{body}</p>
           </div>
@@ -600,7 +601,7 @@ function ContractReadOnlyPreview({ contract }: { contract: ContractDetailData })
       {contract.terms ? (
         <div className="surface-card space-y-2 p-5">
           <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
-            Termeni generali
+            {t("modules.contracts.generalTerms")}
           </p>
           <p className="text-sm whitespace-pre-wrap text-foreground">{contract.terms}</p>
         </div>
@@ -608,30 +609,30 @@ function ContractReadOnlyPreview({ contract }: { contract: ContractDetailData })
 
       <div className="surface-card grid gap-3 p-5 text-sm sm:grid-cols-2">
         <div>
-          <p className="text-xs text-muted-soft">Creat</p>
+          <p className="text-xs text-muted-soft">{t("modules.contracts.createdLabel")}</p>
           <p className="text-foreground">{formatDateTime(contract.createdAt)}</p>
         </div>
         {contract.publishedAt ? (
           <div>
-            <p className="text-xs text-muted-soft">Publicat</p>
+            <p className="text-xs text-muted-soft">{t("modules.contracts.publishedLabel")}</p>
             <p className="text-foreground">{formatDateTime(contract.publishedAt)}</p>
           </div>
         ) : null}
         {contract.viewedAt ? (
           <div>
-            <p className="text-xs text-muted-soft">Vizualizat</p>
+            <p className="text-xs text-muted-soft">{t("modules.contracts.viewedLabel")}</p>
             <p className="text-foreground">{formatDateTime(contract.viewedAt)}</p>
           </div>
         ) : null}
         {contract.acceptedAt ? (
           <div>
-            <p className="text-xs text-muted-soft">Acceptat</p>
+            <p className="text-xs text-muted-soft">{t("modules.contracts.acceptedLabel")}</p>
             <p className="text-foreground">{formatDateTime(contract.acceptedAt)}</p>
           </div>
         ) : null}
         {contract.validUntil ? (
           <div>
-            <p className="text-xs text-muted-soft">Valabil până la</p>
+            <p className="text-xs text-muted-soft">{t("modules.contracts.validUntilLabel")}</p>
             <p className="text-foreground">{formatDate(contract.validUntil)}</p>
           </div>
         ) : null}

@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useEffect, useState, type FormEvent } from "react";
 
 import { useToast } from "@/components/shared/toast-provider";
@@ -109,6 +111,7 @@ export function ClientFormDialog({
   initial,
   onSuccess,
 }: ClientFormDialogProps) {
+  const { t } = useI18n();
   const [form, setForm] = useState<ClientFormState>(() => (initial ? formFromClient(initial) : emptyForm()));
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -155,7 +158,7 @@ export function ClientFormDialog({
         if (typeof key === "string" && !errors[key]) errors[key] = issue.message;
       }
       setFieldErrors(errors);
-      setFormError("Verifică datele completate.");
+      setFormError(t("common.verifyData"));
       return;
     }
 
@@ -184,11 +187,11 @@ export function ClientFormDialog({
     <Dialog open={open} onOpenChange={(next) => !submitting && onOpenChange(next)}>
       <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{mode === "create" ? "Client nou" : "Editează client"}</DialogTitle>
+          <DialogTitle>{mode === "create" ? t("modules.clients.new") : t("modules.clients.edit")}</DialogTitle>
           <DialogDescription>
             {mode === "create"
-              ? "Adaugă un client nou în evidență."
-              : "Actualizează detaliile acestui client."}
+              ? t("modules.clients.createHint")
+              : t("modules.clients.editHint")}
           </DialogDescription>
         </DialogHeader>
 
@@ -241,7 +244,7 @@ export function ClientFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="client-source">Sursă</Label>
+              <Label htmlFor="client-source">{t("common.source")}</Label>
               <Input
                 id="client-source"
                 value={form.source}
@@ -251,7 +254,7 @@ export function ClientFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="client-address">Adresă</Label>
+            <Label htmlFor="client-address">{t("common.address")}</Label>
             <Input
               id="client-address"
               value={form.address}
@@ -261,7 +264,7 @@ export function ClientFormDialog({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="client-city">Oraș</Label>
+              <Label htmlFor="client-city">{t("common.city")}</Label>
               <Input
                 id="client-city"
                 value={form.city}
@@ -269,7 +272,7 @@ export function ClientFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="client-country">Țară</Label>
+              <Label htmlFor="client-country">{t("modules.clients.country")}</Label>
               <Input
                 id="client-country"
                 value={form.country}
@@ -286,7 +289,7 @@ export function ClientFormDialog({
                 onValueChange={(value) => updateField("eventType", value ?? "")}
               >
                 <SelectTrigger id="client-eventType" className="h-8 w-full">
-                  <SelectValue placeholder="Selectează tipul" />
+                  <SelectValue placeholder={t("modules.clients.selectType")} />
                 </SelectTrigger>
                 <SelectContent>
                   {EVENT_TYPES.map((eventType) => (
@@ -309,7 +312,7 @@ export function ClientFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="client-tags">Etichete (separate prin virgulă)</Label>
+            <Label htmlFor="client-tags">{t("modules.clients.tagsComma")}</Label>
             <Input
               id="client-tags"
               value={form.tags}
@@ -337,7 +340,7 @@ export function ClientFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="client-notes">Notițe</Label>
+            <Label htmlFor="client-notes">{t("modules.leads.notesLabel")}</Label>
             <Textarea
               id="client-notes"
               rows={4}
@@ -362,14 +365,14 @@ export function ClientFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={submitting}
             >
-              Anulează
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={submitting}>
               {submitting
-                ? "Se salvează…"
+                ? t("common.saving")
                 : mode === "create"
-                  ? "Creează client"
-                  : "Salvează modificările"}
+                  ? t("modules.clients.createClient")
+                  : t("common.saveChanges")}
             </Button>
           </DialogFooter>
         </form>

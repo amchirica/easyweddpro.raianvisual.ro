@@ -30,6 +30,8 @@ import {
   type TemplateVariableValues,
 } from "@/lib/contracts/templates";
 import { generateContractPublicToken, generatePortalToken, hashPublicToken } from "@/lib/contracts/token";
+import { notifyContractAccepted } from "@/lib/notifications/events";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { requireWorkspaceAction } from "@/lib/workspace/permissions";
 import type { Json } from "@/types/database";
@@ -858,6 +860,27 @@ export async function acceptPublicContractAction(input: unknown): Promise<Action
   if (payload?.already) {
     return actionSuccess("Contractul era deja acceptat.");
   }
+
+  try {
+    const admin = createAdminClient();
+    const tokenHash = hashPublicToken(parsed.data.token);
+    const { data: contract } = await admin
+      .from("contracts")
+      .select("id, title, workspace_id")
+      .eq("public_token_hash", tokenHash)
+      .maybeSingle();
+    if (contract) {
+      void notifyContractAccepted(admin, contract.workspace_id, {
+        id: contract.id,
+        title: contract.title,
+      });
+    }
+  } catch (notifyError) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("[contracts.accept.notify]", notifyError);
+    }
+  }
+
   return actionSuccess("Contract acceptat digital.");
 }
 

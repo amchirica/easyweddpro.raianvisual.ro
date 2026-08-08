@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslator } from "@/lib/i18n/t";
 import { Check, Layers } from "lucide-react";
 
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
@@ -9,6 +10,7 @@ import { listAdminPlans } from "@/lib/platform/plans";
 import { requirePlatformPermission } from "@/lib/platform/session";
 
 export default async function AdminPlansPage() {
+  const { t } = await getTranslator();
   const admin = await requirePlatformPermission("plans.read");
 
   let loadError: string | null = null;
@@ -16,7 +18,7 @@ export default async function AdminPlansPage() {
   try {
     plans = await listAdminPlans(admin.supabase);
   } catch (error) {
-    loadError = error instanceof Error ? error.message : "Nu am putut încărca planurile.";
+    loadError = error instanceof Error ? error.message : t("admin.plansLoadFailed");
   }
 
   return (
@@ -34,7 +36,7 @@ export default async function AdminPlansPage() {
         <AdminEmptyState
           icon={Layers}
           title="Niciun plan"
-          description="Nu există planuri definite."
+          description={t("admin.noPlans")}
         />
       ) : null}
 
@@ -60,12 +62,19 @@ export default async function AdminPlansPage() {
                 <p className="font-heading text-lg font-medium text-foreground">{plan.name}</p>
                 <p className="text-sm text-muted-foreground">{plan.description}</p>
               </div>
-              <p className="font-heading text-2xl font-medium text-foreground">
-                {plan.priceMonthlyRon === 0 ? "Gratuit" : formatCurrency(plan.priceMonthlyRon)}
-                {plan.priceMonthlyRon > 0 ? (
-                  <span className="text-sm text-muted-soft"> /lună</span>
+              <div>
+                <p className="font-heading text-2xl font-medium text-foreground">
+                  {plan.priceMonthlyRon === 0 ? "Gratuit" : formatCurrency(plan.priceMonthlyRon)}
+                  {plan.priceMonthlyRon > 0 ? (
+                    <span className="text-sm text-muted-soft">{t("admin.perMonth")}</span>
+                  ) : null}
+                </p>
+                {plan.priceMonthlyRon > 0 && plan.priceYearly != null ? (
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {formatCurrency(plan.priceYearly)}/an · 1 lună gratuită
+                  </p>
                 ) : null}
-              </p>
+              </div>
               <ul className="space-y-1.5 text-sm text-muted-foreground">
                 {plan.features.slice(0, 5).map((feature) => (
                   <li key={feature} className="flex items-start gap-2">
@@ -75,7 +84,7 @@ export default async function AdminPlansPage() {
                 ))}
               </ul>
               <p className="mt-auto text-xs text-muted-soft">
-                Sursă: {plan.source === "db" ? "bază de date" : "catalog cod"} · v{plan.version}
+                {t("admin.planSource", { source: plan.source === "db" ? t("admin.planSourceDb") : t("admin.planSourceCode"), version: plan.version })}
               </p>
             </Link>
           ))}

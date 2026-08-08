@@ -1,4 +1,5 @@
 import { Timer } from "lucide-react";
+import { getTranslator } from "@/lib/i18n/t";
 
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
 import { AdminErrorState } from "@/components/admin/admin-error-state";
@@ -10,6 +11,7 @@ import { canPerformPlatformAction } from "@/lib/platform/permissions";
 import { requirePlatformPermission } from "@/lib/platform/session";
 
 export default async function AdminCronPage() {
+  const { t } = await getTranslator();
   const admin = await requirePlatformPermission("cron.read");
   const canRun = canPerformPlatformAction(admin.platformRole, "cron.run");
 
@@ -47,7 +49,7 @@ export default async function AdminCronPage() {
         <AdminEmptyState
           icon={Timer}
           title="Nicio rulare"
-          description="Nu există încă execuții pentru job-ul runner."
+          description={t("admin.noCronExecutions")}
         />
       ) : null}
 
@@ -65,7 +67,7 @@ export default async function AdminCronPage() {
               },
               {
                 key: "duration",
-                header: "Durată",
+                header: t("admin.duration"),
                 cell: (row) => (
                   <span className="text-muted-foreground">
                     {row.durationMs != null ? `${row.durationMs} ms` : "—"}

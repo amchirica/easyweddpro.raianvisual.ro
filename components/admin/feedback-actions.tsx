@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -18,10 +20,10 @@ const STATUS_OPTIONS = [
 ] as const;
 
 const PRIORITY_OPTIONS = [
-  { value: "low", label: "Scăzută" },
-  { value: "normal", label: "Normală" },
-  { value: "high", label: "Ridicată" },
-  { value: "urgent", label: "Urgentă" },
+  { value: "low", labelKey: "status.priority.low" },
+  { value: "normal", labelKey: "status.priority.normal" },
+  { value: "high", labelKey: "status.priority.high" },
+  { value: "urgent", labelKey: "status.priority.urgent" },
 ] as const;
 
 export function FeedbackActions({
@@ -33,6 +35,7 @@ export function FeedbackActions({
   currentStatus: string;
   currentPriority: string | null;
 }) {
+  const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
   const [status, setStatus] = useState(currentStatus);
@@ -66,7 +69,7 @@ export function FeedbackActions({
         >
           {PRIORITY_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
-              {opt.label}
+              {t(opt.labelKey)}
             </option>
           ))}
         </select>
@@ -74,12 +77,12 @@ export function FeedbackActions({
       <AdminConfirmDialog
         trigger={
           <Button type="button" size="xs" variant="outline">
-            Actualizează
+            {t("common.update")}
           </Button>
         }
-        title="Actualizează feedback"
-        description="Statusul și prioritatea vor fi salvate în jurnalul de audit."
-        confirmLabel="Salvează"
+        title={t("admin.updateFeedback")}
+        description={t("admin.updateFeedbackDesc")}
+        confirmLabel={t("common.save")}
         requireReason={false}
         onConfirm={async () => {
           const result = await updateFeedbackStatusAction({
@@ -94,7 +97,7 @@ export function FeedbackActions({
         }}
       />
       <div className="w-full space-y-1">
-        <Label htmlFor={`fb-notes-${feedbackId}`}>Note admin (opțional)</Label>
+        <Label htmlFor={`fb-notes-${feedbackId}`}>{t("admin.adminNotesOptional")}</Label>
         <Textarea
           id={`fb-notes-${feedbackId}`}
           rows={2}

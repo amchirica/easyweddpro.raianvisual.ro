@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CheckCircle2, Pencil, RotateCcw, Trash2 } from "lucide-react";
@@ -60,6 +62,7 @@ export function TaskDetail({
   canDelete,
   isAssigneeOnly,
 }: TaskDetailProps) {
+  const { t } = useI18n();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const router = useRouter();
@@ -83,7 +86,7 @@ export function TaskDetail({
 
   async function handleDelete() {
     if (pending) return;
-    if (!window.confirm(`Ștergi task-ul „${task.title}”?`)) return;
+    if (!window.confirm(t("modules.tasks.deleteConfirm", { title: task.title }))) return;
     setPending(true);
     const result = await softDeleteTaskAction(task.id);
     setPending(false);
@@ -124,23 +127,23 @@ export function TaskDetail({
                 {task.status === "done" ? (
                   <>
                     <RotateCcw data-icon="inline-start" />
-                    Reactivează
+                    {t("modules.tasks.reactivate")}
                   </>
                 ) : (
                   <>
                     <CheckCircle2 data-icon="inline-start" />
-                    Finalizează
+                    {t("modules.tasks.complete")}
                   </>
                 )}
               </Button>
               <Button type="button" variant="outline" onClick={() => setDialogOpen(true)}>
                 <Pencil data-icon="inline-start" />
-                Editează
+                {t("common.edit")}
               </Button>
               {canDelete ? (
                 <Button type="button" variant="destructive" onClick={handleDelete} disabled={pending}>
                   <Trash2 data-icon="inline-start" />
-                  Șterge
+                  {t("common.delete")}
                 </Button>
               ) : null}
             </div>
@@ -151,7 +154,7 @@ export function TaskDetail({
           <div>
             <dt className="text-xs text-muted-foreground uppercase tracking-[0.08em]">Termen</dt>
             <dd className="mt-1 text-foreground">
-              {task.dueDate ? formatDate(task.dueDate) : "Fără termen"}
+              {task.dueDate ? formatDate(task.dueDate) : t("modules.tasks.noDeadline")}
             </dd>
           </div>
           <div>
@@ -180,7 +183,7 @@ export function TaskDetail({
 
         {task.notes ? (
           <div className="border-t border-border pt-4">
-            <p className="text-xs text-muted-foreground uppercase tracking-[0.08em]">Notițe</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-[0.08em]">{t("modules.leads.notesLabel")}</p>
             <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">{task.notes}</p>
           </div>
         ) : null}

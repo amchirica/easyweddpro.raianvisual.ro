@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
@@ -131,6 +133,7 @@ export function ProjectForm({
   onCancelEdit,
   onSaved,
 }: ProjectFormProps) {
+  const { t } = useI18n();
   const [form, setForm] = useState<FormState>(() =>
     makeInitialState({ initial, defaultClientId, currency }),
   );
@@ -183,7 +186,7 @@ export function ProjectForm({
         if (typeof key === "string" && !errors[key]) errors[key] = issue.message;
       }
       setFieldErrors(errors);
-      setFormError("Verifică datele completate.");
+      setFormError(t("common.verifyData"));
       return;
     }
 
@@ -198,7 +201,7 @@ export function ProjectForm({
           : await updateProjectAction(projectId ?? "", parsed.data);
 
       if (result?.error || !result?.data) {
-        const message = result?.error || "Proiectul nu a putut fi salvat. Verifică datele și încearcă din nou.";
+        const message = result?.error || t("modules.projects.saveFailed");
         setFormError(message);
         toast(message, "error");
         return;
@@ -220,7 +223,7 @@ export function ProjectForm({
           message: error instanceof Error ? error.message : String(error),
         });
       }
-      const message = "Proiectul nu a putut fi salvat. Verifică datele și încearcă din nou.";
+      const message = t("modules.projects.saveFailed");
       setFormError(message);
       toast(message, "error");
     } finally {
@@ -232,7 +235,7 @@ export function ProjectForm({
     <form onSubmit={handleSubmit} className="space-y-6 pb-24 lg:pb-0">
       {!canWrite ? (
         <p className="rounded-md border border-champagne/30 bg-champagne/10 px-3 py-2 text-sm text-champagne-soft">
-          Nu ai permisiunea de a edita acest proiect. Poți vizualiza datele, dar salvarea este dezactivată.
+          {t("modules.projects.noPermissionEdit")}
         </p>
       ) : null}
 
@@ -244,7 +247,7 @@ export function ProjectForm({
               id="project-name"
               value={form.name}
               onChange={(event) => update("name", event.target.value)}
-              placeholder="Nuntă Ana & Radu"
+              placeholder={t("modules.projects.titlePh")}
               aria-invalid={Boolean(fieldErrors.name)}
               disabled={!canWrite}
             />
@@ -258,7 +261,7 @@ export function ProjectForm({
               onValueChange={(value) => update("clientId", (value as string) ?? "")}
             >
               <SelectTrigger id="project-client" className="h-8 w-full" disabled={!canWrite}>
-                <SelectValue placeholder="Selectează clientul" />
+                <SelectValue placeholder={t("modules.projects.selectClient")} />
               </SelectTrigger>
               <SelectContent>
                 {clients.map((client) => (
@@ -269,7 +272,7 @@ export function ProjectForm({
               </SelectContent>
             </Select>
             {clients.length === 0 ? (
-              <p className="text-xs text-muted-soft">Niciun client disponibil încă.</p>
+              <p className="text-xs text-muted-soft">{t("modules.projects.noClientsYet")}</p>
             ) : null}
           </div>
 
@@ -343,12 +346,12 @@ export function ProjectForm({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="project-location">Locație</Label>
+              <Label htmlFor="project-location">{t("modules.projects.location")}</Label>
               <Input
                 id="project-location"
                 value={form.location}
                 onChange={(event) => update("location", event.target.value)}
-                placeholder="Sala Regia, București"
+                placeholder={t("modules.projects.locationPh")}
                 disabled={!canWrite}
               />
             </div>
@@ -370,7 +373,7 @@ export function ProjectForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="project-team">Echipă (separată prin virgulă)</Label>
+            <Label htmlFor="project-team">{t("modules.projects.teamComma")}</Label>
             <Input
               id="project-team"
               value={form.team}
@@ -417,7 +420,7 @@ export function ProjectForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="project-currency">Monedă</Label>
+            <Label htmlFor="project-currency">{t("common.currency")}</Label>
             <Input
               id="project-currency"
               value={form.currency}
@@ -429,7 +432,7 @@ export function ProjectForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="project-notes">Notițe</Label>
+            <Label htmlFor="project-notes">{t("modules.leads.notesLabel")}</Label>
             <Textarea
               id="project-notes"
               rows={4}
@@ -452,11 +455,11 @@ export function ProjectForm({
           <div className="hidden items-center justify-end gap-3 lg:flex">
             {mode === "edit" && onCancelEdit ? (
               <Button type="button" variant="outline" onClick={onCancelEdit} disabled={submitting}>
-                Anulează
+                {t("common.cancel")}
               </Button>
             ) : null}
             <Button type="submit" disabled={submitting || !canWrite}>
-              {submitting ? "Se salvează…" : mode === "create" ? "Creează proiect" : "Salvează modificările"}
+              {submitting ? t("common.saving") : mode === "create" ? t("modules.projects.createProject") : t("common.saveChanges")}
             </Button>
           </div>
         </div>
@@ -494,11 +497,11 @@ export function ProjectForm({
         <div className="flex shrink-0 items-center gap-2">
           {mode === "edit" && onCancelEdit ? (
             <Button type="button" size="sm" variant="outline" onClick={onCancelEdit} disabled={submitting}>
-              Anulează
+              {t("common.cancel")}
             </Button>
           ) : null}
           <Button type="submit" size="sm" disabled={submitting || !canWrite}>
-            {submitting ? "Se salvează…" : mode === "create" ? "Creează" : "Salvează"}
+            {submitting ? t("common.saving") : mode === "create" ? t("modules.projects.createShort") : t("common.save")}
           </Button>
         </div>
       </div>

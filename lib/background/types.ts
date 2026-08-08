@@ -13,6 +13,7 @@ export type JobName =
   | "tasks"
   | "cleanup"
   | "analytics"
+  | "billing_reminders"
   | "runner";
 
 export type JobResult = {

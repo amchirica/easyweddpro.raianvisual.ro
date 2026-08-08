@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { logActivity } from "@/lib/activity/log";
 import { actionError, actionSuccess, type ActionResult } from "@/lib/actions/types";
+import { assertPlanFeature } from "@/lib/billing/assert-feature";
 import { automationFormSchema } from "@/lib/validations/automations";
 import { requireWorkspaceAction } from "@/lib/workspace/permissions";
 import type { Database, Json } from "@/types/database";
@@ -30,6 +31,10 @@ export async function createAutomationAction(
   } catch {
     return actionError("Nu ai permisiunea de a gestiona automatizări.");
   }
+
+  const feature = await assertPlanFeature(ctx.supabase, ctx.activeWorkspace.id, "automations");
+  if (!feature.ok) return actionError(feature.reason);
+
   const data = parsed.data;
 
   const { data: automation, error } = await ctx.supabase
@@ -84,6 +89,10 @@ export async function updateAutomationAction(
   } catch {
     return actionError("Nu ai permisiunea de a gestiona automatizări.");
   }
+
+  const feature = await assertPlanFeature(ctx.supabase, ctx.activeWorkspace.id, "automations");
+  if (!feature.ok) return actionError(feature.reason);
+
   const data = parsed.data;
 
   const { data: automation, error } = await ctx.supabase
@@ -133,6 +142,9 @@ export async function toggleAutomationAction(
     return actionError("Nu ai permisiunea de a gestiona automatizări.");
   }
 
+  const feature = await assertPlanFeature(ctx.supabase, ctx.activeWorkspace.id, "automations");
+  if (!feature.ok) return actionError(feature.reason);
+
   const { data: automation, error } = await ctx.supabase
     .from("automations")
     .update({ enabled, updated_at: new Date().toISOString() })
@@ -171,6 +183,9 @@ export async function duplicateAutomationAction(
   } catch {
     return actionError("Nu ai permisiunea de a gestiona automatizări.");
   }
+
+  const feature = await assertPlanFeature(ctx.supabase, ctx.activeWorkspace.id, "automations");
+  if (!feature.ok) return actionError(feature.reason);
 
   const { data: source } = await ctx.supabase
     .from("automations")

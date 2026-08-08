@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslator } from "@/lib/i18n/t";
 import { Users } from "lucide-react";
 
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
@@ -29,6 +30,7 @@ export default async function AdminUsersPage({
 }: {
   searchParams: SearchParams;
 }) {
+  const { t } = await getTranslator();
   const admin = await requirePlatformPermission("users.read");
   const params = await searchParams;
   const q = (params.q ?? "").trim().toLowerCase();
@@ -39,7 +41,7 @@ export default async function AdminUsersPage({
   try {
     users = await listUsersForAdmin(admin.supabase);
   } catch (error) {
-    loadError = error instanceof Error ? error.message : "Nu am putut încărca utilizatorii.";
+    loadError = error instanceof Error ? error.message : t("admin.usersLoadFailed");
   }
 
   const filtered = users.filter((user) => {
@@ -54,7 +56,7 @@ export default async function AdminUsersPage({
       <div>
         <h1 className="font-heading text-3xl font-medium text-foreground">Utilizatori</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Conturi înregistrate pe platformă. Caută după nume sau email și filtrează după status.
+          {t("admin.usersHint")}
         </p>
       </div>
 
@@ -62,7 +64,7 @@ export default async function AdminUsersPage({
         fields={[
           {
             name: "q",
-            label: "Căutare",
+            label: t("admin.search"),
             type: "search",
             defaultValue: params.q ?? "",
             placeholder: "Nume sau email…",
@@ -91,7 +93,7 @@ export default async function AdminUsersPage({
           description={
             q || status
               ? "Niciun rezultat pentru filtrele selectate."
-              : "Nu există încă utilizatori înregistrați."
+              : t("admin.noUsersYet")
           }
         />
       ) : null}
@@ -110,12 +112,12 @@ export default async function AdminUsersPage({
                       href={`/admin/users/${user.id}`}
                       className="text-foreground hover:text-champagne-soft"
                     >
-                      {user.fullName ?? "Fără nume"}
+                      {user.fullName ?? t("admin.noName")}
                     </Link>
                     <p className="text-xs text-muted-soft">{user.email ?? "email indisponibil"}</p>
                     {user.isPlatformAdmin ? (
                       <span className="mt-1 inline-block">
-                        <AdminStatusBadge label="Admin platformă" tone="accent" />
+                        <AdminStatusBadge label={t("admin.platformAdmin")} tone="accent" />
                       </span>
                     ) : null}
                   </div>
@@ -126,7 +128,7 @@ export default async function AdminUsersPage({
                 header: "Workspace-uri",
                 cell: (user) =>
                   user.memberships.length === 0 ? (
-                    <span className="text-muted-soft">Fără workspace</span>
+                    <span className="text-muted-soft">{t("admin.noWorkspace")}</span>
                   ) : (
                     <span className="text-muted-foreground">{user.memberships.length}</span>
                   ),

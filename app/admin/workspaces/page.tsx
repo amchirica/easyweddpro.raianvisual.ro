@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslator } from "@/lib/i18n/t";
 import { Building2 } from "lucide-react";
 
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
@@ -17,19 +18,21 @@ function statusToneFor(status: string | null) {
   return "accent" as const;
 }
 
-function statusLabelFor(status: string | null) {
-  if (!status) return "Fără abonament";
+function statusLabelFor(status: string | null, t: (key: string) => string) {
+  if (!status) return t("admin.noSubscription");
   const map: Record<string, string> = {
-    active: "Activ",
-    trialing: "Trial",
-    past_due: "Restanță",
-    suspended: "Suspendat",
-    cancelled: "Anulat",
+    active: t("status.subscription.active"),
+    trialing: t("status.subscription.trialing"),
+    past_due: t("status.subscription.past_due"),
+    suspended: t("admin.suspended"),
+    cancelled: t("status.subscription.canceled"),
+    canceled: t("status.subscription.canceled"),
   };
   return map[status] ?? status;
 }
 
 export default async function AdminWorkspacesPage() {
+  const { t } = await getTranslator();
   const admin = await requirePlatformPermission("workspaces.read");
 
   let loadError: string | null = null;
@@ -37,7 +40,7 @@ export default async function AdminWorkspacesPage() {
   try {
     workspaces = await listWorkspacesForAdmin(admin.supabase);
   } catch (error) {
-    loadError = error instanceof Error ? error.message : "Nu am putut încărca workspace-urile.";
+    loadError = error instanceof Error ? error.message : t("admin.workspacesLoadFailed");
   }
 
   return (
@@ -45,7 +48,7 @@ export default async function AdminWorkspacesPage() {
       <div>
         <h1 className="font-heading text-3xl font-medium text-foreground">Workspace-uri</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Toate studiourile și agențiile înregistrate pe platformă.
+          {t("admin.workspacesHint")}
         </p>
       </div>
 
@@ -55,7 +58,7 @@ export default async function AdminWorkspacesPage() {
         <AdminEmptyState
           icon={Building2}
           title="Niciun workspace"
-          description="Nu există încă workspace-uri înregistrate."
+          description={t("admin.noWorkspacesYet")}
         />
       ) : null}
 
@@ -100,7 +103,7 @@ export default async function AdminWorkspacesPage() {
                 header: "Status",
                 cell: (workspace) => (
                   <AdminStatusBadge
-                    label={statusLabelFor(workspace.subscriptionStatus)}
+                    label={statusLabelFor(workspace.subscriptionStatus, t)}
                     tone={statusToneFor(workspace.subscriptionStatus)}
                   />
                 ),
@@ -114,7 +117,7 @@ export default async function AdminWorkspacesPage() {
               },
               {
                 key: "actions",
-                header: "Acțiuni",
+                header: t("common.actions"),
                 cell: (workspace) => (
                   <WorkspaceActions
                     workspaceId={workspace.id}

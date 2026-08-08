@@ -1,3 +1,6 @@
+"use client";
+
+import { useI18n } from "@/components/providers/i18n-provider";
 import { Separator } from "@/components/ui/separator";
 import { CONTRACT_TEMPLATE_VARIABLES, resolveTemplateVariables } from "@/lib/contracts/templates";
 
@@ -31,6 +34,7 @@ type TemplatePreviewProps = {
  * never evaluated as an expression. Anything outside the allowlist stays literal.
  */
 export function TemplatePreview({ subject, body, description, checklist, stages }: TemplatePreviewProps) {
+  const { t } = useI18n();
   const resolvedSubject = subject?.trim() ? resolveTemplateVariables(subject, SAMPLE_VALUES) : null;
   const resolvedBody = resolveTemplateVariables(body || "", SAMPLE_VALUES);
   const unresolved = [...new Set([...(resolvedSubject?.unresolved ?? []), ...resolvedBody.unresolved])];
@@ -38,9 +42,9 @@ export function TemplatePreview({ subject, body, description, checklist, stages 
   return (
     <div className="surface-card sticky top-6 space-y-4 p-5">
       <div>
-        <h3 className="font-heading text-base font-medium text-foreground">Previzualizare</h3>
+        <h3 className="font-heading text-base font-medium text-foreground">{t("common.preview")}</h3>
         <p className="text-xs text-muted-foreground">
-          Doar variabilele permise sunt înlocuite, cu date exemplu. Fără cod executabil.
+          {t("modules.templates.previewNote")}
         </p>
       </div>
       <Separator />
@@ -77,7 +81,7 @@ export function TemplatePreview({ subject, body, description, checklist, stages 
 
       {unresolved.length ? (
         <p className="text-xs text-warning">
-          Variabile nerezolvate în exemplu: {unresolved.map((v) => `{{${v}}}`).join(", ")}
+          {t("modules.templates.unresolvedVars", { vars: unresolved.map((v) => `{{${v}}}`).join(", ") })}
         </p>
       ) : null}
 

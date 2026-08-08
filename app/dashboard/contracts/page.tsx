@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslator } from "@/lib/i18n/t";
 
 import { ContractsList, type ContractListItem } from "@/components/contracts/contracts-list";
 import { listContracts } from "@/lib/data/contracts";
@@ -6,9 +7,10 @@ import { listClients } from "@/lib/data/clients";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { requireWorkspace } from "@/lib/workspace/session";
 
-export const metadata: Metadata = {
-  title: "Contracte · EasyWedd Pro",
-};
+export async function generateMetadata() {
+  const { t } = await getTranslator();
+  return { title: `${t("modules.contracts.title")} · EasyWedd Pro` };
+}
 
 type ContractRowWithMeta = Awaited<ReturnType<typeof listContracts>>["contracts"][number];
 
@@ -32,6 +34,7 @@ function mapContractRow(row: ContractRowWithMeta): ContractListItem {
 }
 
 export default async function ContractsPage() {
+  const { t } = await getTranslator();
   const ctx = await requireWorkspace();
   const permissions = permissionsForRole(ctx.role);
   let contracts: ContractListItem[] = [];
@@ -46,7 +49,7 @@ export default async function ContractsPage() {
     contracts = result.contracts.map(mapContractRow);
     clients = clientRows.map((client) => ({ id: client.id, name: client.name }));
   } catch (err) {
-    error = err instanceof Error ? err.message : "Nu am putut încărca contractele.";
+    error = err instanceof Error ? err.message : t("modules.contracts.loadFailed");
   }
 
   return (

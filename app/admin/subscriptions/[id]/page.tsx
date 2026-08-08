@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslator } from "@/lib/i18n/t";
 import { notFound } from "next/navigation";
 
 import { AdminDetailGrid, AdminDetailPanel } from "@/components/admin/admin-detail-panel";
@@ -19,7 +20,7 @@ const STATUS_TONE: Record<string, "success" | "warning" | "danger" | "accent"> =
 const STATUS_LABEL: Record<string, string> = {
   active: "Activ",
   trialing: "Trial",
-  past_due: "Restanță",
+  past_due: "past_due",
   suspended: "Suspendat",
   cancelled: "Anulat",
 };
@@ -29,6 +30,7 @@ export default async function AdminSubscriptionDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { t } = await getTranslator();
   const { id } = await params;
   const admin = await requirePlatformPermission("subscriptions.read");
 
@@ -60,7 +62,7 @@ export default async function AdminSubscriptionDetailPage({
     <div className="space-y-6">
       <div>
         <Link href="/admin/subscriptions" className="text-xs text-muted-soft hover:text-foreground">
-          ← Înapoi la abonamente
+          {t("admin.backToSubscriptions")}
         </Link>
         <h1 className="mt-2 font-heading text-3xl font-medium text-foreground">
           {workspace?.name ?? "Abonament"}
@@ -84,7 +86,7 @@ export default async function AdminSubscriptionDetailPage({
                 sub.workspace_id
               ),
             },
-            { label: "Plan", value: sub.plan },
+            { label: "Plan", value: sub.plan === "free" ? "Free" : sub.plan },
             {
               label: "Status",
               value: (
@@ -95,12 +97,12 @@ export default async function AdminSubscriptionDetailPage({
               ),
             },
             {
-              label: "Valoare lunară",
+              label: t("admin.monthlyValue"),
               value: amount === 0 ? "—" : formatCurrency(amount),
             },
             { label: "Interval facturare", value: sub.billing_interval ?? "—" },
             {
-              label: "Trial până la",
+              label: t("admin.trialUntil"),
               value: sub.trial_end
                 ? formatDateTime(sub.trial_end)
                 : sub.trial_ends_at
@@ -108,17 +110,17 @@ export default async function AdminSubscriptionDetailPage({
                   : "—",
             },
             {
-              label: "Perioadă start",
+              label: t("admin.periodStart"),
               value: sub.current_period_start
                 ? formatDateTime(sub.current_period_start)
                 : "—",
             },
             {
-              label: "Perioadă end",
+              label: t("admin.periodEnd"),
               value: sub.current_period_end ? formatDateTime(sub.current_period_end) : "—",
             },
             {
-              label: "Anulare la final perioadă",
+              label: t("admin.cancelAtPeriodEnd"),
               value: sub.cancel_at_period_end ? "Da" : "Nu",
             },
             { label: "Stripe customer", value: sub.stripe_customer_id ?? "—" },

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslator } from "@/lib/i18n/t";
 
 import { TasksBoard, type TaskListItem } from "@/components/tasks/tasks-board";
 import { listClients } from "@/lib/data/clients";
@@ -6,9 +7,10 @@ import { listTasks, listWorkspaceMemberOptions, type TaskRow } from "@/lib/data/
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { requireWorkspace } from "@/lib/workspace/session";
 
-export const metadata: Metadata = {
-  title: "Task-uri · EasyWedd Pro",
-};
+export async function generateMetadata() {
+  const { t } = await getTranslator();
+  return { title: `${t("modules.tasks.title")} · EasyWedd Pro` };
+}
 
 function mapTaskRow(row: TaskRow, names: Map<string, string>, clientNames: Map<string, string>): TaskListItem {
   return {
@@ -27,6 +29,7 @@ function mapTaskRow(row: TaskRow, names: Map<string, string>, clientNames: Map<s
 }
 
 export default async function TasksPage() {
+  const { t } = await getTranslator();
   const ctx = await requireWorkspace();
   const permissions = permissionsForRole(ctx.role);
 
@@ -54,7 +57,7 @@ export default async function TasksPage() {
     const rows = await listTasks(ctx.supabase, ctx.activeWorkspace.id);
     tasks = rows.map((row) => mapTaskRow(row, memberNameById, clientNameById));
   } catch (err) {
-    error = err instanceof Error ? err.message : "Nu am putut încărca task-urile.";
+    error = err instanceof Error ? err.message : t("modules.tasks.loadFailed");
   }
 
   return (

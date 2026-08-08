@@ -1,10 +1,13 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Bell, CheckCheck } from "lucide-react";
+import { Bell, CheckCheck, X } from "lucide-react";
 
 import {
+  deleteNotificationAction,
   listNotificationsAction,
   listUnreadCountAction,
   markAllNotificationsReadAction,
@@ -23,19 +26,23 @@ type NotificationRow = Database["public"]["Tables"]["notifications"]["Row"];
 
 const POLL_INTERVAL_MS = 60_000;
 
-function formatRelativeTime(iso: string): string {
+function formatRelativeTime(
+  iso: string,
+  t: (key: string, params?: Record<string, string | number>) => string,
+): string {
   const diffMs = Date.now() - new Date(iso).getTime();
   const minutes = Math.floor(diffMs / 60_000);
-  if (minutes < 1) return "acum";
-  if (minutes < 60) return `${minutes} min`;
+  if (minutes < 1) return t("common.relativeJustNow");
+  if (minutes < 60) return t("common.relativeMinutes", { count: minutes });
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} h`;
+  if (hours < 24) return t("common.relativeHours", { count: hours });
   const days = Math.floor(hours / 24);
-  return `${days} z`;
+  return t("common.relativeDays", { count: days });
 }
 
 /** In-app notifications bell. Renders inert (no fetching) when `enabled` is false — demo mode. */
 export function NotificationsBell({ enabled = true }: { enabled?: boolean }) {
+  const { t } = useI18n();
   const [count, setCount] = useState(0);
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationRow[]>([]);
@@ -88,9 +95,18 @@ export function NotificationsBell({ enabled = true }: { enabled?: boolean }) {
     await markAllNotificationsReadAction();
   }
 
+  async function handleDelete(notification: NotificationRow, event: React.MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const wasUnread = !notification.read_at;
+    setNotifications((current) => current.filter((item) => item.id !== notification.id));
+    if (wasUnread) setCount((current) => Math.max(0, current - 1));
+    await deleteNotificationAction({ notificationId: notification.id });
+  }
+
   if (!enabled) {
     return (
-      <Button type="button" variant="ghost" size="icon" aria-label="Notificări">
+      <Button type="button" variant="ghost" size="icon" aria-label={t("common.notifications")}>
         <Bell className="h-4 w-4" />
       </Button>
     );
@@ -100,7 +116,7 @@ export function NotificationsBell({ enabled = true }: { enabled?: boolean }) {
     <DropdownMenu open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger
         render={
-          <Button type="button" variant="ghost" size="icon" className="relative" aria-label="Notificări" />
+          <Button type="button" variant="ghost" size="icon" className="relative" aria-label={t("common.notifications")} />
         }
       >
         <Bell className="h-4 w-4" />
@@ -112,21 +128,21 @@ export function NotificationsBell({ enabled = true }: { enabled?: boolean }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80 p-0">
         <div className="flex items-center justify-between border-b border-border px-3 py-2">
-          <p className="text-sm font-medium text-foreground">Notificări</p>
+          <p className="text-sm font-medium text-foreground">{t("common.notifications")}</p>
           {count > 0 ? (
             <Button type="button" variant="ghost" size="sm" onClick={handleMarkAllRead}>
               <CheckCheck data-icon="inline-start" />
-              Marchează tot
+              {t("common.markAll")}
             </Button>
           ) : null}
         </div>
 
         <div className="max-h-96 overflow-y-auto">
           {loading ? (
-            <p className="px-3 py-6 text-center text-sm text-muted-foreground">Se încarcă…</p>
+            <p className="px-3 py-6 text-center text-sm text-muted-foreground">{t("common.loading")}</p>
           ) : notifications.length === 0 ? (
             <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-              Nu ai notificări.
+              {t("common.noNotifications")}
             </p>
           ) : (
             notifications.map((notification) => {
@@ -139,16 +155,26 @@ export function NotificationsBell({ enabled = true }: { enabled?: boolean }) {
                   )}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm text-foreground">{notification.title}</p>
-                    {isUnread ? (
-                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-champagne" />
-                    ) : null}
+                    <p className="min-w-0 flex-1 text-sm text-foreground">{notification.title}</p>
+                    <div className="flex shrink-0 items-center gap-1">
+                      {isUnread ? (
+                        <span className="h-1.5 w-1.5 rounded-full bg-champagne" />
+                      ) : null}
+                      <button
+                        type="button"
+                        aria-label={t("common.delete")}
+                        className="rounded p-0.5 text-muted-soft hover:bg-muted hover:text-foreground"
+                        onClick={(event) => handleDelete(notification, event)}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
                   {notification.body ? (
                     <p className="text-xs text-muted-foreground">{notification.body}</p>
                   ) : null}
                   <p className="text-[11px] text-muted-soft">
-                    {formatRelativeTime(notification.created_at)}
+                    {formatRelativeTime(notification.created_at, t)}
                   </p>
                 </div>
               );

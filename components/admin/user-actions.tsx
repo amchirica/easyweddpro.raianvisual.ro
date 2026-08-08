@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useRouter } from "next/navigation";
 
 import { AdminActionMenu } from "@/components/admin/admin-action-menu";
@@ -19,6 +21,7 @@ export function UserActions({
   userId: string;
   accountStatus: string;
 }) {
+  const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
   const isSuspended = accountStatus === "suspended";
@@ -38,12 +41,12 @@ export function UserActions({
         <AdminConfirmDialog
           trigger={
             <Button type="button" size="sm" variant="outline">
-              Reactivează
+              {t("admin.reactivate")}
             </Button>
           }
-          title="Reactivează utilizatorul"
-          description="Contul va putea din nou să acceseze platforma."
-          confirmLabel="Reactivează"
+          title={t("admin.reactivateUser")}
+          description={t("admin.reactivateUserDesc")}
+          confirmLabel={t("admin.reactivate")}
           onConfirm={(reason) =>
             run(() => reactivateUserAction({ userId, reason }))
           }
@@ -52,12 +55,12 @@ export function UserActions({
         <AdminConfirmDialog
           trigger={
             <Button type="button" size="sm" variant="destructive">
-              Suspendă
+              {t("admin.suspend")}
             </Button>
           }
-          title="Suspendă utilizatorul"
-          description="Contul nu va mai putea accesa platforma până la reactivare."
-          confirmLabel="Suspendă"
+          title={t("admin.suspendUser")}
+          description={t("admin.suspendUserDesc")}
+          confirmLabel={t("admin.suspend")}
           destructive
           onConfirm={(reason) =>
             run(() => suspendUserAction({ userId, reason }))
@@ -67,12 +70,12 @@ export function UserActions({
       <AdminConfirmDialog
         trigger={
           <Button type="button" size="sm" variant="outline">
-            Reset parolă
+            {t("admin.resetPassword")}
           </Button>
         }
-        title="Trimite resetare parolă"
+        title={t("admin.sendPasswordReset")}
         description="Utilizatorul va primi un email cu link de resetare a parolei."
-        confirmLabel="Trimite email"
+        confirmLabel={t("admin.sendEmail")}
         onConfirm={(reason) =>
           run(() => sendPasswordResetAction({ userId, reason }))
         }

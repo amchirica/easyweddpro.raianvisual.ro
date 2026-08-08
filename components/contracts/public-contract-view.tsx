@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useState, type FormEvent } from "react";
 import {
   Ban,
@@ -58,29 +60,12 @@ type PublicContractViewProps = {
   error?: string | null;
 };
 
-const SECTION_LABELS: Partial<Record<keyof ContractSections, string>> = {
-  introduction: "Introducere",
-  object: "Obiectul contractului",
-  provider_obligations: "Obligațiile furnizorului",
-  client_obligations: "Obligațiile clientului",
-  products: "Produse",
-  schedule: "Program",
-  access_logistics: "Acces și logistică",
-  transport: "Transport",
-  setup_teardown: "Montaj și demontaj",
-  delivery: "Livrare",
-  payments: "Plăți",
-  deposit_terms: "Avans",
-  installments_terms: "Tranșe",
-  cancellation: "Anulare",
-  reschedule: "Reprogramare",
-  force_majeure: "Forță majoră",
-  liability: "Răspundere",
-  copyright: "Drepturi de autor",
-  privacy: "Protecția datelor",
-  special_clauses: "Clauze speciale",
-  notes: "Observații",
-};
+const SECTION_KEYS = [
+  "introduction","object","provider_obligations","client_obligations","products","schedule",
+  "access_logistics","transport","setup_teardown","delivery","payments","deposit_terms",
+  "installments_terms","cancellation","reschedule","force_majeure","liability","copyright",
+  "privacy","special_clauses","notes",
+] as const;
 
 export function PublicContractView({
   token,
@@ -89,6 +74,7 @@ export function PublicContractView({
   loading = false,
   error = null,
 }: PublicContractViewProps) {
+  const { t } = useI18n();
   const [status, setStatus] = useState<ContractStatus>(data.status);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -105,19 +91,19 @@ export function PublicContractView({
     if (submitting || !canAccept) return;
 
     if (!fullName.trim() || fullName.trim().length < 2) {
-      setFormError("Introdu numele tău complet.");
+      setFormError(t("modules.contracts.enterFullName"));
       return;
     }
     if (!email.trim() || !email.includes("@")) {
-      setFormError("Introdu o adresă de email validă.");
+      setFormError(t("modules.contracts.enterValidEmail"));
       return;
     }
     if (!acceptedTerms) {
-      setFormError("Trebuie să accepți termenii contractului.");
+      setFormError(t("modules.contracts.mustAcceptTerms"));
       return;
     }
     if (!acceptedPrivacy) {
-      setFormError("Trebuie să accepți politica de confidențialitate.");
+      setFormError(t("modules.contracts.mustAcceptPrivacy"));
       return;
     }
     setFormError(null);
@@ -158,7 +144,7 @@ export function PublicContractView({
       <div className="flex min-h-screen items-center justify-center px-6 py-14">
         <div className="flex flex-col items-center gap-3 text-center">
           <Loader2 className="h-8 w-8 animate-spin text-champagne" aria-hidden />
-          <p className="text-sm text-muted-foreground">Se încarcă contractul…</p>
+          <p className="text-sm text-muted-foreground">{t("modules.contracts.loadingContract")}</p>
         </div>
       </div>
     );
@@ -200,7 +186,7 @@ export function PublicContractView({
             className="mb-6 rounded-xl border border-champagne/30 bg-champagne/10 px-4 py-2.5 text-sm text-champagne-soft"
             role="status"
           >
-            Pagină demonstrativă — acceptarea ta nu este salvată.
+            {t("modules.contracts.demoPage")}
           </div>
         ) : null}
 
@@ -213,25 +199,24 @@ export function PublicContractView({
             {data.title}
           </h1>
           <p className="mt-2 text-base text-muted-foreground">
-            Între {data.providerName ?? "Furnizor"} și {data.clientName ?? "Client"}
+            {t("modules.contracts.betweenParties", { provider: data.providerName ?? t("modules.contracts.providerFallback"), client: data.clientName ?? t("common.client") })}
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             <div className="rounded-xl border border-border bg-surface-elevated/60 p-4">
-              <p className="text-xs text-muted-foreground">Valoare totală</p>
+              <p className="text-xs text-muted-foreground">{t("common.totalValue")}</p>
               <p className="mt-1 font-heading text-lg font-medium text-champagne">
                 {formatCurrency(data.total, data.currency)}
               </p>
               <p className="mt-1 text-xs text-muted-soft">
-                Avans {formatCurrency(data.depositAmount, data.currency)} · Rest{" "}
-                {formatCurrency(data.remainingAmount, data.currency)}
+                {t("modules.contracts.depositRemaining", { deposit: formatCurrency(data.depositAmount, data.currency), remaining: formatCurrency(data.remainingAmount, data.currency) })}
               </p>
             </div>
             <div className="rounded-xl border border-border bg-surface-elevated/60 p-4">
-              <p className="text-xs text-muted-foreground">Eveniment</p>
+              <p className="text-xs text-muted-foreground">{t("modules.contracts.event")}</p>
               <p className="mt-1 flex items-center gap-1.5 font-heading text-lg font-medium text-foreground">
                 <CalendarClock className="h-4 w-4 text-champagne" aria-hidden />
-                {data.eventDate ? formatDate(data.eventDate) : "De stabilit"}
+                {data.eventDate ? formatDate(data.eventDate) : t("modules.contracts.toBeSet")}
               </p>
               {data.eventLocation ? (
                 <p className="mt-1 flex items-center gap-1 text-xs text-muted-soft">
@@ -244,7 +229,7 @@ export function PublicContractView({
 
           {data.validUntil ? (
             <p className="mt-4 text-sm text-muted-foreground">
-              Acceptare disponibilă până la {formatDate(data.validUntil)}.
+              {t("modules.contracts.acceptUntilDate", { date: formatDate(data.validUntil) })}
             </p>
           ) : null}
 
@@ -253,17 +238,17 @@ export function PublicContractView({
           <div>
             <p className="flex items-center gap-2 font-heading text-lg font-medium text-foreground">
               <ScrollText className="h-4 w-4 text-champagne" aria-hidden />
-              Servicii contractate
+              {t("modules.contracts.contractedServices")}
             </p>
 
             <div className="mt-4 hidden overflow-x-auto sm:block">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-border text-xs text-muted-foreground uppercase">
-                    <th className="py-2 pr-3 font-medium">Serviciu</th>
-                    <th className="py-2 pr-3 font-medium">Cant.</th>
-                    <th className="py-2 pr-3 font-medium">Preț unitar</th>
-                    <th className="py-2 font-medium text-right">Total</th>
+                    <th className="py-2 pr-3 font-medium">{t("modules.contracts.service")}</th>
+                    <th className="py-2 pr-3 font-medium">{t("modules.proposals.qtyShort")}</th>
+                    <th className="py-2 pr-3 font-medium">{t("modules.contracts.unitPrice")}</th>
+                    <th className="py-2 font-medium text-right">{t("modules.proposals.total")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -302,14 +287,14 @@ export function PublicContractView({
 
             <div className="mt-6 space-y-1.5 border-t border-border pt-4 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-muted-foreground">{t("common.subtotal")}</span>
                 <span className="text-foreground">
                   {formatCurrency(data.subtotal, data.currency)}
                 </span>
               </div>
               {data.discountAmount > 0 ? (
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Discount</span>
+                  <span className="text-muted-foreground">{t("modules.proposals.discount")}</span>
                   <span className="text-foreground">
                     -{formatCurrency(data.discountAmount, data.currency)}
                   </span>
@@ -317,14 +302,14 @@ export function PublicContractView({
               ) : null}
               {data.taxAmount > 0 ? (
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Taxe</span>
+                  <span className="text-muted-foreground">{t("modules.contracts.taxes")}</span>
                   <span className="text-foreground">
                     {formatCurrency(data.taxAmount, data.currency)}
                   </span>
                 </div>
               ) : null}
               <div className="flex items-center justify-between border-t border-border pt-2">
-                <span className="font-medium text-foreground">Total</span>
+                <span className="font-medium text-foreground">{t("modules.proposals.total")}</span>
                 <span className="font-heading text-xl font-medium text-champagne">
                   {formatCurrency(data.total, data.currency)}
                 </span>
@@ -332,7 +317,7 @@ export function PublicContractView({
             </div>
           </div>
 
-          {(Object.keys(SECTION_LABELS) as Array<keyof ContractSections>).map((key) => {
+          {(SECTION_KEYS as readonly (keyof ContractSections)[]).map((key) => {
             const body = data.sections[key];
             if (!body?.trim()) return null;
             return (
@@ -340,7 +325,7 @@ export function PublicContractView({
                 <Separator className="my-8" />
                 <div>
                   <p className="font-heading text-lg font-medium text-foreground">
-                    {SECTION_LABELS[key]}
+                    {t(`modules.contracts.sections.${key}`)}
                   </p>
                   <p className="mt-3 text-sm whitespace-pre-wrap text-muted-foreground">{body}</p>
                 </div>
@@ -354,7 +339,7 @@ export function PublicContractView({
               <div>
                 <p className="flex items-center gap-2 font-heading text-lg font-medium text-foreground">
                   <FileText className="h-4 w-4 text-champagne" aria-hidden />
-                  Termeni generali
+                  {t("modules.contracts.generalTerms")}
                 </p>
                 <p className="mt-3 text-sm whitespace-pre-wrap text-muted-foreground">{data.terms}</p>
               </div>
@@ -376,7 +361,7 @@ export function PublicContractView({
               } nativeButton={false}
             >
               <Download data-icon="inline-start" />
-              Descarcă PDF
+              {t("modules.contracts.downloadPdf")}
             </Button>
           </div>
 
@@ -385,7 +370,7 @@ export function PublicContractView({
           {status === "accepted" ? (
             <div className="flex flex-col items-center gap-2 text-center">
               <ShieldCheck className="h-6 w-6 text-success" aria-hidden />
-              <p className="text-sm font-medium text-success">Contract acceptat digital.</p>
+              <p className="text-sm font-medium text-success">{t("modules.contracts.acceptedDigital")}</p>
               {data.acceptedAt ? (
                 <p className="text-xs text-muted-soft">{formatDateTime(data.acceptedAt)}</p>
               ) : null}
@@ -394,33 +379,33 @@ export function PublicContractView({
             <div className="flex flex-col items-center gap-2 text-center">
               <Ban className="h-6 w-6 text-muted-foreground" aria-hidden />
               <p className="text-sm text-muted-foreground">
-                Acest contract a fost anulat de furnizor.
+                {t("modules.contracts.cancelledByProvider")}
               </p>
             </div>
           ) : status === "expired" ? (
             <div className="flex flex-col items-center gap-2 text-center">
               <Clock className="h-6 w-6 text-muted-foreground" aria-hidden />
-              <p className="text-sm text-muted-foreground">Termenul de acceptare a expirat.</p>
+              <p className="text-sm text-muted-foreground">{t("modules.contracts.acceptExpired")}</p>
             </div>
           ) : status === "superseded" ? (
             <div className="flex flex-col items-center gap-2 text-center">
               <Clock className="h-6 w-6 text-muted-foreground" aria-hidden />
               <p className="text-sm text-muted-foreground">
-                Această versiune a fost înlocuită de un contract nou.
+                {t("modules.contracts.supersededNotice")}
               </p>
             </div>
           ) : canAccept ? (
             <form onSubmit={handleAccept} className="mx-auto max-w-md space-y-4">
               <p className="text-center text-sm text-muted-foreground">
-                Completează datele tale pentru a accepta digital acest contract.
+                {t("modules.contracts.acceptFormIntro")}
               </p>
               <div className="space-y-2">
-                <Label htmlFor="accept-name">Nume complet</Label>
+                <Label htmlFor="accept-name">{t("portal.fullName")}</Label>
                 <Input
                   id="accept-name"
                   value={fullName}
                   onChange={(event) => setFullName(event.target.value)}
-                  placeholder="Numele tău complet"
+                  placeholder={t("modules.contracts.fullNamePlaceholder")}
                 />
               </div>
               <div className="space-y-2">
@@ -439,7 +424,7 @@ export function PublicContractView({
                   onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
                   className="mt-0.5"
                 />
-                Am citit și sunt de acord cu termenii și clauzele acestui contract.
+                {t("modules.contracts.acceptTermsCheckbox")}
               </label>
               <label className="flex items-start gap-2.5 text-sm text-muted-foreground">
                 <Checkbox
@@ -447,11 +432,10 @@ export function PublicContractView({
                   onCheckedChange={(checked) => setAcceptedPrivacy(checked === true)}
                   className="mt-0.5"
                 />
-                Am citit și accept politica de confidențialitate privind prelucrarea datelor.
+                {t("modules.contracts.acceptPrivacyCheckbox")}
               </label>
               <p className="rounded-md border border-border bg-surface-elevated/50 px-3 py-2 text-xs text-muted-soft">
-                Acceptarea digitală înregistrează identitatea declarată, data și informațiile tehnice
-                ale sesiunii. Nu reprezintă o semnătură electronică calificată în sensul eIDAS.
+                {t("modules.contracts.digitalAcceptNote")}
               </p>
 
               {formError ? (
@@ -465,7 +449,7 @@ export function PublicContractView({
 
               <div className="flex justify-center">
                 <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={submitting}>
-                  {submitting ? "Se trimite…" : "Accept contractul"}
+                  {submitting ? t("portal.sending") : t("modules.contracts.acceptContract")}
                 </Button>
               </div>
             </form>
@@ -473,8 +457,7 @@ export function PublicContractView({
         </div>
 
         <p className="mt-8 text-center text-xs text-muted-soft">
-          Publicat de {data.providerName ?? "EasyWedd Pro"}
-          {data.publishedAt ? ` · ${formatDateTime(data.publishedAt)}` : ""}
+          {t("modules.contracts.publishedBy", { provider: data.providerName ?? "EasyWedd Pro" })}{data.publishedAt ? ` · ${formatDateTime(data.publishedAt)}` : ""}
         </p>
       </div>
     </div>

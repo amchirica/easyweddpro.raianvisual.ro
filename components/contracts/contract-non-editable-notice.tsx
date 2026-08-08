@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Plus } from "lucide-react";
@@ -17,6 +19,7 @@ export function ContractNonEditableNotice({
   contractId,
   canCreateVersion,
 }: ContractNonEditableNoticeProps) {
+  const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
@@ -31,7 +34,7 @@ export function ContractNonEditableNotice({
       return;
     }
 
-    toast(result?.success ?? "Versiune nouă creată.", "success");
+    toast(result?.success ?? t("modules.contracts.versionCreated"), "success");
     if (result?.data?.contractId) {
       router.push(`/dashboard/contracts/${result.data.contractId}?edit=1`);
     }
@@ -40,13 +43,12 @@ export function ContractNonEditableNotice({
   return (
     <div className="surface-card space-y-4 p-5">
       <p className="text-sm text-foreground">
-        Acest contract nu mai poate fi editat direct. Creează o versiune nouă pentru
-        modificări.
+        {t("modules.contracts.nonEditable")}
       </p>
       {canCreateVersion ? (
         <Button type="button" onClick={handleNewVersion} disabled={busy}>
           <Plus data-icon="inline-start" />
-          {busy ? "Se creează…" : "Creează versiune nouă"}
+          {busy ? t("common.creating") : t("modules.contracts.createNewVersion")}
         </Button>
       ) : null}
     </div>

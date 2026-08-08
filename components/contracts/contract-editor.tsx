@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
@@ -49,29 +51,7 @@ type ServiceDraft = {
   lineTotal: string;
 };
 
-const SECTION_LABELS: Record<(typeof CONTRACT_SECTION_KEYS)[number], string> = {
-  introduction: "Introducere",
-  object: "Obiectul contractului",
-  provider_obligations: "Obligațiile furnizorului",
-  client_obligations: "Obligațiile clientului",
-  products: "Produse",
-  schedule: "Program",
-  access_logistics: "Acces și logistică",
-  transport: "Transport",
-  setup_teardown: "Montaj și demontaj",
-  delivery: "Livrare",
-  payments: "Plăți",
-  deposit_terms: "Avans",
-  installments_terms: "Tranșe",
-  cancellation: "Anulare",
-  reschedule: "Reprogramare",
-  force_majeure: "Forță majoră",
-  liability: "Răspundere",
-  copyright: "Drepturi de autor",
-  privacy: "Protecția datelor (GDPR)",
-  special_clauses: "Clauze speciale",
-  notes: "Observații",
-};
+/* section labels via t(`modules.contracts.sections.*`) */
 
 const REQUIRED_SECTION_SET = new Set<string>(REQUIRED_CONTRACT_SECTION_KEYS);
 
@@ -98,7 +78,7 @@ function serviceFromItem(item: ContractServiceItem): ServiceDraft {
 function createCustomSection(sortOrder: number): CustomContractSection {
   return {
     id: crypto.randomUUID(),
-    title: "Secțiune personalizată",
+    title: "", // set via t when adding
     content: "",
     sortOrder,
   };
@@ -112,6 +92,7 @@ type ContractEditorProps = {
 };
 
 export function ContractEditor({ contractId, initial, canWrite, onSaved }: ContractEditorProps) {
+  const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
@@ -273,7 +254,7 @@ export function ContractEditor({ contractId, initial, canWrite, onSaved }: Contr
         sections,
         customSections: customSections.map((section, index) => ({
           ...section,
-          title: section.title.trim() || `Secțiune ${index + 1}`,
+          title: section.title.trim() || t("modules.contracts.sectionN", { n: index + 1 }),
           sortOrder: index,
         })),
         installments: [],
@@ -328,7 +309,7 @@ export function ContractEditor({ contractId, initial, canWrite, onSaved }: Contr
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="contract-event-location">Locație eveniment</Label>
+            <Label htmlFor="contract-event-location">{t("modules.contracts.eventLocation")}</Label>
             <Input
               id="contract-event-location"
               value={eventLocation}
@@ -337,7 +318,7 @@ export function ContractEditor({ contractId, initial, canWrite, onSaved }: Contr
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="contract-valid-until">Acceptare până la</Label>
+            <Label htmlFor="contract-valid-until">{t("modules.contracts.acceptUntil")}</Label>
             <Input
               id="contract-valid-until"
               type="date"
@@ -390,7 +371,7 @@ export function ContractEditor({ contractId, initial, canWrite, onSaved }: Contr
               className="grid gap-3 rounded-xl border border-border bg-surface-elevated/40 p-4 sm:grid-cols-[1fr_80px_100px_100px_auto]"
             >
               <div className="space-y-1.5">
-                <Label className="text-xs text-muted-soft">Denumire</Label>
+                <Label className="text-xs text-muted-soft">{t("modules.proposals.itemName")}</Label>
                 <Input
                   value={item.name}
                   onChange={(event) => updateService(index, { name: event.target.value })}
@@ -410,7 +391,7 @@ export function ContractEditor({ contractId, initial, canWrite, onSaved }: Contr
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs text-muted-soft">Preț unitar</Label>
+                <Label className="text-xs text-muted-soft">{t("modules.contracts.unitPrice")}</Label>
                 <Input
                   type="number"
                   min="0"
@@ -421,7 +402,7 @@ export function ContractEditor({ contractId, initial, canWrite, onSaved }: Contr
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs text-muted-soft">Total linie</Label>
+                <Label className="text-xs text-muted-soft">{t("modules.proposals.lineTotal")}</Label>
                 <Input
                   type="number"
                   min="0"
@@ -438,7 +419,7 @@ export function ContractEditor({ contractId, initial, canWrite, onSaved }: Contr
                     variant="ghost"
                     size="icon-sm"
                     onClick={() => setServices((s) => s.filter((_, i) => i !== index))}
-                    aria-label="Șterge linie"
+                    aria-label={t("modules.contracts.deleteLine")}
                   >
                     <Trash2 className="h-4 w-4 text-muted-foreground" />
                   </Button>
@@ -469,7 +450,7 @@ export function ContractEditor({ contractId, initial, canWrite, onSaved }: Contr
                 </span>
               </p>
               <p className="text-muted-soft">
-                Rest de plată: {formatCurrency(moneyPreview.remainingAmount, initial.currency)}
+                {t("modules.contracts.remainingPayment", { amount: formatCurrency(moneyPreview.remainingAmount, initial.currency) })}
               </p>
             </div>
           ) : null}
@@ -477,7 +458,7 @@ export function ContractEditor({ contractId, initial, canWrite, onSaved }: Contr
       </div>
 
       <div className="surface-card space-y-2 p-5">
-        <Label htmlFor="contract-terms">Termeni generali</Label>
+        <Label htmlFor="contract-terms">{t("modules.contracts.generalTerms")}</Label>
         <Textarea
           id="contract-terms"
           value={terms}
@@ -489,12 +470,12 @@ export function ContractEditor({ contractId, initial, canWrite, onSaved }: Contr
 
       <div className="space-y-4">
         <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
-          Clauze contract
+          {t("modules.contracts.clauses")}
         </p>
         {CONTRACT_SECTION_KEYS.map((key) => (
           <div key={key} className="surface-card space-y-2 p-5">
             <Label htmlFor={`section-${key}`}>
-              {SECTION_LABELS[key]}
+              {t(`modules.contracts.sections.${key === "privacy" ? "privacy_gdpr" : key}`)}
               {REQUIRED_SECTION_SET.has(key) ? (
                 <span className="ml-2 text-[0.65rem] uppercase tracking-wide text-muted-soft">
                   recomandat
@@ -520,7 +501,7 @@ export function ContractEditor({ contractId, initial, canWrite, onSaved }: Contr
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-3">
           <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
-            Secțiuni personalizate
+            {t("modules.contracts.customSections")}
           </p>
           {!disabled ? (
             <Button
@@ -528,22 +509,22 @@ export function ContractEditor({ contractId, initial, canWrite, onSaved }: Contr
               variant="outline"
               size="sm"
               onClick={() =>
-                setCustomSections((prev) => [...prev, createCustomSection(prev.length)])
+                setCustomSections((prev) => [...prev, { ...createCustomSection(prev.length), title: t("modules.contracts.customSection") }])
               }
             >
               <Plus data-icon="inline-start" />
-              Adaugă secțiune
+              {t("modules.contracts.addSection")}
             </Button>
           ) : null}
         </div>
 
         {customSections.length === 0 ? (
-          <p className="text-sm text-muted-soft">Nicio secțiune personalizată încă.</p>
+          <p className="text-sm text-muted-soft">{t("modules.contracts.noCustomSections")}</p>
         ) : (
           customSections.map((section, index) => (
             <div key={section.id} className="surface-card space-y-3 p-5">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <Label htmlFor={`custom-title-${section.id}`}>Titlu secțiune</Label>
+                <Label htmlFor={`custom-title-${section.id}`}>{t("modules.contracts.sectionTitle")}</Label>
                 {!disabled ? (
                   <div className="flex items-center gap-1">
                     <Button
@@ -552,7 +533,7 @@ export function ContractEditor({ contractId, initial, canWrite, onSaved }: Contr
                       size="icon-sm"
                       onClick={() => moveCustomSection(index, -1)}
                       disabled={index === 0}
-                      aria-label="Mută în sus"
+                      aria-label={t("modules.contracts.moveUp")}
                     >
                       <ArrowUp className="h-4 w-4" />
                     </Button>
@@ -562,7 +543,7 @@ export function ContractEditor({ contractId, initial, canWrite, onSaved }: Contr
                       size="icon-sm"
                       onClick={() => moveCustomSection(index, 1)}
                       disabled={index === customSections.length - 1}
-                      aria-label="Mută în jos"
+                      aria-label={t("modules.contracts.moveDown")}
                     >
                       <ArrowDown className="h-4 w-4" />
                     </Button>
@@ -571,7 +552,7 @@ export function ContractEditor({ contractId, initial, canWrite, onSaved }: Contr
                       variant="ghost"
                       size="icon-sm"
                       onClick={() => removeCustomSection(index)}
-                      aria-label="Șterge secțiune"
+                      aria-label={t("modules.contracts.deleteSection")}
                     >
                       <Trash2 className="h-4 w-4 text-muted-foreground" />
                     </Button>
@@ -614,10 +595,10 @@ export function ContractEditor({ contractId, initial, canWrite, onSaved }: Contr
             variant="outline"
             onClick={() => router.push(`/dashboard/contracts/${contractId}`)}
           >
-            Previzualizare
+            {t("common.preview")}
           </Button>
           <Button type="submit" disabled={saving}>
-            {saving ? "Se salvează…" : "Salvează draft"}
+            {saving ? t("common.saving") : t("modules.contracts.saveDraft")}
           </Button>
         </div>
       ) : null}
@@ -634,11 +615,12 @@ type PartyFieldsProps = {
 };
 
 function PartyFields({ title, party, onChange, disabled, prefix }: PartyFieldsProps) {
+  const { t } = useI18n();
   return (
     <div className="surface-card space-y-3 p-5">
       <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">{title}</p>
       <div className="space-y-2">
-        <Label htmlFor={`${prefix}-name`}>Nume / Denumire</Label>
+        <Label htmlFor={`${prefix}-name`}>{t("modules.contracts.partyName")}</Label>
         <Input
           id={`${prefix}-name`}
           value={party.name}
@@ -649,7 +631,7 @@ function PartyFields({ title, party, onChange, disabled, prefix }: PartyFieldsPr
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor={`${prefix}-email`}>Email</Label>
+          <Label htmlFor={`${prefix}-email`}>{t("common.email")}</Label>
           <Input
             id={`${prefix}-email`}
             type="email"
@@ -659,7 +641,7 @@ function PartyFields({ title, party, onChange, disabled, prefix }: PartyFieldsPr
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor={`${prefix}-phone`}>Telefon</Label>
+          <Label htmlFor={`${prefix}-phone`}>{t("common.phone")}</Label>
           <Input
             id={`${prefix}-phone`}
             value={party.phone ?? ""}
@@ -669,7 +651,7 @@ function PartyFields({ title, party, onChange, disabled, prefix }: PartyFieldsPr
         </div>
       </div>
       <div className="space-y-2">
-        <Label htmlFor={`${prefix}-address`}>Adresă</Label>
+        <Label htmlFor={`${prefix}-address`}>{t("common.address")}</Label>
         <Input
           id={`${prefix}-address`}
           value={party.address ?? ""}

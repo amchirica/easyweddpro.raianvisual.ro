@@ -12,8 +12,9 @@ import { getTranslator } from "@/lib/i18n/t";
 type PaymentPageParams = { id: string };
 
 export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getTranslator();
   return {
-    title: "Plată · EasyWedd Pro",
+    title: `${t("modules.payments.singular")} · EasyWedd Pro`,
   };
 }
 

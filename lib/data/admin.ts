@@ -24,8 +24,68 @@ export type AdminWorkspaceItem = {
   createdAt: string;
 };
 
+export type AdminSubscriptionItem = {
+  id: string;
+  workspaceId: string;
+  workspaceName: string;
+  plan: string;
+  status: string;
+  amount: number;
+  trialEndsAt: string | null;
+  currentPeriodEnd: string | null;
+  billingInterval: string | null;
+  stripeCustomerId: string | null;
+  stripeSubscriptionId: string | null;
+  cancelAtPeriodEnd: boolean;
+  trialEnd: string | null;
+  /** True when the workspace has no subscriptions row (shown as Free). */
+  isFreeFallback: boolean;
+};
+
 function planPriceRon(planId: string): number {
   return PLAN_CATALOG.find((plan) => plan.id === planId)?.priceMonthlyRon ?? 0;
+}
+
+/** Pure mapper for admin subscription rows — Free when the workspace has no Stripe sub. */
+export function mapWorkspaceSubscriptionForAdmin(
+  workspace: { id: string; name: string; plan?: string | null },
+  sub: SubscriptionRow | null,
+): AdminSubscriptionItem {
+  if (!sub) {
+    return {
+      id: `free:${workspace.id}`,
+      workspaceId: workspace.id,
+      workspaceName: workspace.name,
+      plan: "free",
+      status: "inactive",
+      amount: 0,
+      trialEndsAt: null,
+      currentPeriodEnd: null,
+      billingInterval: null,
+      stripeCustomerId: null,
+      stripeSubscriptionId: null,
+      cancelAtPeriodEnd: false,
+      trialEnd: null,
+      isFreeFallback: true,
+    };
+  }
+
+  return {
+    id: sub.id,
+    workspaceId: sub.workspace_id,
+    workspaceName: workspace.name,
+    plan: sub.plan,
+    status: sub.status,
+    amount: planPriceRon(sub.plan),
+    trialEndsAt: sub.trial_ends_at,
+    currentPeriodEnd: sub.current_period_end,
+    billingInterval: sub.billing_interval,
+    stripeCustomerId: sub.stripe_customer_id,
+    stripeSubscriptionId: sub.stripe_subscription_id,
+    cancelAtPeriodEnd: sub.cancel_at_period_end,
+    trialEnd: sub.trial_end,
+    isFreeFallback: false,
+  };
 }
 
 /** Platform-admin only: relies on `is_platform_admin()` RLS grants, never a service-role client. */
@@ -150,40 +210,26 @@ export async function listUsersForAdmin(
   }));
 }
 
-export type AdminSubscriptionItem = {
-  id: string;
-  workspaceId: string;
-  workspaceName: string;
-  plan: string;
-  status: string;
-  amount: number;
-  trialEndsAt: string | null;
-  currentPeriodEnd: string | null;
-};
-
 export async function listSubscriptionsForAdmin(
   supabase: SupabaseClient<Database>,
   limit = 300,
 ): Promise<AdminSubscriptionItem[]> {
-  const [{ data: subs, error }, { data: workspaces }] = await Promise.all([
-    supabase.from("subscriptions").select("*").order("created_at", { ascending: false }).limit(limit),
-    supabase.from("workspaces").select("id, name"),
+  const [{ data: workspaces, error: wsError }, { data: subs, error: subError }] = await Promise.all([
+    supabase.from("workspaces").select("id, name").order("created_at", { ascending: false }).limit(limit),
+    supabase.from("subscriptions").select("*"),
   ]);
 
-  if (error) throw new Error(error.message);
+  if (wsError) throw new Error(wsError.message);
+  if (subError) throw new Error(subError.message);
 
-  const workspaceNameById = new Map((workspaces ?? []).map((w) => [w.id, w.name]));
+  const subByWorkspace = new Map((subs ?? []).map((sub: SubscriptionRow) => [sub.workspace_id, sub]));
 
-  return (subs ?? []).map((sub: SubscriptionRow) => ({
-    id: sub.id,
-    workspaceId: sub.workspace_id,
-    workspaceName: workspaceNameById.get(sub.workspace_id) ?? "—",
-    plan: sub.plan,
-    status: sub.status,
-    amount: planPriceRon(sub.plan),
-    trialEndsAt: sub.trial_ends_at,
-    currentPeriodEnd: sub.current_period_end,
-  }));
+  return (workspaces ?? []).map((workspace) =>
+    mapWorkspaceSubscriptionForAdmin(
+      { id: workspace.id, name: workspace.name },
+      subByWorkspace.get(workspace.id) ?? null,
+    ),
+  );
 }
 
 export type PlatformStats = {
@@ -265,6 +311,11 @@ export type AdminSystemStatus = {
   emailQueue: { pending: number; failed: number; sent24h: number; skipped: number };
   automationQueue: { running: number; failed24h: number; success24h: number };
   webhooks: { processed24h: number };
+  notifications: {
+    total: number;
+    unread: number;
+    lastNotificationsJob: AdminCronRunItem | null;
+  };
   storageConfigured: boolean;
   resendConfigured: boolean;
   stripeConfigured: boolean;
@@ -286,6 +337,8 @@ export async function getSystemStatusForAdmin(
     automationFailed,
     automationSuccess,
     webhooks,
+    notificationsTotal,
+    notificationsUnread,
   ] = await Promise.all([
     supabase
       .from("cron_runs")
@@ -327,21 +380,33 @@ export async function getSystemStatusForAdmin(
       .from("stripe_webhook_events")
       .select("id", { count: "exact", head: true })
       .gte("processed_at", since24h),
+    supabase.from("notifications").select("id", { count: "exact", head: true }),
+    supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .is("read_at", null),
   ]);
 
   if (cronRuns.error) throw new Error(cronRuns.error.message);
 
+  const recentCronRuns = (cronRuns.data ?? []).map((row) => ({
+    id: row.id,
+    job: row.job,
+    startedAt: row.started_at,
+    finishedAt: row.finished_at,
+    durationMs: row.duration_ms,
+    success: row.success,
+    processed: row.processed,
+    errors: row.errors,
+  }));
+
+  const lastNotificationsJob =
+    recentCronRuns.find((run) => run.job === "notifications") ??
+    recentCronRuns.find((run) => run.job === "billing_reminders") ??
+    null;
+
   return {
-    recentCronRuns: (cronRuns.data ?? []).map((row) => ({
-      id: row.id,
-      job: row.job,
-      startedAt: row.started_at,
-      finishedAt: row.finished_at,
-      durationMs: row.duration_ms,
-      success: row.success,
-      processed: row.processed,
-      errors: row.errors,
-    })),
+    recentCronRuns,
     emailQueue: {
       pending: emailPending.count ?? 0,
       failed: emailFailed.count ?? 0,
@@ -354,6 +419,11 @@ export async function getSystemStatusForAdmin(
       success24h: automationSuccess.count ?? 0,
     },
     webhooks: { processed24h: webhooks.count ?? 0 },
+    notifications: {
+      total: notificationsTotal.count ?? 0,
+      unread: notificationsUnread.count ?? 0,
+      lastNotificationsJob,
+    },
     storageConfigured: Boolean(
       process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() &&
         process.env.SUPABASE_SERVICE_ROLE_KEY?.trim(),
@@ -361,6 +431,52 @@ export async function getSystemStatusForAdmin(
     resendConfigured: Boolean(process.env.RESEND_API_KEY?.trim()),
     stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY?.trim()),
   };
+}
+
+export type EmailTemplateStats = {
+  total: number;
+  sent: number;
+  failed: number;
+  byTemplate: Map<string, { total: number; sent: number; failed: number; skipped: number }>;
+};
+
+/** Delivery counts for the last 7 days, grouped by template key. */
+export async function getEmailTemplateStatsForAdmin(
+  supabase: SupabaseClient<Database>,
+): Promise<EmailTemplateStats> {
+  const since7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { data: recent, error } = await supabase
+    .from("email_deliveries")
+    .select("template, status")
+    .gte("created_at", since7d)
+    .limit(2000);
+
+  if (error) throw new Error(error.message);
+
+  const byTemplate = new Map<
+    string,
+    { total: number; sent: number; failed: number; skipped: number }
+  >();
+  let sent = 0;
+  let failed = 0;
+
+  for (const row of recent ?? []) {
+    const key = row.template || "unknown";
+    const current = byTemplate.get(key) ?? { total: 0, sent: 0, failed: 0, skipped: 0 };
+    current.total += 1;
+    if (row.status === "sent") {
+      current.sent += 1;
+      sent += 1;
+    }
+    if (row.status === "failed") {
+      current.failed += 1;
+      failed += 1;
+    }
+    if (row.status === "skipped") current.skipped += 1;
+    byTemplate.set(key, current);
+  }
+
+  return { total: recent?.length ?? 0, sent, failed, byTemplate };
 }
 
 /** Recent activity across every workspace — visible only to platform admins via RLS. */

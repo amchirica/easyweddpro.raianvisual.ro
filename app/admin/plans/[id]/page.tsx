@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslator } from "@/lib/i18n/t";
 import { notFound } from "next/navigation";
 
 import { AdminDetailPanel } from "@/components/admin/admin-detail-panel";
@@ -13,6 +14,7 @@ export default async function AdminPlanEditPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { t } = await getTranslator();
   const { id } = await params;
   const admin = await requirePlatformPermission("plans.read");
   const canWrite = canPerformPlatformAction(admin.platformRole, "plans.write");
@@ -23,7 +25,7 @@ export default async function AdminPlanEditPage({
     const plans = await listAdminPlans(admin.supabase);
     plan = plans.find((p) => p.id === id);
   } catch (error) {
-    loadError = error instanceof Error ? error.message : "Nu am putut încărca planul.";
+    loadError = error instanceof Error ? error.message : t("admin.planLoadFailed");
   }
 
   if (loadError) {
@@ -40,19 +42,19 @@ export default async function AdminPlanEditPage({
     <div className="space-y-6">
       <div>
         <Link href="/admin/plans" className="text-xs text-muted-soft hover:text-foreground">
-          ← Înapoi la planuri
+          {t("admin.backToPlans")}
         </Link>
         <h1 className="mt-2 font-heading text-3xl font-medium text-foreground">
-          {canWrite ? "Editează" : "Plan"} {plan.name}
+          {canWrite ? t("admin.editPlan") : "Plan"} {plan.name}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          ID: {plan.id} · versiune curentă {plan.version}
+          {t("admin.planIdVersion", { id: plan.id, version: plan.version })}
         </p>
       </div>
 
       <AdminDetailPanel
-        title="Setări plan"
-        description="Modificările de preț creează o versiune nouă în plan_versions."
+        title={t("admin.planSettings")}
+        description={t("admin.planSettingsDesc")}
       >
         {canWrite ? (
           <PlanEditForm
@@ -68,8 +70,7 @@ export default async function AdminPlanEditPage({
           />
         ) : (
           <p className="text-sm text-muted-soft">
-            Rolul tău permite doar citirea planului. Nume: {plan.name} ·{" "}
-            {plan.priceMonthlyRon} RON / lună.
+            {t("admin.planReadOnly", { name: plan.name, price: plan.priceMonthlyRon })}
           </p>
         )}
       </AdminDetailPanel>

@@ -1,0 +1,265 @@
+{
+  "summary": {
+    "generatedAt": "2026-08-08T07:28:30.334Z",
+    "translatedLinesWithT": 2181,
+    "intentionallyEnglish": 34,
+    "technical": 8,
+    "userGenerated": 0,
+    "intentionalRemaining": 8,
+    "remainingUserFacingRo": 0,
+    "remainingByFile": {},
+    "parity": {
+      "namespaces": [
+        "admin",
+        "assistant",
+        "auth",
+        "billing",
+        "common",
+        "dashboard",
+        "marketing",
+        "modules",
+        "nav",
+        "portal",
+        "search",
+        "settings",
+        "status",
+        "theme",
+        "toasts",
+        "validation"
+      ],
+      "missingInEnCount": 0,
+      "missingInRoCount": 0,
+      "missingInEn": [],
+      "missingInRo": []
+    },
+    "acceptancePages": [
+      "/dashboard",
+      "/dashboard/settings",
+      "/dashboard/proposals",
+      "/dashboard/contracts",
+      "/dashboard/leads",
+      "/dashboard/clients",
+      "/dashboard/payments",
+      "/dashboard/projects",
+      "/dashboard/tasks",
+      "/dashboard/calendar",
+      "/dashboard/analytics",
+      "/admin/*"
+    ]
+  },
+  "remaining": [],
+  "intentionalRemaining": [
+    {
+      "file": "components/leads/lead-form-dialog.tsx",
+      "line": 80,
+      "text": "const guestMatch = notes.match(/^Invitați:\\s*(.+)$/m);"
+    },
+    {
+      "file": "components/leads/lead-form-dialog.tsx",
+      "line": 81,
+      "text": "const durationMatch = notes.match(/^Durată:\\s*(.+)$/m);"
+    },
+    {
+      "file": "components/leads/lead-form-dialog.tsx",
+      "line": 83,
+      "text": ".replace(/^Invitați:\\s*.+$/m, \"\")"
+    },
+    {
+      "file": "components/leads/lead-form-dialog.tsx",
+      "line": 84,
+      "text": ".replace(/^Durată:\\s*.+$/m, \"\")"
+    },
+    {
+      "file": "components/leads/lead-form-dialog.tsx",
+      "line": 96,
+      "text": "if (form.guestCount.trim()) parts.push(`Invitați: ${form.guestCount.trim()}`);"
+    },
+    {
+      "file": "components/leads/lead-form-dialog.tsx",
+      "line": 97,
+      "text": "if (form.duration.trim()) parts.push(`Durată: ${form.duration.trim()}`);"
+    },
+    {
+      "file": "components/onboarding/onboarding-wizard.tsx",
+      "line": 112,
+      "text": "country: \"România\","
+    },
+    {
+      "file": "components/templates/template-preview.tsx",
+      "line": 15,
+      "text": "event_location: \"Sala Regală, București\","
+    }
+  ],
+  "intentionallyEnglishSample": [
+    {
+      "file": "app/admin/email-deliveries/page.tsx",
+      "line": 83,
+      "text": "header: \"Template\","
+    },
+    {
+      "file": "app/admin/layout.tsx",
+      "line": 15,
+      "text": "Webhook,"
+    },
+    {
+      "file": "app/admin/layout.tsx",
+      "line": 32,
+      "text": "title: \"EasyWedd Pro Admin\","
+    },
+    {
+      "file": "app/admin/layout.tsx",
+      "line": 46,
+      "text": "{ href: \"/admin/webhooks\", labelKey: \"adminWebhooks\", icon: Webhook, permission: \"webhooks.read\" },"
+    },
+    {
+      "file": "app/admin/page.tsx",
+      "line": 62,
+      "text": "<AdminMetricCard icon={Timer} label=\"Cron failures 24h\" value={kpis.cronFailures24h} />"
+    },
+    {
+      "file": "app/admin/subscriptions/[id]/page.tsx",
+      "line": 126,
+      "text": "{ label: \"Stripe customer\", value: sub.stripe_customer_id ?? \"—\" },"
+    },
+    {
+      "file": "app/admin/subscriptions/[id]/page.tsx",
+      "line": 127,
+      "text": "{ label: \"Stripe subscription\", value: sub.stripe_subscription_id ?? \"—\" },"
+    },
+    {
+      "file": "app/admin/subscriptions/[id]/page.tsx",
+      "line": 128,
+      "text": "{ label: \"Stripe price\", value: sub.stripe_price_id ?? \"—\" },"
+    },
+    {
+      "file": "app/admin/system/health/page.tsx",
+      "line": 73,
+      "text": "icon={Webhook}"
+    },
+    {
+      "file": "app/admin/system/health/page.tsx",
+      "line": 74,
+      "text": "label=\"Stripe webhooks\""
+    },
+    {
+      "file": "app/admin/system/health/page.tsx",
+      "line": 82,
+      "text": "<Flag ok={status.stripeConfigured} label=\"Stripe\" />"
+    },
+    {
+      "file": "app/admin/system/health/page.tsx",
+      "line": 83,
+      "text": "<Flag ok={status.storageConfigured} label=\"Storage / Supabase\" />"
+    },
+    {
+      "file": "app/admin/webhooks/page.tsx",
+      "line": 39,
+      "text": "icon={Webhook}"
+    },
+    {
+      "file": "app/admin/workspaces/[id]/page.tsx",
+      "line": 139,
+      "text": "<AdminMetricCard icon={UserSquare2} label=\"Leaduri\" value={leadsCount.count ?? 0} />"
+    },
+    {
+      "file": "app/admin/workspaces/[id]/page.tsx",
+      "line": 204,
+      "text": "label: \"Stripe customer\","
+    },
+    {
+      "file": "app/dashboard/analytics/page.tsx",
+      "line": 17,
+      "text": "title: \"Analytics · EasyWedd Pro\","
+    },
+    {
+      "file": "app/dashboard/clients/[id]/page.tsx",
+      "line": 14,
+      "text": "title: \"Client · EasyWedd Pro\","
+    },
+    {
+      "file": "app/dashboard/contracts/new/page.tsx",
+      "line": 8,
+      "text": "title: \"Contract nou · EasyWedd Pro\","
+    },
+    {
+      "file": "app/dashboard/contracts/[id]/page.tsx",
+      "line": 20,
+      "text": "title: \"Contract · EasyWedd Pro\","
+    },
+    {
+      "file": "app/dashboard/leads/[id]/page.tsx",
+      "line": 14,
+      "text": "title: \"Lead · EasyWedd Pro\","
+    },
+    {
+      "file": "app/dashboard/page.tsx",
+      "line": 9,
+      "text": "title: \"Dashboard · EasyWedd Pro\","
+    },
+    {
+      "file": "app/dashboard/projects/new/page.tsx",
+      "line": 15,
+      "text": "title: \"Proiect nou · EasyWedd Pro\","
+    },
+    {
+      "file": "app/dashboard/projects/[id]/page.tsx",
+      "line": 44,
+      "text": "title: \"Proiect · EasyWedd Pro\","
+    },
+    {
+      "file": "app/dashboard/settings/billing/page.tsx",
+      "line": 10,
+      "text": "title: \"Facturare · EasyWedd Pro\","
+    },
+    {
+      "file": "app/dashboard/tasks/new/page.tsx",
+      "line": 16,
+      "text": "title: \"Task nou · EasyWedd Pro\","
+    },
+    {
+      "file": "app/dashboard/tasks/[id]/page.tsx",
+      "line": 15,
+      "text": "title: \"Task · EasyWedd Pro\","
+    },
+    {
+      "file": "app/dashboard/templates/new/page.tsx",
+      "line": 14,
+      "text": "title: \"Template nou · EasyWedd Pro\","
+    },
+    {
+      "file": "app/dashboard/templates/[id]/page.tsx",
+      "line": 18,
+      "text": "return { title: \"Template · EasyWedd Pro\" };"
+    },
+    {
+      "file": "components/leads/lead-detail.tsx",
+      "line": 265,
+      "text": "Follow-up: {currentLead.followUpDate ? formatDate(currentLead.followUpDate) : \"—\"}"
+    },
+    {
+      "file": "components/leads/lead-form-dialog.tsx",
+      "line": 392,
+      "text": "<Label htmlFor=\"lead-followUpDate\">Follow-up</Label>"
+    },
+    {
+      "file": "components/projects/project-form.tsx",
+      "line": 322,
+      "text": "<Label htmlFor=\"project-pipeline\">Pipeline</Label>"
+    },
+    {
+      "file": "components/templates/templates-list.tsx",
+      "line": 131,
+      "text": "Template nou"
+    },
+    {
+      "file": "components/templates/templates-list.tsx",
+      "line": 190,
+      "text": "? \"Template-urile arhivate apar aici.\""
+    },
+    {
+      "file": "components/templates/templates-list.tsx",
+      "line": 197,
+      "text": "Template nou"
+    }
+  ]
+}

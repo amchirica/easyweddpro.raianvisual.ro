@@ -7,6 +7,7 @@ import {
   canUseFeature,
   getPlanLimits,
   normalizePlanId,
+  resolveEntitledPlan,
   type WorkspaceUsage,
 } from "@/lib/billing/plans";
 
@@ -36,6 +37,25 @@ describe("normalizePlanId", () => {
     expect(normalizePlanId("")).toBe("free");
     expect(normalizePlanId(null)).toBe("free");
     expect(normalizePlanId(undefined)).toBe("free");
+  });
+});
+
+describe("resolveEntitledPlan", () => {
+  // getWorkspacePlan uses this so inactive paid entitlements force Free limits.
+  it("keeps paid plans only while entitlement is active/trialing/past_due", () => {
+    expect(resolveEntitledPlan("studio", "active")).toBe("studio");
+    expect(resolveEntitledPlan("agency", "trialing")).toBe("agency");
+    expect(resolveEntitledPlan("solo", "past_due")).toBe("solo");
+  });
+
+  it("forces free when paid entitlement is inactive (canceled, unpaid, etc.)", () => {
+    expect(resolveEntitledPlan("studio", "canceled")).toBe("free");
+    expect(resolveEntitledPlan("agency", "unpaid")).toBe("free");
+    expect(resolveEntitledPlan("solo", "inactive")).toBe("free");
+  });
+
+  it("always keeps free even if status is inactive", () => {
+    expect(resolveEntitledPlan("free", "inactive")).toBe("free");
   });
 });
 
@@ -79,6 +99,14 @@ describe("canUseFeature", () => {
     expect(canUseFeature("studio", "multiBrand")).toBe(false);
     expect(canUseFeature("agency", "multiBrand")).toBe(true);
   });
+
+  it("allows studio/agency paid entitlement features", () => {
+    expect(canUseFeature("studio", "analytics")).toBe(true);
+    expect(canUseFeature("studio", "customBranding")).toBe(true);
+    expect(canUseFeature("studio", "productionPipeline")).toBe(true);
+    expect(canUseFeature("agency", "automations")).toBe(true);
+    expect(canUseFeature("agency", "multiBrand")).toBe(true);
+  });
 });
 
 describe("canCreateResource", () => {
@@ -116,5 +144,15 @@ describe("canCreateResource", () => {
   it("blocks free plan proposals/contracts at their caps", () => {
     expect(canCreateResource("free", "proposal", usage({ activeProposals: 2 })).ok).toBe(false);
     expect(canCreateResource("free", "contract", usage({ activeContracts: 1 })).ok).toBe(false);
+  });
+
+  it("downgrade scenario: after entitlement falls to free, over-limit creates are blocked", () => {
+    // Simulates getWorkspacePlan → resolveEntitledPlan("studio","canceled") === "free"
+    const entitled = resolveEntitledPlan("studio", "canceled");
+    expect(entitled).toBe("free");
+    expect(canCreateResource(entitled, "lead", usage({ activeLeads: 5, plan: entitled })).ok).toBe(
+      false,
+    );
+    expect(canUseFeature(entitled, "automations")).toBe(false);
   });
 });

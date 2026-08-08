@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslator } from "@/lib/i18n/t";
 
 import { CalendarBoard } from "@/components/calendar/calendar-board";
 import { mapCalendarEventRow, type CalendarEventItem } from "@/lib/calendar/mappers";
@@ -7,9 +8,10 @@ import { listClients } from "@/lib/data/clients";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { requireWorkspace } from "@/lib/workspace/session";
 
-export const metadata: Metadata = {
-  title: "Calendar · EasyWedd Pro",
-};
+export async function generateMetadata() {
+  const { t } = await getTranslator();
+  return { title: `${t("modules.calendar.title")} · EasyWedd Pro` };
+}
 
 /** Loads a buffer of one month before/after the current month so month/week/day/list views can navigate without refetching. */
 function bufferedRange(): { rangeStart: string; rangeEnd: string } {
@@ -20,6 +22,7 @@ function bufferedRange(): { rangeStart: string; rangeEnd: string } {
 }
 
 export default async function CalendarPage() {
+  const { t } = await getTranslator();
   const ctx = await requireWorkspace();
   const permissions = permissionsForRole(ctx.role);
   const { rangeStart, rangeEnd } = bufferedRange();
@@ -40,7 +43,7 @@ export default async function CalendarPage() {
     events = eventRows.map(mapCalendarEventRow);
     clients = clientRows.map((client) => ({ id: client.id, name: client.name }));
   } catch (err) {
-    error = err instanceof Error ? err.message : "Nu am putut încărca evenimentele calendarului.";
+    error = err instanceof Error ? err.message : t("modules.calendar.loadEventsFailed");
   }
 
   return (

@@ -1,4 +1,5 @@
 import { Mail } from "lucide-react";
+import { getTranslator } from "@/lib/i18n/t";
 
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
 import { AdminErrorState } from "@/components/admin/admin-error-state";
@@ -23,12 +24,13 @@ const STATUS_TONE: Record<string, "success" | "warning" | "danger" | "accent" | 
 
 const STATUS_LABEL: Record<string, string> = {
   sent: "Trimis",
-  pending: "În așteptare",
-  failed: "Eșuat",
-  skipped: "Sărit",
+  pending: "pending",
+  failed: "failed",
+  skipped: "skipped",
 };
 
 export default async function AdminEmailDeliveriesPage() {
+  const { t } = await getTranslator();
   const admin = await requirePlatformPermission("emails.read");
 
   const { data, error } = await admin.supabase
@@ -52,7 +54,7 @@ export default async function AdminEmailDeliveriesPage() {
       <div>
         <h1 className="font-heading text-3xl font-medium text-foreground">Email deliveries</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Ultimele livrări din `email_deliveries`. Destinatarii sunt mascați pentru confidențialitate.
+          {t("admin.deliveriesHint")}
         </p>
       </div>
 
@@ -62,7 +64,7 @@ export default async function AdminEmailDeliveriesPage() {
         <AdminEmptyState
           icon={Mail}
           title="Nicio livrare"
-          description="Nu există încă înregistrări în email_deliveries."
+          description={t("admin.noDeliveries")}
         />
       ) : null}
 

@@ -237,7 +237,7 @@ export function TemplatesList({ initialTemplates, canWrite, error }: TemplatesLi
                     nativeButton={false}
                   >
                     <Pencil data-icon="inline-start" />
-                    Editează
+                    {t("common.edit")}
                   </Button>
                   {canWrite ? (
                     <DropdownMenu>
@@ -266,7 +266,7 @@ export function TemplatesList({ initialTemplates, canWrite, error }: TemplatesLi
                         ) : null}
                         <DropdownMenuItem onClick={() => handleDuplicate(template)}>
                           <Copy data-icon="inline-start" />
-                          Duplică
+                          {t("common.duplicate")}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         {template.archivedAt ? (
@@ -285,12 +285,12 @@ export function TemplatesList({ initialTemplates, canWrite, error }: TemplatesLi
                             }
                           >
                             <Archive data-icon="inline-start" />
-                            Arhivează
+                            {t("common.archive")}
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuItem variant="destructive" onClick={() => handleDelete(template)}>
                           <Trash2 data-icon="inline-start" />
-                          Șterge
+                          {t("common.delete")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

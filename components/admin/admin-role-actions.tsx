@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -19,6 +21,7 @@ export function AdminRoleActions({
   currentRole: string;
   canWrite: boolean;
 }) {
+  const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
   const [role, setRole] = useState(currentRole);
@@ -51,12 +54,12 @@ export function AdminRoleActions({
       <AdminConfirmDialog
         trigger={
           <Button type="button" size="xs" variant="outline">
-            Actualizează
+            {t("common.update")}
           </Button>
         }
-        title="Schimbă rolul de admin"
-        description="Doar super-admin poate modifica rolurile. Acțiunea este jurnalizată."
-        confirmLabel="Salvează rolul"
+        title={t("admin.changeAdminRole")}
+        description={t("admin.changeAdminRoleDesc")}
+        confirmLabel={t("admin.saveRole")}
         onConfirm={async (reason) => {
           const result = await updatePlatformAdminRoleAction({
             userId,

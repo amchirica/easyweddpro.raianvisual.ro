@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -25,6 +27,7 @@ export function PlanEditForm({
     highlighted: boolean;
   };
 }) {
+  const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
   const [name, setName] = useState(initial.name);
@@ -42,7 +45,7 @@ export function PlanEditForm({
           <Input id="plan-name" value={name} onChange={(e) => setName(e.target.value)} />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="plan-price">Preț lunar (RON)</Label>
+          <Label htmlFor="plan-price">{t("admin.monthlyPrice")}</Label>
           <Input
             id="plan-price"
             type="number"
@@ -76,23 +79,23 @@ export function PlanEditForm({
             checked={highlighted}
             onChange={(e) => setHighlighted(e.target.checked)}
           />
-          Evidențiat
+          {t("admin.highlighted")}
         </label>
       </div>
 
       <AdminConfirmDialog
         trigger={
           <Button type="button" size="sm">
-            Salvează planul
+            {t("admin.savePlan")}
           </Button>
         }
-        title="Confirmă actualizarea planului"
-        description="Modificările de preț creează o versiune nouă. Acțiunea este jurnalizată."
-        confirmLabel="Salvează"
+        title={t("admin.confirmPlanUpdate")}
+        description={t("admin.planUpdateDesc")}
+        confirmLabel={t("common.save")}
         onConfirm={async (reason) => {
           const price = Number.parseInt(priceMonthly, 10);
           if (!Number.isFinite(price) || price < 0) {
-            throw new Error("Prețul este invalid.");
+            throw new Error(t("admin.invalidPrice"));
           }
           const result = await updatePlanAction({
             planId,

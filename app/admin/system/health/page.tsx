@@ -1,4 +1,5 @@
-import { Activity, Mail, Server, Webhook } from "lucide-react";
+import { Activity, Bell, Mail, Server, Webhook } from "lucide-react";
+import { getTranslator } from "@/lib/i18n/t";
 
 import { AdminErrorState } from "@/components/admin/admin-error-state";
 import { AdminMetricCard } from "@/components/admin/admin-metric-card";
@@ -18,6 +19,7 @@ function Flag({ ok, label }: { ok: boolean; label: string }) {
 }
 
 export default async function AdminSystemHealthPage() {
+  const { t } = await getTranslator();
   const admin = await requirePlatformPermission("system.read");
 
   let loadError: string | null = null;
@@ -25,7 +27,7 @@ export default async function AdminSystemHealthPage() {
   try {
     status = await getSystemStatusForAdmin(admin.supabase);
   } catch (error) {
-    loadError = error instanceof Error ? error.message : "Nu am putut încărca starea sistemului.";
+    loadError = error instanceof Error ? error.message : t("admin.healthLoadFailed");
   }
 
   const lastRunner =
@@ -36,7 +38,7 @@ export default async function AdminSystemHealthPage() {
       <div>
         <h1 className="font-heading text-3xl font-medium text-foreground">Health sistem</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Starea cron-ului, cozilor și integrărilor de producție.
+          {t("admin.healthHint")}
         </p>
       </div>
 
@@ -44,7 +46,7 @@ export default async function AdminSystemHealthPage() {
 
       {status ? (
         <>
-          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <AdminMetricCard
               icon={Server}
               label="Ultimul cron"
@@ -52,7 +54,7 @@ export default async function AdminSystemHealthPage() {
               hint={
                 lastRunner
                   ? `${lastRunner.success ? "Succes" : "Cu erori"} · ${lastRunner.processed} procesate · ${lastRunner.errors} erori`
-                  : "Nicio rulare încă"
+                  : t("admin.noRunYet")
               }
             />
             <AdminMetricCard
@@ -60,6 +62,16 @@ export default async function AdminSystemHealthPage() {
               label="Email queue"
               value={`${status.emailQueue.pending} pending`}
               hint={`${status.emailQueue.sent24h} trimise / 24h · ${status.emailQueue.failed} failed · ${status.emailQueue.skipped} skipped`}
+            />
+            <AdminMetricCard
+              icon={Bell}
+              label="Notificări"
+              value={`${status.notifications.unread} necitite`}
+              hint={
+                status.notifications.lastNotificationsJob
+                  ? `Total ${status.notifications.total} · ultimul job ${status.notifications.lastNotificationsJob.job} ${status.notifications.lastNotificationsJob.success ? "OK" : "Fail"}`
+                  : `Total ${status.notifications.total}`
+              }
             />
             <AdminMetricCard
               icon={Activity}
@@ -71,7 +83,7 @@ export default async function AdminSystemHealthPage() {
               icon={Webhook}
               label="Stripe webhooks"
               value={status.webhooks.processed24h}
-              hint="evenimente procesate în 24h"
+              hint={t("admin.events24h")}
             />
           </section>
 
@@ -89,7 +101,7 @@ export default async function AdminSystemHealthPage() {
               rows={status.recentCronRuns}
               empty={
                 <p className="px-5 py-8 text-sm text-muted-soft">
-                  Nicio execuție cron înregistrată.
+                  {t("admin.noCronRuns")}
                 </p>
               }
               columns={[
@@ -107,7 +119,7 @@ export default async function AdminSystemHealthPage() {
                 },
                 {
                   key: "duration",
-                  header: "Durată",
+                  header: t("admin.duration"),
                   cell: (run) => (
                     <span className="text-muted-foreground">
                       {run.durationMs != null ? `${run.durationMs} ms` : "—"}

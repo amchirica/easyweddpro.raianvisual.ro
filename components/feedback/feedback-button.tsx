@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useState, type FormEvent } from "react";
 import { MessageSquarePlus, Send } from "lucide-react";
 
@@ -27,15 +29,12 @@ import { cn } from "@/lib/utils";
 
 type FeedbackType = "bug" | "idea" | "unclear" | "general";
 
-const FEEDBACK_TYPE_LABELS: Record<FeedbackType, string> = {
-  bug: "Am găsit o problemă",
-  idea: "Am o idee / sugestie",
-  unclear: "Ceva nu e clar",
-  general: "Altceva",
-};
+const FEEDBACK_TYPE_KEYS: FeedbackType[] = ["bug", "idea", "unclear", "general"];
+
 
 /** Discreet, always-available feedback entry point — beta hardening. */
 export function FeedbackButton() {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<FeedbackType>("general");
   const [message, setMessage] = useState("");
@@ -57,7 +56,7 @@ export function FeedbackButton() {
     if (submitting) return;
 
     if (message.trim().length < 5) {
-      setError("Descrie puțin mai mult, te rog.");
+      setError(t("common.feedback.needMore"));
       return;
     }
 
@@ -98,21 +97,21 @@ export function FeedbackButton() {
           <DialogHeader>
             <DialogTitle>Trimite feedback</DialogTitle>
             <DialogDescription>
-              Suntem în beta — spune-ne ce funcționează, ce nu, sau ce ți-ar plăcea să vezi.
+              {t("common.feedback.betaIntro")}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="feedback-type">Tip</Label>
+              <Label htmlFor="feedback-type">{t("common.type")}</Label>
               <Select value={type} onValueChange={(value) => setType((value as FeedbackType) ?? "general")}>
                 <SelectTrigger id="feedback-type" className="h-8 w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {(Object.keys(FEEDBACK_TYPE_LABELS) as FeedbackType[]).map((option) => (
+                  {FEEDBACK_TYPE_KEYS.map((option) => (
                     <SelectItem key={option} value={option}>
-                      {FEEDBACK_TYPE_LABELS[option]}
+                      {t(`common.feedback.${option}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -120,19 +119,19 @@ export function FeedbackButton() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="feedback-message">Mesaj</Label>
+              <Label htmlFor="feedback-message">{t("common.feedback.message")}</Label>
               <Textarea
                 id="feedback-message"
                 value={message}
                 onChange={(event) => setMessage(event.target.value)}
-                placeholder="Descrie ce ai observat sau ce ai vrea să se schimbe…"
+                placeholder={t("common.feedback.placeholder")}
                 rows={4}
                 aria-invalid={Boolean(error)}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Notă (opțional)</Label>
+              <Label>{t("common.feedback.ratingOptional")}</Label>
               <div className="flex gap-1.5">
                 {[1, 2, 3, 4, 5].map((value) => (
                   <button
@@ -146,7 +145,7 @@ export function FeedbackButton() {
                         : "border-border text-muted-foreground hover:bg-muted",
                     )}
                     aria-pressed={rating === value}
-                    aria-label={`Notă ${value}`}
+                    aria-label={t("common.feedback.ratingAria", { value })}
                   >
                     {value}
                   </button>
@@ -165,11 +164,11 @@ export function FeedbackButton() {
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={resetAndClose} disabled={submitting}>
-                Anulează
+                {t("common.cancel")}
               </Button>
               <Button type="submit" disabled={submitting}>
                 <Send data-icon="inline-start" />
-                {submitting ? "Se trimite…" : "Trimite"}
+                {submitting ? t("modules.team.sending") : t("common.send")}
               </Button>
             </DialogFooter>
           </form>

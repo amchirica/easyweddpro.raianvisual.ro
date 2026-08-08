@@ -335,7 +335,7 @@ export function CalendarBoard({
                 <span className="sr-only">{t("modules.calendar.prevPeriod")}</span>
               </Button>
               <Button type="button" variant="outline" size="sm" onClick={() => setFocusedDate(new Date())}>
-                Astăzi
+                  {t("common.today")}
               </Button>
               <Button type="button" variant="outline" size="icon-sm" onClick={() => shiftFocusedDate(1)}>
                 <ChevronRight />

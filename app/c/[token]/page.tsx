@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslator } from "@/lib/i18n/t";
 import { notFound } from "next/navigation";
 
 import {
@@ -68,6 +69,7 @@ function mapLivePayload(payload: PublicContractPayload): PublicContractViewData 
 }
 
 export default async function PublicContractPage({ params }: PublicContractPageProps) {
+  const { t } = await getTranslator();
   const { token } = await params;
 
   const supabase = await createClient();
@@ -80,7 +82,7 @@ export default async function PublicContractPage({ params }: PublicContractPageP
         payload = await fetchPublicContract(supabase, token);
       }
     } catch (error) {
-      rpcError = error instanceof Error ? error.message : "Eroare la încărcarea contractului.";
+      rpcError = error instanceof Error ? error.message : t("portal.contractLoadFailed");
       if (process.env.NODE_ENV === "development") {
         console.error("Request failed", {
           operation: "public_contract_page",
@@ -101,8 +103,7 @@ export default async function PublicContractPage({ params }: PublicContractPageP
             Contract indisponibil
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            Conexiunea cu serverul nu a putut fi realizată. Verifică configurația și încearcă din
-            nou.
+            {t("portal.connectionFailed")}
           </p>
           {process.env.NODE_ENV === "development" ? (
             <p className="mt-4 rounded-md border border-border bg-surface-elevated/60 px-3 py-2 text-left text-xs text-muted-soft">

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslator } from "@/lib/i18n/t";
 import { notFound } from "next/navigation";
 
 import { ModuleShell } from "@/components/shared/module-shell";
@@ -69,8 +70,9 @@ function mapItemRow(row: ProposalItemRow): ProposalDetailItem {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getTranslator();
   return {
-    title: "Ofertă · EasyWedd Pro",
+    title: `${t("modules.proposals.singular")} · EasyWedd Pro`,
   };
 }
 
@@ -79,6 +81,7 @@ export default async function ProposalDetailPage({
 }: {
   params: Promise<ProposalPageParams>;
 }) {
+  const { t } = await getTranslator();
   const { id } = await params;
   const ctx = await getWorkspaceOrDemo();
 
@@ -102,7 +105,7 @@ export default async function ProposalDetailPage({
   const items = itemRows.map(mapItemRow);
 
   return (
-    <ModuleShell title={proposal.title} description={proposal.proposalNumber ?? "Ofertă"}>
+    <ModuleShell title={proposal.title} description={proposal.proposalNumber ?? t("modules.proposals.singular")}>
       <ProposalDetail
         proposal={proposal}
         items={items}

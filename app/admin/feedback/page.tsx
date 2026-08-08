@@ -1,4 +1,5 @@
 import { CircleHelp, MessageSquareWarning } from "lucide-react";
+import { getTranslator } from "@/lib/i18n/t";
 
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
 import { AdminErrorState } from "@/components/admin/admin-error-state";
@@ -24,6 +25,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default async function AdminFeedbackPage() {
+  const { t } = await getTranslator();
   const admin = await requirePlatformPermission("feedback.read");
   const canWrite = canPerformPlatformAction(admin.platformRole, "feedback.write");
 
@@ -82,7 +84,7 @@ export default async function AdminFeedbackPage() {
           <AdminEmptyState
             icon={MessageSquareWarning}
             title="Niciun feedback"
-            description="Nu există încă înregistrări de feedback."
+            description={t("admin.noFeedbackYet")}
           />
         ) : null}
 
@@ -124,7 +126,7 @@ export default async function AdminFeedbackPage() {
                 },
                 {
                   key: "actions",
-                  header: "Acțiuni",
+                  header: t("common.actions"),
                   cell: (row) =>
                     canWrite ? (
                       <FeedbackActions
@@ -150,7 +152,7 @@ export default async function AdminFeedbackPage() {
               Asistent — semnale (metadata)
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Fără transcript. Module, unresolved, thumbs down — pentru îmbunătățirea UX.
+              {t("admin.assistantHint")}
             </p>
           </div>
         </div>
@@ -174,7 +176,7 @@ export default async function AdminFeedbackPage() {
           <AdminEmptyState
             icon={CircleHelp}
             title="Nicio activitate asistent"
-            description="După ce utilizatorii întreabă, vei vedea modulele care generează confuzie."
+            description={t("admin.assistantEmpty")}
           />
         ) : (
           <div className="surface-card p-5">

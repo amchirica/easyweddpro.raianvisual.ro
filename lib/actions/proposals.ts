@@ -7,16 +7,18 @@ import { logActivity } from "@/lib/activity/log";
 import { actionError, actionSuccess, type ActionResult } from "@/lib/actions/types";
 import { canCreateResource, getUsageForWorkspace } from "@/lib/billing/plans";
 import { buildProposalSnapshot } from "@/lib/data/proposals";
+import { notifyProposalDecision } from "@/lib/notifications/events";
 import { computeProposalTotals } from "@/lib/proposals/money";
 import { canEditProposal, getEffectiveProposalStatus } from "@/lib/proposals/status";
 import { generateProposalPublicToken } from "@/lib/proposals/token";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import {
   acceptProposalSchema,
   proposalFormSchema,
   rejectProposalSchema,
 } from "@/lib/validations/proposals";
 import { requireWorkspaceAction } from "@/lib/workspace/permissions";
-import { createClient } from "@/lib/supabase/server";
 
 function emptyToNull(value: string | null | undefined): string | null {
   if (!value) return null;
@@ -592,6 +594,30 @@ export async function acceptPublicProposalAction(
   }
 
   const result = data as { ok?: boolean; already?: boolean } | null;
+
+  if (!result?.already) {
+    try {
+      const admin = createAdminClient();
+      const { data: proposal } = await admin
+        .from("proposals")
+        .select("id, title, workspace_id")
+        .eq("public_token", parsed.data.token)
+        .maybeSingle();
+      if (proposal) {
+        void notifyProposalDecision(
+          admin,
+          proposal.workspace_id,
+          { id: proposal.id, title: proposal.title },
+          "accepted",
+        );
+      }
+    } catch (notifyError) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("[proposals.accept.notify]", notifyError);
+      }
+    }
+  }
+
   return actionSuccess(
     result?.already
       ? "Oferta era deja acceptată."
@@ -622,6 +648,27 @@ export async function rejectPublicProposalAction(
     }
     if (msg.includes("proposal_not_found")) return actionError("Oferta nu a fost găsită.");
     return actionError("Nu am putut înregistra refuzul.");
+  }
+
+  try {
+    const admin = createAdminClient();
+    const { data: proposal } = await admin
+      .from("proposals")
+      .select("id, title, workspace_id")
+      .eq("public_token", parsed.data.token)
+      .maybeSingle();
+    if (proposal) {
+      void notifyProposalDecision(
+        admin,
+        proposal.workspace_id,
+        { id: proposal.id, title: proposal.title },
+        "rejected",
+      );
+    }
+  } catch (notifyError) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("[proposals.reject.notify]", notifyError);
+    }
   }
 
   return actionSuccess("Oferta a fost refuzată.");

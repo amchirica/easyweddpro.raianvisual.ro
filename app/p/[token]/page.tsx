@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslator } from "@/lib/i18n/t";
 import { notFound } from "next/navigation";
 
 import {
@@ -14,10 +15,13 @@ type ProposalPageProps = {
   params: Promise<{ token: string }>;
 };
 
-export const metadata: Metadata = {
-  title: "Ofertă",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getTranslator();
+  return {
+    title: t("portal.proposal"),
+    robots: { index: false, follow: false },
+  };
+}
 
 function mapLivePayload(payload: PublicProposalPayload): PublicProposalViewData {
   return {

@@ -39,10 +39,7 @@ import {
 } from "@/lib/validations/settings";
 
 const CURRENCIES = ["RON", "EUR", "USD"];
-const LANGUAGES: { value: "ro" | "en"; label: string }[] = [
-  { value: "ro", label: "Română" },
-  { value: "en", label: "Engleză" },
-];
+const LANGUAGE_CODES = ["ro", "en"] as const;
 const TIMEZONES = ["Europe/Bucharest", "Europe/London", "Europe/Berlin", "UTC"];
 
 function getInitials(name: string): string {
@@ -148,7 +145,7 @@ export function SettingsPageClient({
 
     const parsed = workspaceFormSchema.safeParse(workspaceForm);
     if (!parsed.success) {
-      setWorkspaceError(parsed.error.issues[0]?.message ?? "Verifică datele completate.");
+      setWorkspaceError(parsed.error.issues[0]?.message ?? t("settings.verifyData"));
       return;
     }
 
@@ -158,11 +155,11 @@ export function SettingsPageClient({
     setWorkspaceSubmitting(false);
 
     if (result?.error || !result?.data) {
-      setWorkspaceError(result?.error ?? "Nu am putut salva setările.");
+      setWorkspaceError(result?.error ?? t("settings.saveFailed"));
       return;
     }
 
-    toast(result.success ?? "Setări actualizate.", "success");
+    toast(result.success ?? t("settings.savedWorkspace"), "success");
     setCurrentWorkspaceName(result.data.workspace.name);
     router.refresh();
   }
@@ -173,7 +170,7 @@ export function SettingsPageClient({
 
     const parsed = profileFormSchema.safeParse({ fullName });
     if (!parsed.success) {
-      setProfileError(parsed.error.issues[0]?.message ?? "Verifică datele completate.");
+      setProfileError(parsed.error.issues[0]?.message ?? t("settings.verifyData"));
       return;
     }
 
@@ -203,7 +200,7 @@ export function SettingsPageClient({
         fileSize: file.size,
       });
       if (prepared?.error || !prepared?.data) {
-        toast(prepared?.error ?? "Nu am putut pregăti încărcarea logo-ului.", "error");
+        toast(prepared?.error ?? t("settings.logoPrepareFailed"), "error");
         return;
       }
 
@@ -214,7 +211,7 @@ export function SettingsPageClient({
           contentType: prepared.data.contentType,
         });
       if (uploadError) {
-        toast("Nu am putut încărca logo-ul.", "error");
+        toast(t("settings.logoUploadFailed"), "error");
         return;
       }
 
@@ -257,7 +254,7 @@ export function SettingsPageClient({
       return;
     }
 
-    toast(result.success ?? "Workspace șters.", "success");
+    toast(result.success ?? t("settings.deletedWorkspace"), "success");
     router.push("/onboarding");
   }
 
@@ -276,7 +273,7 @@ export function SettingsPageClient({
       return;
     }
 
-    toast(result.success ?? "Proprietate transferată.", "success");
+    toast(result.success ?? t("settings.transferred"), "success");
     setTransferConfirmation("");
     router.refresh();
   }
@@ -301,9 +298,9 @@ export function SettingsPageClient({
         <form onSubmit={handleWorkspaceSubmit} className="space-y-6">
           <section className="surface-card space-y-5 p-5">
             <div>
-              <h2 className="font-heading text-lg font-medium text-foreground">Workspace</h2>
+              <h2 className="font-heading text-lg font-medium text-foreground">{t("settings.workspaceTitle")}</h2>
               <p className="text-sm text-muted-foreground">
-                Informații generale despre businessul tău din industria evenimentelor.
+                {t("settings.workspaceHint")}
               </p>
             </div>
             <Separator />
@@ -332,7 +329,7 @@ export function SettingsPageClient({
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <Upload data-icon="inline-start" />
-                  {logoUploading ? "Se încarcă…" : "Încarcă logo"}
+                  {logoUploading ? t("settings.uploading") : t("settings.uploadLogo")}
                 </Button>
                 {currentLogoUrl ? (
                   <Button
@@ -343,7 +340,7 @@ export function SettingsPageClient({
                     onClick={handleRemoveLogo}
                   >
                     <Trash2 data-icon="inline-start" />
-                    Elimină
+                    {t("settings.removeLogo")}
                   </Button>
                 ) : null}
               </div>
@@ -351,7 +348,7 @@ export function SettingsPageClient({
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="workspace-name">Nume workspace</Label>
+                <Label htmlFor="workspace-name">{t("settings.workspaceName")}</Label>
                 <Input
                   id="workspace-name"
                   value={workspaceForm.name}
@@ -360,7 +357,7 @@ export function SettingsPageClient({
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="workspace-currency">Monedă</Label>
+                <Label htmlFor="workspace-currency">{t("settings.currency")}</Label>
                 <Select
                   value={workspaceForm.currency}
                   onValueChange={(value) => updateWorkspaceField("currency", value ?? "RON")}
@@ -379,7 +376,7 @@ export function SettingsPageClient({
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="workspace-city">Oraș</Label>
+                <Label htmlFor="workspace-city">{t("settings.city")}</Label>
                 <Input
                   id="workspace-city"
                   value={workspaceForm.city}
@@ -388,7 +385,7 @@ export function SettingsPageClient({
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="workspace-country">Țară</Label>
+                <Label htmlFor="workspace-country">{t("settings.country")}</Label>
                 <Input
                   id="workspace-country"
                   value={workspaceForm.country}
@@ -397,7 +394,7 @@ export function SettingsPageClient({
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="workspace-timezone">Fus orar</Label>
+                <Label htmlFor="workspace-timezone">{t("settings.timezone")}</Label>
                 <Select
                   value={workspaceForm.timezone}
                   onValueChange={(value) => updateWorkspaceField("timezone", value ?? "Europe/Bucharest")}
@@ -416,7 +413,7 @@ export function SettingsPageClient({
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="workspace-language">Limbă</Label>
+                <Label htmlFor="workspace-language">{t("settings.language")}</Label>
                 <Select
                   value={workspaceForm.language}
                   onValueChange={(value) => updateWorkspaceField("language", (value as "ro" | "en") ?? "ro")}
@@ -426,9 +423,9 @@ export function SettingsPageClient({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {LANGUAGES.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
+                    {LANGUAGE_CODES.map((code) => (
+                      <SelectItem key={code} value={code}>
+                        {code === "ro" ? t("common.romanian") : t("common.english")}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -439,15 +436,15 @@ export function SettingsPageClient({
 
           <section className="surface-card space-y-5 p-5">
             <div>
-              <h2 className="font-heading text-lg font-medium text-foreground">Branding și pipeline</h2>
+              <h2 className="font-heading text-lg font-medium text-foreground">{t("settings.brandingTitle")}</h2>
               <p className="text-sm text-muted-foreground">
-                Culorile brandului și pipeline-ul implicit pentru proiectele noi.
+                {t("settings.brandingHint")}
               </p>
             </div>
             <Separator />
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="brand-primary">Culoare principală (hex)</Label>
+                <Label htmlFor="brand-primary">{t("settings.brandPrimary")}</Label>
                 <Input
                   id="brand-primary"
                   value={workspaceForm.brandPrimary}
@@ -457,7 +454,7 @@ export function SettingsPageClient({
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="brand-accent">Culoare accent (hex)</Label>
+                <Label htmlFor="brand-accent">{t("settings.brandAccent")}</Label>
                 <Input
                   id="brand-accent"
                   value={workspaceForm.brandAccent}
@@ -468,7 +465,7 @@ export function SettingsPageClient({
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="default-pipeline">Pipeline implicit pentru proiecte</Label>
+              <Label htmlFor="default-pipeline">{t("settings.defaultPipeline")}</Label>
               <Select
                 value={workspaceForm.defaultProjectPipeline || "generic"}
                 onValueChange={(value) => updateWorkspaceField("defaultProjectPipeline", value ?? "generic")}
@@ -490,13 +487,13 @@ export function SettingsPageClient({
 
           <section className="surface-card space-y-5 p-5">
             <div>
-              <h2 className="font-heading text-lg font-medium text-foreground">Date fiscale</h2>
-              <p className="text-sm text-muted-foreground">Apar pe contracte și facturi.</p>
+              <h2 className="font-heading text-lg font-medium text-foreground">{t("settings.fiscalTitle")}</h2>
+              <p className="text-sm text-muted-foreground">{t("settings.fiscalHint")}</p>
             </div>
             <Separator />
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="fiscal-cui">CUI / CIF</Label>
+                <Label htmlFor="fiscal-cui">{t("settings.fiscalCui")}</Label>
                 <Input
                   id="fiscal-cui"
                   value={workspaceForm.fiscalCui}
@@ -505,7 +502,7 @@ export function SettingsPageClient({
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="fiscal-address">Adresă fiscală</Label>
+                <Label htmlFor="fiscal-address">{t("settings.fiscalAddress")}</Label>
                 <Input
                   id="fiscal-address"
                   value={workspaceForm.fiscalAddress}
@@ -518,9 +515,9 @@ export function SettingsPageClient({
 
           <section className="surface-card space-y-4 p-5">
             <div>
-              <h2 className="font-heading text-lg font-medium text-foreground">Notificări workspace</h2>
+              <h2 className="font-heading text-lg font-medium text-foreground">{t("settings.notificationsTitle")}</h2>
               <p className="text-sm text-muted-foreground">
-                Preferințe implicite de notificare pentru echipă.
+                {t("settings.notificationsHint")}
               </p>
             </div>
             <Separator />
@@ -530,7 +527,7 @@ export function SettingsPageClient({
                 disabled={!canManageWorkspace}
                 onCheckedChange={(checked) => updateNotification("emailNotifications", Boolean(checked))}
               />
-              Notificări email pentru leaduri și plăți noi
+              {t("settings.notifyEmail")}
             </label>
             <label className="flex items-center gap-3 text-sm text-foreground">
               <Checkbox
@@ -538,7 +535,7 @@ export function SettingsPageClient({
                 disabled={!canManageWorkspace}
                 onCheckedChange={(checked) => updateNotification("weeklyDigest", Boolean(checked))}
               />
-              Rezumat săptămânal al activității
+              {t("settings.notifyDigest")}
             </label>
             <label className="flex items-center gap-3 text-sm text-foreground">
               <Checkbox
@@ -546,7 +543,7 @@ export function SettingsPageClient({
                 disabled={!canManageWorkspace}
                 onCheckedChange={(checked) => updateNotification("productUpdates", Boolean(checked))}
               />
-              Noutăți despre funcționalități EasyWedd Pro
+              {t("settings.notifyProduct")}
             </label>
           </section>
 
@@ -562,7 +559,7 @@ export function SettingsPageClient({
           {canManageWorkspace ? (
             <Button type="submit" disabled={workspaceSubmitting}>
               <Check data-icon="inline-start" />
-              {workspaceSubmitting ? "Se salvează…" : "Salvează setările workspace-ului"}
+              {workspaceSubmitting ? t("common.saving") : t("settings.saveWorkspace")}
             </Button>
           ) : null}
         </form>
@@ -570,9 +567,9 @@ export function SettingsPageClient({
         <form onSubmit={handleProfileSubmit} className="space-y-4">
           <section className="surface-card space-y-5 p-5">
             <div>
-              <h2 className="font-heading text-lg font-medium text-foreground">Profilul tău</h2>
+              <h2 className="font-heading text-lg font-medium text-foreground">{t("settings.profileTitle")}</h2>
               <p className="text-sm text-muted-foreground">
-                Aceste informații apar în platformă și în comunicările cu clienții.
+                {t("settings.profileHint")}
               </p>
             </div>
             <Separator />
@@ -584,7 +581,7 @@ export function SettingsPageClient({
               </Avatar>
               <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <Label htmlFor="user-name">Nume complet</Label>
+                  <Label htmlFor="user-name">{t("settings.fullName")}</Label>
                   <Input
                     id="user-name"
                     value={fullName}
@@ -607,7 +604,7 @@ export function SettingsPageClient({
             ) : null}
             <Button type="submit" disabled={profileSubmitting}>
               <UserCog data-icon="inline-start" />
-              {profileSubmitting ? "Se salvează…" : "Salvează profilul"}
+              {profileSubmitting ? t("common.saving") : t("settings.saveProfile")}
             </Button>
           </section>
         </form>
@@ -616,16 +613,15 @@ export function SettingsPageClient({
           <section className="surface-card space-y-4 border-destructive/20 p-5">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-destructive" aria-hidden />
-              <h2 className="font-heading text-lg font-medium text-foreground">Zonă periculoasă</h2>
+              <h2 className="font-heading text-lg font-medium text-foreground">{t("settings.dangerTitle")}</h2>
             </div>
 
             {transferTargets.length > 0 ? (
               <form onSubmit={handleTransferOwnership} className="space-y-3 border-b border-border pb-4">
                 <div>
-                  <p className="text-sm font-medium text-foreground">Transferă proprietatea</p>
+                  <p className="text-sm font-medium text-foreground">{t("settings.transferTitle")}</p>
                   <p className="text-sm text-muted-foreground">
-                    Rolul tău va deveni admin. Scrie exact numele workspace-ului{" "}
-                    <strong>„{currentWorkspaceName}”</strong> pentru confirmare.
+                    {t("settings.transferHint", { name: currentWorkspaceName })}
                   </p>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -636,7 +632,7 @@ export function SettingsPageClient({
                     <SelectContent>
                       {transferTargets.map((target) => (
                         <SelectItem key={target.membershipId} value={target.membershipId}>
-                          {target.fullName ?? "Membru fără profil"}
+                          {target.fullName ?? t("settings.memberNoProfile")}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -648,17 +644,16 @@ export function SettingsPageClient({
                   />
                 </div>
                 <Button type="submit" variant="outline" disabled={transferSubmitting}>
-                  {transferSubmitting ? "Se transferă…" : "Transferă proprietatea"}
+                  {transferSubmitting ? t("settings.transferring") : t("settings.transferCta")}
                 </Button>
               </form>
             ) : null}
 
             <form onSubmit={handleDeleteWorkspace} className="space-y-3 pt-2">
               <div>
-                <p className="text-sm font-medium text-foreground">Șterge workspace-ul</p>
+                <p className="text-sm font-medium text-foreground">{t("settings.deleteTitle")}</p>
                 <p className="text-sm text-muted-foreground">
-                  Elimină permanent toate leadurile, clienții și documentele asociate. Scrie exact{" "}
-                  <strong>„{currentWorkspaceName}”</strong> pentru confirmare.
+                  {t("settings.deleteHint", { name: currentWorkspaceName })}
                 </p>
               </div>
               <Input
@@ -672,7 +667,7 @@ export function SettingsPageClient({
                 disabled={deleteSubmitting || deleteConfirmation.trim() !== currentWorkspaceName}
               >
                 <Trash2 data-icon="inline-start" />
-                {deleteSubmitting ? "Se șterge…" : "Șterge workspace-ul"}
+                {deleteSubmitting ? t("settings.deleting") : t("settings.deleteCta")}
               </Button>
             </form>
           </section>

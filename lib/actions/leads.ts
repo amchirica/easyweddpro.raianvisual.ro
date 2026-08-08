@@ -8,6 +8,7 @@ import { runAutomationsForTrigger } from "@/lib/automations/engine";
 import { canCreateResource, getUsageForWorkspace } from "@/lib/billing/plans";
 import { LEAD_STATUS_LABELS, type LeadStatus } from "@/lib/constants";
 import { normalizePhone } from "@/lib/format";
+import { notifyLeadCreated } from "@/lib/notifications/events";
 import {
   convertLeadSchema,
   leadFormSchema,
@@ -98,6 +99,11 @@ export async function createLeadAction(
     action: "lead.created",
     title: "Lead creat",
     description: data.name,
+  });
+
+  void notifyLeadCreated(ctx.supabase, ctx.activeWorkspace.id, {
+    id: data.id,
+    name: data.name,
   });
 
   // Fire-and-forget: automation failures must never break lead creation.

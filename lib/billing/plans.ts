@@ -42,6 +42,16 @@ export function normalizePlanId(value: string | null | undefined): PlanId {
   return "free";
 }
 
+/**
+ * Entitlement gate used by getWorkspacePlan: canceled/unpaid/etc. paid plans
+ * force Free limits until billing is active again.
+ */
+export function resolveEntitledPlan(plan: PlanId, status: string): PlanId {
+  const entitlementActive =
+    ["active", "trialing", "past_due"].includes(status) || plan === "free";
+  return entitlementActive ? plan : "free";
+}
+
 export function getPlanDefinition(plan: PlanId): PlanDefinition {
   return PLAN_CATALOG.find((item) => item.id === plan) ?? PLAN_CATALOG[0];
 }
@@ -124,9 +134,8 @@ export async function getWorkspacePlan(
   }
 
   const plan = normalizePlanId(data.plan);
-  const entitlementActive = ["active", "trialing", "past_due"].includes(data.status) || plan === "free";
   return {
-    plan: entitlementActive ? plan : "free",
+    plan: resolveEntitledPlan(plan, data.status),
     status: data.status,
     subscription: data,
   };

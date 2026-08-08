@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Ban, CheckCircle2, Pencil, PiggyBank, Trash2 } from "lucide-react";
@@ -89,6 +91,7 @@ export function PaymentDetail({
   canWrite,
   canDelete,
 }: PaymentDetailProps) {
+  const { t } = useI18n();
   const [editOpen, setEditOpen] = useState(false);
   const [partialOpen, setPartialOpen] = useState(false);
   const [partialAmount, setPartialAmount] = useState(String(payment.paidAmount));
@@ -153,7 +156,7 @@ export function PaymentDetail({
 
   async function handleDelete() {
     if (pending) return;
-    if (!window.confirm(`Ștergi plata „${payment.label}”?`)) return;
+    if (!window.confirm(t("modules.payments.deleteConfirm", { label: payment.label }))) return;
     setPending(true);
     const result = await softDeletePaymentAction(payment.id);
     setPending(false);
@@ -187,47 +190,47 @@ export function PaymentDetail({
                 <>
                   <Button type="button" variant="outline" onClick={() => setPartialOpen(true)}>
                     <PiggyBank data-icon="inline-start" />
-                    Plată parțială
+                    {t("modules.payments.partial")}
                   </Button>
                   <Button type="button" variant="outline" onClick={handleMarkPaid} disabled={pending}>
                     <CheckCircle2 data-icon="inline-start" />
-                    Marchează plătit
+                    {t("modules.payments.markPaid")}
                   </Button>
                 </>
               ) : null}
               <Button type="button" variant="outline" onClick={() => setEditOpen(true)}>
                 <Pencil data-icon="inline-start" />
-                Editează
+                {t("common.edit")}
               </Button>
               <Button type="button" variant="destructive" onClick={handleCancel} disabled={pending}>
                 <Ban data-icon="inline-start" />
-                Anulează
+                {t("common.cancel")}
               </Button>
             </div>
           ) : null}
           {canDelete ? (
             <Button type="button" variant="destructive" onClick={handleDelete} disabled={pending}>
               <Trash2 data-icon="inline-start" />
-              Șterge
+              {t("common.delete")}
             </Button>
           ) : null}
         </div>
 
         <dl className="grid grid-cols-1 gap-4 border-t border-border pt-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
           <div>
-            <dt className="text-xs text-muted-foreground uppercase tracking-[0.08em]">Scadență</dt>
+            <dt className="text-xs text-muted-foreground uppercase tracking-[0.08em]">{t("common.dueDate")}</dt>
             <dd className="mt-1 text-foreground">
-              {payment.dueDate ? formatDate(payment.dueDate) : "Fără termen"}
+              {payment.dueDate ? formatDate(payment.dueDate) : t("modules.payments.noDeadline")}
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-muted-foreground uppercase tracking-[0.08em]">Metodă</dt>
+            <dt className="text-xs text-muted-foreground uppercase tracking-[0.08em]">{t("common.method")}</dt>
             <dd className="mt-1 text-foreground">
               {payment.method ? PAYMENT_METHOD_LABELS[payment.method] : "—"}
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-muted-foreground uppercase tracking-[0.08em]">Referință</dt>
+            <dt className="text-xs text-muted-foreground uppercase tracking-[0.08em]">{t("modules.payments.reference")}</dt>
             <dd className="mt-1 text-foreground">{payment.reference || "—"}</dd>
           </div>
           <div>
@@ -243,7 +246,7 @@ export function PaymentDetail({
             <dd className="mt-1 text-foreground">{payment.projectName ?? "—"}</dd>
           </div>
           <div>
-            <dt className="text-xs text-muted-foreground uppercase tracking-[0.08em]">Plătit la</dt>
+            <dt className="text-xs text-muted-foreground uppercase tracking-[0.08em]">{t("modules.payments.paidAt")}</dt>
             <dd className="mt-1 text-foreground">
               {payment.paidAt ? formatDateTime(payment.paidAt) : "—"}
             </dd>
@@ -254,7 +257,7 @@ export function PaymentDetail({
           </div>
           {payment.proofUrl ? (
             <div>
-              <dt className="text-xs text-muted-foreground uppercase tracking-[0.08em]">Dovadă plată</dt>
+              <dt className="text-xs text-muted-foreground uppercase tracking-[0.08em]">{t("modules.payments.proof")}</dt>
               <dd className="mt-1">
                 <a
                   href={payment.proofUrl}
@@ -271,7 +274,7 @@ export function PaymentDetail({
 
         {payment.notes ? (
           <div className="border-t border-border pt-4">
-            <p className="text-xs text-muted-foreground uppercase tracking-[0.08em]">Notițe</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-[0.08em]">{t("modules.leads.notesLabel")}</p>
             <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">{payment.notes}</p>
           </div>
         ) : null}
@@ -306,14 +309,14 @@ export function PaymentDetail({
       <Dialog open={partialOpen} onOpenChange={(next) => !pending && setPartialOpen(next)}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Plată parțială</DialogTitle>
+            <DialogTitle>{t("modules.payments.partialTitle")}</DialogTitle>
             <DialogDescription>
-              Actualizează suma încasată pentru „{payment.label}”.
+              {t("modules.payments.partialHint", { label: payment.label })}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleMarkPartial} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="partial-amount">Sumă încasată</Label>
+              <Label htmlFor="partial-amount">{t("modules.payments.paidAmount")}</Label>
               <Input
                 id="partial-amount"
                 type="number"
@@ -332,7 +335,7 @@ export function PaymentDetail({
                   className="mt-0.5"
                 />
                 <Label htmlFor="partial-allowOverpay" className="text-xs font-normal text-warning">
-                  Suma depășește totalul. Confirmă suprasuma.
+                  {t("modules.payments.overTotal")}
                 </Label>
               </div>
             ) : null}
@@ -343,10 +346,10 @@ export function PaymentDetail({
                 onClick={() => setPartialOpen(false)}
                 disabled={pending}
               >
-                Anulează
+                {t("common.cancel")}
               </Button>
               <Button type="submit" disabled={pending}>
-                {pending ? "Se salvează…" : "Salvează"}
+                {pending ? t("common.saving") : t("common.save")}
               </Button>
             </DialogFooter>
           </form>

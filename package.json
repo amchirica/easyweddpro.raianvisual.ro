@@ -20,6 +20,7 @@
     "test:e2e:install": "playwright install chromium",
     "i18n:audit": "node scripts/i18n-audit.mjs",
     "i18n:audit:classified": "node scripts/i18n-audit-classified.mjs",
+    "i18n:audit:full": "node --experimental-strip-types scripts/i18n-audit.ts",
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare preview",
     "cf:deploy": "opennextjs-cloudflare deploy",

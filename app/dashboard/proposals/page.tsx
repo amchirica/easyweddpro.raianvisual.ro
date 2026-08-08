@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
+import { getTranslator } from "@/lib/i18n/t";
 
 import { ProposalsList, type ProposalListItem } from "@/components/proposals/proposals-list";
 import { listProposals } from "@/lib/data/proposals";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { getWorkspaceOrDemo } from "@/lib/workspace/session";
 
-export const metadata: Metadata = {
-  title: "Oferte · EasyWedd Pro",
-};
+export async function generateMetadata() {
+  const { t } = await getTranslator();
+  return { title: `${t("modules.proposals.title")} · EasyWedd Pro` };
+}
 
 type ProposalRowWithRelations = Awaited<ReturnType<typeof listProposals>>["proposals"][number];
 
@@ -28,6 +30,7 @@ function mapProposalRow(row: ProposalRowWithRelations): ProposalListItem {
 }
 
 export default async function ProposalsPage() {
+  const { t } = await getTranslator();
   const ctx = await getWorkspaceOrDemo();
 
   const permissions = permissionsForRole(ctx.role);
@@ -38,7 +41,7 @@ export default async function ProposalsPage() {
     const result = await listProposals(ctx.supabase, { workspaceId: ctx.workspace.id, limit: 100 });
     proposals = result.proposals.map(mapProposalRow);
   } catch (err) {
-    error = err instanceof Error ? err.message : "Nu am putut încărca ofertele.";
+    error = err instanceof Error ? err.message : t("modules.proposals.loadFailed");
   }
 
   return (

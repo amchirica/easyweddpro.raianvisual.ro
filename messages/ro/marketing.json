@@ -1,0 +1,672 @@
+{
+  "seo": {
+    "homeTitle": "Business OS pentru Weddings & Events",
+    "homeDescription": "Business OS pentru furnizori Weddings & Events: CRM evenimente, oferte, contracte, plăți, calendar și proiecte — pentru fotografi, DJ, wedding planners, locații și agenții.",
+    "homeOgTitle": "EasyWedd Pro — Business OS pentru Weddings & Events",
+    "homeOgDescription": "Business OS pentru profesioniștii din industria evenimentelor",
+    "featuresTitle": "Funcționalități",
+    "featuresDescription": "Business OS EasyWedd Pro: CRM evenimente, oferte, contracte, plăți, calendar, proiecte, automatizări, analytics și portal client pentru Weddings & Events.",
+    "pricingTitle": "Prețuri",
+    "pricingDescription": "Free, Solo, Studio și Agency — Business OS EasyWedd Pro pentru Weddings & Events. Începe gratuit, fără card pe planul Free."
+  },
+  "common": {
+    "startFree": "Începe gratuit",
+    "seeHowItWorks": "Vezi cum funcționează",
+    "seeFeatures": "Vezi funcționalitățile",
+    "perMonth": "/lună",
+    "perYear": "/an",
+    "billingIntervalMonthly": "Lunar",
+    "billingIntervalYearly": "Anual",
+    "oneMonthFree": "1 lună gratuită",
+    "savePerYear": "Economisești {amount}/an",
+    "free": "Gratuit",
+    "mostPopular": "Cel mai popular",
+    "product": "Produs",
+    "legal": "Legal",
+    "allRights": "© {year} EasyWedd Pro. Toate drepturile rezervate.",
+    "footerTagline": "Business OS pentru industria evenimentelor.",
+    "privacy": "Confidențialitate",
+    "terms": "Termeni și condiții",
+    "cookies": "Cookies",
+    "dpa": "DPA",
+    "security": "Securitate",
+    "unlimited": "Nelimitat"
+  },
+  "hero": {
+    "eyebrow": "Business OS for Event Professionals",
+    "heading": "Condu întreaga afacere dintr-un singur loc.",
+    "support": "De la primul lead până la ultimul follow-up.",
+    "promise": "Leaduri, clienți, oferte, contracte, plăți, calendar, proiecte, echipă și automatizări — construite special pentru profesioniștii din industria evenimentelor.",
+    "noCard": "Fără card bancar pe planul Free. Configurare în câteva minute."
+  },
+  "mock": {
+    "workspace": "EasyWedd Pro · Workspace",
+    "demoUi": "Demo UI",
+    "pipelineTitle": "Lead pipeline",
+    "eventsTitle": "Evenimente",
+    "contractTitle": "Contract",
+    "paymentsTitle": "Plăți",
+    "tasksTitle": "Task-uri",
+    "analyticsTitle": "Analytics",
+    "pipelineNew": "Noi",
+    "pipelineProposal": "Ofertă",
+    "pipelineNegotiation": "Negociere",
+    "pipelineWon": "Câștigat",
+    "eventWedding": "Nuntă Popescu",
+    "eventCorporate": "Corporate Nova",
+    "eventVenue": "Elysium Hall",
+    "contractPackage": "Pachet Full Day",
+    "contractMeta": "Acceptare digitală · PDF",
+    "contractSent": "Trimis",
+    "paymentDeposit": "Avans",
+    "paymentInstallment": "Tranșă 2",
+    "paymentFinal": "Final",
+    "statusConfirmed": "Confirmat",
+    "statusDue": "Scadent",
+    "statusScheduled": "Programat",
+    "taskLogistics": "Confirmă logistică",
+    "taskFollowUp": "Trimite follow-up ofertă",
+    "taskChecklist": "Checklist eveniment −7z",
+    "analyticsMeta": "Conversie · pipeline · surse"
+  },
+  "problem": {
+    "title": "Prea mult timp pierdut înainte să înceapă munca propriu-zisă.",
+    "description": "Cereri pe canale diferite, follow-up manual și pași comerciali care îți consumă ore — înainte să ajungi la eveniment.",
+    "highlight": "Un lead care nu răspunde nu ar trebui să îți consume ore întregi.",
+    "closing": "EasyWedd Pro transformă procesul comercial într-un workflow clar și automatizabil.",
+    "channels": [
+      "Instagram",
+      "WhatsApp",
+      "Facebook",
+      "Email",
+      "Formulare",
+      "Follow-up manual",
+      "Verificare dată",
+      "Ofertă",
+      "Discuții",
+      "Contract",
+      "Avans",
+      "Remindere",
+      "Deadline"
+    ]
+  },
+  "workflow": {
+    "eyebrow": "Semnătura produsului",
+    "title": "Un singur workflow. De la cerere la eveniment.",
+    "description": "De la primul contact până la review și recomandare — același fir, fără să schimbi unelte.",
+    "steps": [
+      "Lead",
+      "Calificare",
+      "Ofertă",
+      "Follow-up",
+      "Acceptare",
+      "Contract",
+      "Avans",
+      "Proiect",
+      "Calendar",
+      "Task-uri",
+      "Eveniment",
+      "Livrare",
+      "Plată finală",
+      "Review",
+      "Follow-up"
+    ]
+  },
+  "automation": {
+    "title": "Nu mai urmări manual fiecare client.",
+    "description": "Automatizări pe triggeri reali din workflow — fără pretinde integrări externe inactive.",
+    "items": [
+      {
+        "trigger": "Lead nou",
+        "action": "task automat"
+      },
+      {
+        "trigger": "Oferta nu a fost vizualizată",
+        "action": "follow-up"
+      },
+      {
+        "trigger": "Contract trimis",
+        "action": "reminder"
+      },
+      {
+        "trigger": "Avans scadent",
+        "action": "notificare"
+      },
+      {
+        "trigger": "Eveniment peste 7 zile",
+        "action": "checklist"
+      },
+      {
+        "trigger": "Eveniment finalizat",
+        "action": "solicitare review"
+      }
+    ]
+  },
+  "modules": {
+    "title": "Modulele platformei",
+    "description": "Un Business OS complet pentru Weddings & Events — CRM-ul e doar o parte din workflow.",
+    "items": [
+      {
+        "title": "CRM",
+        "items": [
+          "pipeline",
+          "leaduri",
+          "surse",
+          "status",
+          "follow-up"
+        ]
+      },
+      {
+        "title": "Oferte",
+        "items": [
+          "pachete",
+          "extraopțiuni",
+          "discount",
+          "link public",
+          "acceptare"
+        ]
+      },
+      {
+        "title": "Contracte",
+        "items": [
+          "template",
+          "acceptare digitală",
+          "versiuni",
+          "PDF"
+        ]
+      },
+      {
+        "title": "Plăți",
+        "items": [
+          "avans",
+          "tranșe",
+          "restante",
+          "remindere"
+        ]
+      },
+      {
+        "title": "Calendar",
+        "items": [
+          "evenimente",
+          "întâlniri",
+          "deadline-uri",
+          "task-uri"
+        ]
+      },
+      {
+        "title": "Proiecte",
+        "items": [
+          "workflow",
+          "echipă",
+          "checklist",
+          "deadline"
+        ]
+      },
+      {
+        "title": "Automatizări",
+        "items": [
+          "trigger",
+          "condiții",
+          "acțiuni"
+        ]
+      },
+      {
+        "title": "Analytics",
+        "items": [
+          "conversie",
+          "pipeline",
+          "venit",
+          "surse",
+          "rezultate"
+        ]
+      },
+      {
+        "title": "Portal Client",
+        "items": [
+          "ofertă",
+          "contract",
+          "plăți",
+          "proiect",
+          "documente"
+        ]
+      }
+    ]
+  },
+  "businessFit": {
+    "title": "Nu toate businessurile de evenimente funcționează la fel. EasyWedd Pro știe asta.",
+    "description": "Aceeași platformă. Workflow adaptat activității tale.",
+    "closing": "Aceeași platformă. Workflow adaptat activității tale.",
+    "items": [
+      {
+        "title": "Foto & Video",
+        "items": [
+          "lead",
+          "contract",
+          "shooting",
+          "editare",
+          "livrare"
+        ]
+      },
+      {
+        "title": "DJ & Formații",
+        "items": [
+          "rezervări",
+          "playlist",
+          "echipamente",
+          "logistică",
+          "soundcheck"
+        ]
+      },
+      {
+        "title": "Wedding Planner",
+        "items": [
+          "furnizori",
+          "timeline",
+          "task-uri",
+          "buget",
+          "coordonare"
+        ]
+      },
+      {
+        "title": "Locații",
+        "items": [
+          "disponibilitate",
+          "rezervări",
+          "săli",
+          "meniuri",
+          "avansuri"
+        ]
+      },
+      {
+        "title": "Decor & Flori",
+        "items": [
+          "concept",
+          "inventar",
+          "transport",
+          "montaj",
+          "demontaj"
+        ]
+      },
+      {
+        "title": "Catering",
+        "items": [
+          "meniuri",
+          "persoane",
+          "logistică",
+          "plăți"
+        ]
+      },
+      {
+        "title": "Beauty",
+        "items": [
+          "programări",
+          "persoane",
+          "locații",
+          "servicii"
+        ]
+      }
+    ]
+  },
+  "templates": {
+    "title": "Nu începi de la zero.",
+    "description": "La onboarding, în funcție de categoria aleasă, poți primi template-uri gata configurate.",
+    "closing": "În loc să petreci zile configurând un CRM, începi să lucrezi.",
+    "items": [
+      "pipeline recomandat",
+      "ofertă",
+      "contract",
+      "task-uri",
+      "automatizări",
+      "emailuri",
+      "follow-up",
+      "proiect"
+    ]
+  },
+  "ecosystem": {
+    "title": "Mai mult decât un Business OS. Un ecosistem.",
+    "description": "EasyWedd pentru cupluri. EasyWedd Pro pentru furnizori.",
+    "forCouples": "Pentru cupluri",
+    "forVendors": "Pentru furnizori",
+    "proMeta": "Business OS · Weddings & Events",
+    "availableNow": "Disponibil acum",
+    "inDevelopment": "În dezvoltare",
+    "bridge": [
+      "Ofertă",
+      "Contract",
+      "Plată",
+      "Program",
+      "Chestionar",
+      "Documente"
+    ],
+    "available": [
+      "Ofertă",
+      "Contract",
+      "Portal client",
+      "Plăți",
+      "Proiect"
+    ],
+    "coming": [
+      "Chestionar cuplu",
+      "Sincronizare program",
+      "Documente bidirecționale"
+    ]
+  },
+  "circular": {
+    "title": "Un eveniment conectează zeci de oameni. Software-ul ar trebui să facă același lucru.",
+    "description": "Diferențiatorul față de CRM-urile generale: un ecosistem construit pe verticala Weddings & Events.",
+    "steps": [
+      "Miri",
+      "EasyWedd",
+      "Furnizori",
+      "EasyWedd Pro",
+      "Proiect",
+      "Eveniment",
+      "Review",
+      "Recomandare",
+      "Viitori clienți"
+    ]
+  },
+  "roadmap": {
+    "eyebrow": "Roadmap",
+    "title": "Viitorul EasyWedd",
+    "description": "Marketplace-ul nu este activ. Pregătim descoperire, matching și solicitări de ofertă — fără a le prezenta ca funcții live.",
+    "items": [
+      "descoperire furnizori",
+      "recomandări",
+      "disponibilitate",
+      "solicitare ofertă",
+      "review-uri",
+      "matching"
+    ]
+  },
+  "europe": {
+    "title": "Construit pentru piața europeană",
+    "description": "Localizare, monede și practici de business europene. Nu pretindem conformitate juridică absolută — îți dăm controlul să configurezi.",
+    "items": [
+      "GDPR — proiectat cu confidențialitatea în minte",
+      "EUR / RON și alte monede",
+      "Timezone și localizare",
+      "Limbi configurabile",
+      "Contracte configurabile",
+      "TVA și fluxuri de plată",
+      "Plăți manuale + Stripe",
+      "Business european"
+    ]
+  },
+  "compare": {
+    "title": "CRM general vs. EasyWedd Pro",
+    "generalLabel": "CRM general",
+    "proLabel": "EasyWedd Pro",
+    "general": [
+      "configurare manuală",
+      "workflow generic",
+      "template-uri generale",
+      "fără context evenimente"
+    ],
+    "pro": [
+      "configurare pe tip business",
+      "workflow evenimente",
+      "template-uri specifice",
+      "calendar evenimente",
+      "portal client",
+      "ecosistem EasyWedd"
+    ]
+  },
+  "pricing": {
+    "title": "Prețuri simple, fără surprize.",
+    "description": "Începe gratuit — fără card pe planul Free. 1 lună gratuită cu plata anuală (plătești 11 luni). Economisești echivalentul unei luni.",
+    "pageEyebrow": "Prețuri",
+    "pageDescription": "Începe gratuit. Treci la un plan plătit doar când echipa și volumul de clienți cresc. Plata anuală = 1 lună gratuită.",
+    "compareTitle": "Compară planurile",
+    "featureColumn": "Funcționalitate",
+    "faqTitle": "Întrebări despre prețuri",
+    "unsureTitle": "Nu ești sigur care plan e potrivit?",
+    "unsureDescription": "Începe cu planul Free — poți face upgrade oricând din cont.",
+    "comparison": [
+      {
+        "label": "Leaduri active",
+        "free": "5",
+        "solo": "Nelimitat",
+        "studio": "Nelimitat",
+        "agency": "Nelimitat"
+      },
+      {
+        "label": "Clienți",
+        "free": "3",
+        "solo": "Nelimitat",
+        "studio": "Nelimitat",
+        "agency": "Nelimitat"
+      },
+      {
+        "label": "Utilizatori",
+        "free": "1",
+        "solo": "1",
+        "studio": "5",
+        "agency": "15"
+      },
+      {
+        "label": "Automatizări",
+        "free": "—",
+        "solo": "—",
+        "studio": "✓",
+        "agency": "✓"
+      },
+      {
+        "label": "Analytics",
+        "free": "—",
+        "solo": "—",
+        "studio": "✓",
+        "agency": "✓"
+      },
+      {
+        "label": "Branding personalizat",
+        "free": "—",
+        "solo": "—",
+        "studio": "✓",
+        "agency": "✓"
+      },
+      {
+        "label": "Pipeline proiecte",
+        "free": "—",
+        "solo": "—",
+        "studio": "✓",
+        "agency": "✓"
+      },
+      {
+        "label": "Multi-brand",
+        "free": "—",
+        "solo": "—",
+        "studio": "—",
+        "agency": "✓"
+      }
+    ],
+    "faq": [
+      {
+        "question": "Planurile sunt doar pentru studiouri foto-video?",
+        "answer": "Nu. Free, Solo, Studio și Agency se aplică freelancerilor, echipelor, locațiilor și agențiilor din industria evenimentelor. „Studio” este numele planului pentru echipe în creștere, nu doar foto-video."
+      },
+      {
+        "question": "Pot schimba planul mai târziu?",
+        "answer": "Da, poți face upgrade sau downgrade oricând din setările contului, fără penalizări."
+      },
+      {
+        "question": "Prețurile includ TVA?",
+        "answer": "Prețurile afișate sunt fără TVA. Factura finală include TVA conform legislației din România."
+      },
+      {
+        "question": "Există perioadă de probă pentru planurile plătite?",
+        "answer": "Planul Free este disponibil pe termen nelimitat, ideal pentru a testa fluxul înainte de upgrade."
+      },
+      {
+        "question": "Cum funcționează plata anuală?",
+        "answer": "1 lună gratuită cu plata anuală: plătești echivalentul a 11 luni și beneficiezi de 12. Economisești echivalentul unei luni față de plata lunară."
+      }
+    ]
+  },
+  "plans": {
+    "free": {
+      "description": "Testează workflow-ul.",
+      "cta": "Începe gratuit",
+      "features": [
+        "5 leaduri active",
+        "3 clienți",
+        "1 utilizator",
+        "Funcții de bază",
+        "Branding EasyWedd Pro"
+      ]
+    },
+    "solo": {
+      "description": "Pentru profesioniști independenți.",
+      "cta": "Alege Solo",
+      "features": [
+        "Leaduri nelimitate",
+        "Clienți, oferte, contracte",
+        "Calendar și plăți",
+        "Portal client",
+        "1 utilizator"
+      ]
+    },
+    "studio": {
+      "description": "Pentru echipe și businessuri în creștere.",
+      "cta": "Alege Studio",
+      "features": [
+        "Până la 5 utilizatori",
+        "Automatizări",
+        "Analytics",
+        "Pipeline producție",
+        "Template-uri",
+        "Branding personalizat"
+      ]
+    },
+    "agency": {
+      "description": "Pentru operațiuni complexe și mai multe echipe.",
+      "cta": "Alege Agency",
+      "features": [
+        "Până la 15 utilizatori",
+        "Roluri avansate",
+        "Rapoarte",
+        "Multiple branduri",
+        "Suport prioritar",
+        "Funcții avansate"
+      ]
+    }
+  },
+  "faq": {
+    "title": "Întrebări frecvente",
+    "items": [
+      {
+        "question": "EasyWedd Pro este doar un CRM?",
+        "answer": "Nu. Este un Business OS pentru Weddings & Events: leaduri, oferte, contracte, plăți, calendar, proiecte, automatizări și portal client — pe verticala evenimentelor."
+      },
+      {
+        "question": "Este doar pentru fotografi?",
+        "answer": "Nu. Platforma acoperă foto-video, DJ, formații, locații, planners, decor, beauty, catering, entertainment, transport, papetărie și agenții de evenimente."
+      },
+      {
+        "question": "Pot configura platforma pentru tipul meu de business?",
+        "answer": "Da. La onboarding alegi categoria, iar workspace-ul poate primi pipeline, oferte, contracte, task-uri și automatizări recomandate."
+      },
+      {
+        "question": "Clienții mei trebuie să își creeze cont?",
+        "answer": "Nu. Oferta, contractul și proiectul pot fi accesate prin portal pe link unic, fără parolă."
+      },
+      {
+        "question": "Ce legătură are cu EasyWedd?",
+        "answer": "EasyWedd Pro este pentru furnizori; EasyWedd este pentru cupluri. Formează un ecosistem — sincronizările avansate sunt marcate separat ca „în dezvoltare” unde e cazul."
+      },
+      {
+        "question": "Pot anula abonamentul oricând?",
+        "answer": "Da. Poți retrograda la planul Free din setări, fără contract pe termen lung."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Organizează-ți întregul business de evenimente.",
+    "description": "Lead → ofertă → contract → avans → proiect → eveniment → follow-up. Începe gratuit."
+  },
+  "footer": {
+    "tagline": "Business OS pentru profesioniștii din industria evenimentelor"
+  },
+  "featuresPage": {
+    "eyebrow": "Business OS · Weddings & Events",
+    "title": "Platformă operațională pentru furnizorii de evenimente",
+    "description": "Lead → ofertă → contract → avans → proiect → eveniment → follow-up. Module conectate, adaptate tipului tău de business.",
+    "groups": [
+      {
+        "title": "Workflow comercial",
+        "description": "De la lead la contract și avans — fără haos pe WhatsApp și email.",
+        "items": [
+          {
+            "title": "CRM & pipeline",
+            "description": "Leaduri, surse, statusuri și follow-up pe un pipeline construit pentru evenimente — nu un CRM generic."
+          },
+          {
+            "title": "Dosare de clienți",
+            "description": "Istoric al ofertelor, contractelor și plăților pentru fiecare client, într-un singur loc."
+          },
+          {
+            "title": "Oferte",
+            "description": "Pachete, extraopțiuni, discount și link public — vezi când oferta a fost vizualizată și acceptată."
+          },
+          {
+            "title": "Contracte",
+            "description": "Template-uri, acceptare digitală, versiuni și PDF — fără hârtii pierdute."
+          }
+        ]
+      },
+      {
+        "title": "Operațiuni",
+        "description": "Proiect, calendar și echipă — de la rezervare la livrare.",
+        "items": [
+          {
+            "title": "Calendar",
+            "description": "Evenimente, întâlniri, deadline-uri și task-uri într-un calendar unificat."
+          },
+          {
+            "title": "Proiecte",
+            "description": "Workflow pe tip de business, echipă, checklist și deadline-uri pe eveniment."
+          },
+          {
+            "title": "Task-uri",
+            "description": "Alocă sarcini cu priorități și termene, legate de proiect și eveniment."
+          },
+          {
+            "title": "Echipă & roluri",
+            "description": "Fiecare membru vede ce trebuie să facă, cu permisiuni pe rol."
+          }
+        ]
+      },
+      {
+        "title": "Financiar & insight",
+        "description": "Plăți clare și analytics pe pipeline.",
+        "items": [
+          {
+            "title": "Plăți",
+            "description": "Avansuri, tranșe, restante și remindere — urmărite pe fiecare eveniment."
+          },
+          {
+            "title": "Analytics",
+            "description": "Conversie, pipeline, venit, surse și rezultate — fără vanity metrics inventate."
+          }
+        ]
+      },
+      {
+        "title": "Experiența clientului",
+        "description": "Automatizări și portal — fără efort manual la fiecare pas.",
+        "items": [
+          {
+            "title": "Automatizări",
+            "description": "Trigger → condiții → acțiuni: follow-up ofertă, reminder contract, checklist pre-eveniment, review."
+          },
+          {
+            "title": "Portal client",
+            "description": "Ofertă, contract, plăți, proiect și documente pe link unic — fără cont obligatoriu."
+          }
+        ]
+      }
+    ],
+    "ctaTitle": "Începe să lucrezi, nu să configurezi zile întregi",
+    "ctaDescription": "Cont gratuit, fără card pe planul Free.",
+    "seePricing": "Vezi prețurile"
+  }
+}

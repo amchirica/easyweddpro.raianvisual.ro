@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useEffect, useState, type FormEvent } from "react";
 
 import { useToast } from "@/components/shared/toast-provider";
@@ -28,28 +30,17 @@ import { mapCalendarEventRow, type CalendarEventItem } from "@/lib/calendar/mapp
 import { CALENDAR_EVENT_STATUSES, type CalendarEventStatus } from "@/lib/constants";
 import { calendarEventFormSchema } from "@/lib/validations/calendar";
 
-const STATUS_LABELS: Record<CalendarEventStatus, string> = {
-  confirmed: "Confirmat",
-  tentative: "Provizoriu",
-  cancelled: "Anulat",
-};
+const STATUS_KEYS: CalendarEventStatus[] = ["confirmed", "tentative", "cancelled"];
 
-const EVENT_TYPE_SUGGESTIONS = [
-  "eveniment",
-  "întâlnire",
-  "apel",
-  "vizionare locație",
-  "termen limită",
-  "memento",
-];
+const EVENT_TYPE_KEYS = ["typeEvent","typeMeeting","typeCall","typeVenue","typeDeadline","typeReminder"] as const;
 
-const COLOR_OPTIONS: { value: string; label: string; swatch: string }[] = [
-  { value: "", label: "Fără culoare", swatch: "transparent" },
-  { value: "#c6a76a", label: "Auriu", swatch: "#c6a76a" },
-  { value: "#62b58c", label: "Verde", swatch: "#62b58c" },
-  { value: "#d7a958", label: "Galben", swatch: "#d7a958" },
-  { value: "#d56f6f", label: "Roșu", swatch: "#d56f6f" },
-  { value: "#8a8f98", label: "Gri", swatch: "#8a8f98" },
+const COLOR_OPTION_DEFS: { value: string; labelKey: string; swatch: string }[] = [
+  { value: "", labelKey: "noColor", swatch: "transparent" },
+  { value: "#c6a76a", labelKey: "colorGold", swatch: "#c6a76a" },
+  { value: "#62b58c", labelKey: "colorGreen", swatch: "#62b58c" },
+  { value: "#d7a958", labelKey: "colorYellow", swatch: "#d7a958" },
+  { value: "#d56f6f", labelKey: "colorRed", swatch: "#d56f6f" },
+  { value: "#8a8f98", labelKey: "colorGray", swatch: "#8a8f98" },
 ];
 
 type CalendarEventFormState = {
@@ -165,6 +156,7 @@ export function CalendarEventDialog({
   clients = [],
   onSuccess,
 }: CalendarEventDialogProps) {
+  const { t } = useI18n();
   const [form, setForm] = useState<CalendarEventFormState>(() =>
     initial ? formFromEvent(initial) : emptyForm(defaultDate),
   );
@@ -233,7 +225,7 @@ export function CalendarEventDialog({
         if (typeof key === "string" && !errors[key]) errors[key] = issue.message;
       }
       setFieldErrors(errors);
-      setFormError("Verifică datele completate.");
+      setFormError(t("common.verifyData"));
       return;
     }
 
@@ -262,11 +254,11 @@ export function CalendarEventDialog({
     <Dialog open={open} onOpenChange={(next) => !submitting && onOpenChange(next)}>
       <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{mode === "create" ? "Eveniment nou" : "Editează eveniment"}</DialogTitle>
+          <DialogTitle>{mode === "create" ? t("modules.calendar.new") : t("modules.calendar.edit")}</DialogTitle>
           <DialogDescription>
             {mode === "create"
-              ? "Adaugă un eveniment, o întâlnire sau un termen limită în calendar."
-              : "Actualizează detaliile acestui eveniment."}
+              ? t("modules.calendar.createHint")
+              : t("modules.calendar.editHint")}
           </DialogDescription>
         </DialogHeader>
 
@@ -277,7 +269,7 @@ export function CalendarEventDialog({
               id="event-title"
               value={form.title}
               onChange={(event) => updateField("title", event.target.value)}
-              placeholder="Ex: Ședință foto cuplu"
+              placeholder={t("modules.calendar.titlePh")}
               aria-invalid={Boolean(fieldErrors.title)}
             />
             {fieldErrors.title ? <p className="text-xs text-destructive">{fieldErrors.title}</p> : null}
@@ -293,8 +285,8 @@ export function CalendarEventDialog({
                 onChange={(event) => updateField("eventType", event.target.value)}
               />
               <datalist id="calendar-event-type-suggestions">
-                {EVENT_TYPE_SUGGESTIONS.map((suggestion) => (
-                  <option key={suggestion} value={suggestion} />
+                {EVENT_TYPE_KEYS.map((typeKey) => (
+                  <option key={typeKey} value={t(`modules.calendar.${typeKey}`)} />
                 ))}
               </datalist>
             </div>
@@ -310,7 +302,13 @@ export function CalendarEventDialog({
                 <SelectContent>
                   {CALENDAR_EVENT_STATUSES.map((status) => (
                     <SelectItem key={status} value={status}>
-                      {STATUS_LABELS[status]}
+                      {t(
+                        status === "confirmed"
+                          ? "modules.calendar.statusConfirmed"
+                          : status === "tentative"
+                            ? "modules.calendar.statusTentative"
+                            : "modules.calendar.statusCancelled",
+                      )}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -323,12 +321,12 @@ export function CalendarEventDialog({
               checked={form.allDay}
               onCheckedChange={(checked) => handleAllDayToggle(checked === true)}
             />
-            Toată ziua
+            {t("modules.calendar.allDay")}
           </label>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="event-start-date">Începe</Label>
+              <Label htmlFor="event-start-date">{t("modules.calendar.starts")}</Label>
               <div className="flex gap-2">
                 <Input
                   id="event-start-date"
@@ -351,7 +349,7 @@ export function CalendarEventDialog({
               ) : null}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="event-end-date">Se termină</Label>
+              <Label htmlFor="event-end-date">{t("modules.calendar.ends")}</Label>
               <div className="flex gap-2">
                 <Input
                   id="event-end-date"
@@ -376,12 +374,12 @@ export function CalendarEventDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="event-location">Locație</Label>
+            <Label htmlFor="event-location">{t("modules.calendar.location")}</Label>
             <Input
               id="event-location"
               value={form.location}
               onChange={(event) => updateField("location", event.target.value)}
-              placeholder="Ex: Sala de evenimente, adresă…"
+              placeholder={t("modules.calendar.locationPh")}
             />
           </div>
 
@@ -393,10 +391,10 @@ export function CalendarEventDialog({
                 onValueChange={(value) => updateField("clientId", value === "none" ? "" : value ?? "")}
               >
                 <SelectTrigger id="event-client" className="h-8 w-full">
-                  <SelectValue placeholder="Fără client" />
+                  <SelectValue placeholder={t("common.noClient")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">Fără client</SelectItem>
+                  <SelectItem value="none">{t("common.noClient")}</SelectItem>
                   {clients.map((client) => (
                     <SelectItem key={client.id} value={client.id}>
                       {client.name}
@@ -412,7 +410,7 @@ export function CalendarEventDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {COLOR_OPTIONS.map((option) => (
+                  {COLOR_OPTION_DEFS.map((option) => (
                     <SelectItem key={option.value || "none"} value={option.value || "none"}>
                       <span className="flex items-center gap-2">
                         <span
@@ -420,7 +418,7 @@ export function CalendarEventDialog({
                           style={{ backgroundColor: option.swatch }}
                           aria-hidden
                         />
-                        {option.label}
+                        {t(`modules.calendar.${option.labelKey}`)}
                       </span>
                     </SelectItem>
                   ))}
@@ -431,7 +429,7 @@ export function CalendarEventDialog({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="event-reminder-date">Memento (opțional)</Label>
+              <Label htmlFor="event-reminder-date">{t("modules.calendar.reminder")}</Label>
               <div className="flex gap-2">
                 <Input
                   id="event-reminder-date"
@@ -460,7 +458,7 @@ export function CalendarEventDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="event-notes">Notițe interne</Label>
+            <Label htmlFor="event-notes">{t("modules.calendar.internalNotes")}</Label>
             <Textarea
               id="event-notes"
               rows={3}
@@ -485,14 +483,10 @@ export function CalendarEventDialog({
               onClick={() => onOpenChange(false)}
               disabled={submitting}
             >
-              Anulează
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={submitting}>
-              {submitting
-                ? "Se salvează…"
-                : mode === "create"
-                  ? "Creează eveniment"
-                  : "Salvează modificările"}
+              {submitting ? t("common.saving") : mode === "create" ? t("modules.calendar.createEvent") : t("common.saveChanges")}
             </Button>
           </DialogFooter>
         </form>

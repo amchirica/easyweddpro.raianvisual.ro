@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -30,6 +32,7 @@ export function WorkspaceAdminActions({
   plan: string;
   isSuspended: boolean;
 }) {
+  const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
   const [selectedPlan, setSelectedPlan] = useState(plan);
@@ -48,12 +51,12 @@ export function WorkspaceAdminActions({
         <AdminConfirmDialog
           trigger={
             <Button type="button" size="sm" variant="outline">
-              Schimbă planul
+              {t("admin.changePlan")}
             </Button>
           }
-          title="Schimbă planul workspace-ului"
-          description="Planul va fi actualizat imediat pentru workspace și abonament."
-          confirmLabel="Salvează planul"
+          title={t("admin.changePlanTitle")}
+          description={t("admin.changePlanDesc")}
+          confirmLabel={t("admin.savePlan")}
           onConfirm={async (reason) => {
             await run(() =>
               changeWorkspacePlanAction({
@@ -71,12 +74,12 @@ export function WorkspaceAdminActions({
             </Button>
           }
           title="Extinde perioada de trial"
-          description="Setează o nouă dată de expirare a trial-ului relativ la acum."
+          description={t("admin.extendTrialDesc")}
           confirmLabel="Extinde"
           onConfirm={async (reason) => {
             const days = Number.parseInt(trialDays, 10);
             if (!Number.isFinite(days) || days < 1) {
-              throw new Error("Numărul de zile este invalid.");
+              throw new Error(t("admin.invalidDays"));
             }
             await run(() => extendTrialAction({ workspaceId, days, reason }));
           }}
@@ -88,16 +91,16 @@ export function WorkspaceAdminActions({
               size="sm"
               variant={isSuspended ? "outline" : "destructive"}
             >
-              {isSuspended ? "Reactivează" : "Suspendă"}
+              {isSuspended ? t("admin.reactivate") : t("admin.suspend")}
             </Button>
           }
-          title={isSuspended ? "Reactivează workspace-ul" : "Suspendă workspace-ul"}
+          title={isSuspended ? t("admin.reactivateWorkspace") : t("admin.suspendWorkspace")}
           description={
             isSuspended
-              ? "Abonamentul va trece în status activ."
-              : "Abonamentul va trece în status suspendat."
+              ? t("admin.subToActive")
+              : t("admin.subToSuspended")
           }
-          confirmLabel={isSuspended ? "Reactivează" : "Suspendă"}
+          confirmLabel={isSuspended ? t("admin.reactivate") : t("admin.suspend")}
           destructive={!isSuspended}
           onConfirm={async () => {
             const result = isSuspended
@@ -114,13 +117,13 @@ export function WorkspaceAdminActions({
           nativeButton={false}
           render={<Link href={`/admin/workspaces/${workspaceId}/inspect`} />}
         >
-          Inspectează
+          {t("admin.inspect")}
         </Button>
       </AdminActionMenu>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="admin-plan">Plan țintă</Label>
+          <Label htmlFor="admin-plan">{t("admin.targetPlan")}</Label>
           <select
             id="admin-plan"
             value={selectedPlan}

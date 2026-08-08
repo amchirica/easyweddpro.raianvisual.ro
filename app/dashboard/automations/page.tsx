@@ -4,14 +4,16 @@ import { Lock } from "lucide-react";
 import { AutomationsListClient, type AutomationListItem } from "@/components/automations/automations-list-client";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ModuleShell } from "@/components/shared/module-shell";
+import { assertPlanFeature } from "@/lib/billing/assert-feature";
 import { countAutomationRunOutcomes, listAutomations } from "@/lib/data/automations";
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { requireWorkspace } from "@/lib/workspace/session";
 import { getTranslator } from "@/lib/i18n/t";
 
-export const metadata: Metadata = {
-  title: "Automatizări · EasyWedd Pro",
-};
+export async function generateMetadata() {
+  const { t } = await getTranslator();
+  return { title: `${t("modules.automations.title")} · EasyWedd Pro` };
+}
 
 export default async function AutomationsPage() {
   const { t } = await getTranslator();
@@ -28,6 +30,22 @@ export default async function AutomationsPage() {
           icon={Lock}
           title={t("modules.permissionDenied")}
           description={t("modules.permissionDeniedHint")}
+        />
+      </ModuleShell>
+    );
+  }
+
+  const planFeature = await assertPlanFeature(ctx.supabase, ctx.activeWorkspace.id, "automations");
+  if (!planFeature.ok) {
+    return (
+      <ModuleShell
+        title={t("modules.automations.title")}
+        description={t("modules.automations.description")}
+      >
+        <EmptyState
+          icon={Lock}
+          title={t("modules.permissionDenied")}
+          description={planFeature.reason}
         />
       </ModuleShell>
     );

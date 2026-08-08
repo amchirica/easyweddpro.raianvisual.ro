@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -24,6 +26,7 @@ export function WorkspaceActions({
   plan: string;
   isSuspended: boolean;
 }) {
+  const { t } = useI18n();
   const [pending, setPending] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -62,7 +65,7 @@ export function WorkspaceActions({
         disabled={pending}
         onChange={(event) => handlePlanChange(event.target.value)}
         className="h-7 rounded-md border border-border bg-background px-2 text-xs text-foreground disabled:opacity-50"
-        aria-label="Schimbă planul"
+        aria-label={t("admin.changePlan")}
       >
         {PLAN_OPTIONS.map((option) => (
           <option key={option.id} value={option.id}>
@@ -77,7 +80,7 @@ export function WorkspaceActions({
         disabled={pending}
         onClick={handleToggleSuspend}
       >
-        {isSuspended ? "Reactivează" : "Suspendă"}
+        {isSuspended ? t("admin.reactivate") : t("admin.suspend")}
       </Button>
     </div>
   );

@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -62,6 +64,7 @@ type LeadDetailProps = {
 };
 
 export function LeadDetail({ lead, activity, mode, currency = "RON" }: LeadDetailProps) {
+  const { t } = useI18n();
   const [currentLead, setCurrentLead] = useState(lead);
   const [activityItems] = useState(activity);
   const [editOpen, setEditOpen] = useState(false);
@@ -177,7 +180,7 @@ export function LeadDetail({ lead, activity, mode, currency = "RON" }: LeadDetai
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-        Înapoi la leaduri
+        {t("modules.leads.backToList")}
       </Link>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -209,7 +212,7 @@ export function LeadDetail({ lead, activity, mode, currency = "RON" }: LeadDetai
           ) : (
             <Button type="button" variant="outline" size="sm" onClick={() => setConvertOpen(true)}>
               <UserCheck data-icon="inline-start" />
-              Convertește
+              {t("modules.leads.convert")}
             </Button>
           )}
           <Button
@@ -219,11 +222,11 @@ export function LeadDetail({ lead, activity, mode, currency = "RON" }: LeadDetai
             render={<Link href={`/dashboard/proposals/new?leadId=${currentLead.id}`} />} nativeButton={false}
           >
             <FileText data-icon="inline-start" />
-            Creează ofertă
+            {t("modules.leads.createProposal")}
           </Button>
           <Button type="button" variant="outline" size="sm" onClick={handleEditClick}>
             <Pencil data-icon="inline-start" />
-            Editează
+            {t("common.edit")}
           </Button>
           <Button
             type="button"
@@ -232,7 +235,7 @@ export function LeadDetail({ lead, activity, mode, currency = "RON" }: LeadDetai
             onClick={() => setDeleteOpen(true)}
           >
             <Trash2 data-icon="inline-start" />
-            Șterge
+            {t("common.delete")}
           </Button>
         </div>
       </div>
@@ -256,7 +259,7 @@ export function LeadDetail({ lead, activity, mode, currency = "RON" }: LeadDetai
           </p>
           <p className="flex items-center gap-2 text-sm text-foreground">
             <Calendar className="h-3.5 w-3.5 text-champagne" aria-hidden />
-            {currentLead.eventDate ? formatDate(currentLead.eventDate) : "Dată nespecificată"}
+            {currentLead.eventDate ? formatDate(currentLead.eventDate) : t("modules.leads.dateUnspecified")}
           </p>
           <p className="text-sm text-muted-foreground">
             Follow-up: {currentLead.followUpDate ? formatDate(currentLead.followUpDate) : "—"}
@@ -287,7 +290,7 @@ export function LeadDetail({ lead, activity, mode, currency = "RON" }: LeadDetai
           <p className="text-xs text-muted-soft">
             Buget: {formatCurrency(currentLead.budget, leadCurrency)}
           </p>
-          <p className="text-xs text-muted-soft">Sursă: {currentLead.source || "—"}</p>
+          <p className="text-xs text-muted-soft">{t("modules.leads.sourceLabel", { source: currentLead.source || "—" })}</p>
         </div>
       </div>
 
@@ -328,7 +331,7 @@ export function LeadDetail({ lead, activity, mode, currency = "RON" }: LeadDetai
                 onClick={() => applyStatusChange("lost", lostReasonDraft)}
                 disabled={statusSaving}
               >
-                Confirmă pierdut
+                {t("modules.leads.confirmLost")}
               </Button>
               <Button
                 type="button"
@@ -340,7 +343,7 @@ export function LeadDetail({ lead, activity, mode, currency = "RON" }: LeadDetai
                 }}
                 disabled={statusSaving}
               >
-                Anulează
+                {t("common.cancel")}
               </Button>
             </div>
           </div>
@@ -351,24 +354,24 @@ export function LeadDetail({ lead, activity, mode, currency = "RON" }: LeadDetai
 
       <div className="surface-card space-y-4 p-5">
         <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-          Notițe
+          {t("modules.leads.notesLabel")}
         </p>
         {currentLead.notes ? (
           <pre className="whitespace-pre-wrap rounded-lg border border-border bg-background/40 p-3 font-sans text-sm text-foreground">
             {currentLead.notes}
           </pre>
         ) : (
-          <p className="text-sm text-muted-soft">Nicio notă încă.</p>
+          <p className="text-sm text-muted-soft">{t("modules.leads.noNotesYet")}</p>
         )}
         <div className="space-y-2">
           <Textarea
             value={noteText}
             onChange={(event) => setNoteText(event.target.value)}
             rows={3}
-            placeholder="Adaugă o notă…"
+            placeholder={t("modules.leads.addNotePh")}
           />
           <Button type="button" size="sm" onClick={handleAddNote} disabled={savingNote || !noteText.trim()}>
-            {savingNote ? "Se salvează…" : "Adaugă notă"}
+            {savingNote ? t("common.saving") : t("modules.leads.addNote")}
           </Button>
         </div>
       </div>
@@ -378,7 +381,7 @@ export function LeadDetail({ lead, activity, mode, currency = "RON" }: LeadDetai
           Activitate
         </p>
         {activityItems.length === 0 ? (
-          <EmptyState icon={ActivityIcon} title="Fără activitate" />
+          <EmptyState icon={ActivityIcon} title={t("modules.leads.noActivity")} />
         ) : (
           <ul className="divide-y divide-border">
             {activityItems.map((item) => (
@@ -418,9 +421,9 @@ export function LeadDetail({ lead, activity, mode, currency = "RON" }: LeadDetai
       <Dialog open={deleteOpen} onOpenChange={(next) => !deleting && setDeleteOpen(next)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Ștergi acest lead?</DialogTitle>
+            <DialogTitle>{t("modules.leads.deleteTitle")}</DialogTitle>
             <DialogDescription>
-              Această acțiune nu poate fi anulată. {currentLead.name} va fi eliminat din pipeline.
+              {t("modules.leads.deleteConfirm", { name: currentLead.name })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -430,10 +433,10 @@ export function LeadDetail({ lead, activity, mode, currency = "RON" }: LeadDetai
               onClick={() => setDeleteOpen(false)}
               disabled={deleting}
             >
-              Anulează
+              {t("common.cancel")}
             </Button>
             <Button type="button" variant="destructive" onClick={handleDelete} disabled={deleting}>
-              {deleting ? "Se șterge…" : "Șterge lead"}
+              {deleting ? t("modules.leads.deleting") : t("modules.leads.deleteLead")}
             </Button>
           </DialogFooter>
         </DialogContent>

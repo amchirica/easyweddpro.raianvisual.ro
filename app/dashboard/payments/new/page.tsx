@@ -11,9 +11,10 @@ import { permissionsForRole } from "@/lib/workspace/permissions";
 import { requireWorkspace } from "@/lib/workspace/session";
 import { getTranslator } from "@/lib/i18n/t";
 
-export const metadata: Metadata = {
-  title: "Plată nouă · EasyWedd Pro",
-};
+export async function generateMetadata() {
+  const { t } = await getTranslator();
+  return { title: `${t("modules.payments.new")} · EasyWedd Pro` };
+}
 
 export default async function NewPaymentPage() {
   const { t } = await getTranslator();

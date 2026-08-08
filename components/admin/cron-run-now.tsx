@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useRouter } from "next/navigation";
 
 import { AdminConfirmDialog } from "@/components/admin/admin-confirm-dialog";
@@ -8,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { runCronNowAction } from "@/lib/actions/platform-admin";
 
 export function CronRunNowButton() {
+  const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -15,12 +18,12 @@ export function CronRunNowButton() {
     <AdminConfirmDialog
       trigger={
         <Button type="button" size="sm">
-          Rulează acum
+          {t("admin.runNow")}
         </Button>
       }
-      title="Rulează joburile de background"
-      description="Va executa runner-ul de cron imediat. Poate dura câteva secunde."
-      confirmLabel="Rulează"
+      title={t("admin.runJobsTitle")}
+      description={t("admin.runJobsDesc")}
+      confirmLabel={t("admin.run")}
       onConfirm={async (reason) => {
         const result = await runCronNowAction({ reason });
         if (result?.error) throw new Error(result.error);

@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useEffect, useState, type FormEvent } from "react";
 
 import { useToast } from "@/components/shared/toast-provider";
@@ -146,6 +148,7 @@ export function LeadFormDialog({
   currency = "RON",
   onSuccess,
 }: LeadFormDialogProps) {
+  const { t } = useI18n();
   const [form, setForm] = useState<LeadFormState>(() =>
     initial ? formFromLead(initial) : emptyForm(currency),
   );
@@ -198,7 +201,7 @@ export function LeadFormDialog({
         if (typeof key === "string" && !errors[key]) errors[key] = issue.message;
       }
       setFieldErrors(errors);
-      setFormError("Verifică datele completate.");
+      setFormError(t("common.verifyData"));
       return;
     }
 
@@ -227,11 +230,11 @@ export function LeadFormDialog({
     <Dialog open={open} onOpenChange={(next) => !submitting && onOpenChange(next)}>
       <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{mode === "create" ? "Lead nou" : "Editează lead"}</DialogTitle>
+          <DialogTitle>{mode === "create" ? t("modules.leads.new") : t("modules.leads.edit")}</DialogTitle>
           <DialogDescription>
             {mode === "create"
-              ? "Adaugă un lead nou în pipeline."
-              : "Actualizează detaliile acestui lead."}
+              ? t("modules.leads.createHint")
+              : t("modules.leads.editHint")}
           </DialogDescription>
         </DialogHeader>
 
@@ -280,7 +283,7 @@ export function LeadFormDialog({
                 onValueChange={(value) => updateField("eventType", value ?? "")}
               >
                 <SelectTrigger id="lead-eventType" className="h-8 w-full">
-                  <SelectValue placeholder="Selectează tipul" />
+                  <SelectValue placeholder={t("modules.leads.selectType")} />
                 </SelectTrigger>
                 <SelectContent>
                   {EVENT_TYPES.map((eventType) => (
@@ -304,7 +307,7 @@ export function LeadFormDialog({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="lead-city">Oraș</Label>
+              <Label htmlFor="lead-city">{t("common.city")}</Label>
               <Input
                 id="lead-city"
                 value={form.city}
@@ -312,28 +315,28 @@ export function LeadFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lead-venue">Locație eveniment</Label>
+              <Label htmlFor="lead-venue">{t("modules.leads.eventVenue")}</Label>
               <Input
                 id="lead-venue"
                 value={form.venue}
                 onChange={(event) => updateField("venue", event.target.value)}
-                placeholder="Sală, restaurant, locație"
+                placeholder={t("modules.leads.venuePlaceholder")}
               />
             </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="lead-guestCount">Număr invitați</Label>
+              <Label htmlFor="lead-guestCount">{t("modules.leads.guestCount")}</Label>
               <Input
                 id="lead-guestCount"
                 value={form.guestCount}
                 onChange={(event) => updateField("guestCount", event.target.value)}
-                placeholder="Opțional"
+                placeholder={t("modules.leads.optional")}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lead-duration">Durată</Label>
+              <Label htmlFor="lead-duration">{t("modules.leads.duration")}</Label>
               <Input
                 id="lead-duration"
                 value={form.duration}
@@ -355,7 +358,7 @@ export function LeadFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lead-estimatedValue">Valoare estimată</Label>
+              <Label htmlFor="lead-estimatedValue">{t("common.estimatedValue")}</Label>
               <Input
                 id="lead-estimatedValue"
                 type="number"
@@ -365,7 +368,7 @@ export function LeadFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lead-currency">Monedă</Label>
+              <Label htmlFor="lead-currency">{t("common.currency")}</Label>
               <Input
                 id="lead-currency"
                 value={form.currency}
@@ -377,7 +380,7 @@ export function LeadFormDialog({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="lead-source">Sursă</Label>
+              <Label htmlFor="lead-source">{t("common.source")}</Label>
               <Input
                 id="lead-source"
                 value={form.source}
@@ -397,7 +400,7 @@ export function LeadFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="lead-services">Servicii (separate prin virgulă)</Label>
+            <Label htmlFor="lead-services">{t("modules.leads.servicesComma")}</Label>
             <Input
               id="lead-services"
               value={form.services}
@@ -407,7 +410,7 @@ export function LeadFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="lead-tags">Etichete (separate prin virgulă)</Label>
+            <Label htmlFor="lead-tags">{t("modules.leads.tagsComma")}</Label>
             <Input
               id="lead-tags"
               value={form.tags}
@@ -447,7 +450,7 @@ export function LeadFormDialog({
           ) : null}
 
           <div className="space-y-2">
-            <Label htmlFor="lead-notes">Notițe</Label>
+            <Label htmlFor="lead-notes">{t("modules.leads.notesLabel")}</Label>
             <Textarea
               id="lead-notes"
               rows={4}
@@ -472,14 +475,14 @@ export function LeadFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={submitting}
             >
-              Anulează
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={submitting}>
               {submitting
-                ? "Se salvează…"
+                ? t("common.saving")
                 : mode === "create"
-                  ? "Creează lead"
-                  : "Salvează modificările"}
+                  ? t("modules.leads.createLead")
+                  : t("common.saveChanges")}
             </Button>
           </DialogFooter>
         </form>

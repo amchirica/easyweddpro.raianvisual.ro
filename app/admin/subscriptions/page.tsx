@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslator } from "@/lib/i18n/t";
 import { Wallet } from "lucide-react";
 
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
@@ -23,17 +24,25 @@ const STATUS_TONE: Record<string, "success" | "warning" | "danger" | "accent"> =
   past_due: "warning",
   suspended: "danger",
   cancelled: "danger",
+  inactive: "accent",
 };
 
 const STATUS_LABEL: Record<string, string> = {
   active: "Activ",
   trialing: "Trial",
-  past_due: "Restanță",
+  past_due: "past_due",
   suspended: "Suspendat",
   cancelled: "Anulat",
+  inactive: "Free",
+};
+
+const INTERVAL_LABEL: Record<string, string> = {
+  month: "Lunar",
+  year: "Anual",
 };
 
 export default async function AdminSubscriptionsPage() {
+  const { t } = await getTranslator();
   const admin = await requirePlatformPermission("subscriptions.read");
 
   let loadError: string | null = null;
@@ -41,26 +50,30 @@ export default async function AdminSubscriptionsPage() {
   try {
     subscriptions = await listSubscriptionsForAdmin(admin.supabase);
   } catch (error) {
-    loadError = error instanceof Error ? error.message : "Nu am putut încărca abonamentele.";
+    loadError = error instanceof Error ? error.message : t("admin.subsLoadFailed");
   }
 
   const mrr = subscriptions.filter((s) => s.status === "active").reduce((sum, s) => sum + s.amount, 0);
   const activeCount = subscriptions.filter((s) => s.status === "active").length;
   const pastDueCount = subscriptions.filter((s) => s.status === "past_due").length;
+  const freeCount = subscriptions.filter(
+    (s) => s.isFreeFallback || s.plan === "free",
+  ).length;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-heading text-3xl font-medium text-foreground">Abonamente</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Facturare la nivel de platformă pentru toate workspace-urile.
+          {t("admin.subsPageHint")}
         </p>
       </div>
 
-      <section className="grid gap-4 sm:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <AdminMetricCard label="MRR activ" value={formatCurrency(mrr)} icon={Wallet} />
         <AdminMetricCard label="Abonamente active" value={activeCount} />
-        <AdminMetricCard label="Restanțe" value={pastDueCount} hint="Necesită atenție" />
+        <AdminMetricCard label="Free" value={freeCount} hint={t("admin.noSubsYet")} />
+        <AdminMetricCard label={t("admin.pastDues")} value={pastDueCount} hint={t("admin.needsAttention")} />
       </section>
 
       {loadError ? <AdminErrorState message={loadError} /> : null}
@@ -69,7 +82,7 @@ export default async function AdminSubscriptionsPage() {
         <AdminEmptyState
           icon={Wallet}
           title="Niciun abonament"
-          description="Nu există încă abonamente înregistrate."
+          description={t("admin.noSubsYet")}
         />
       ) : null}
 
@@ -83,7 +96,11 @@ export default async function AdminSubscriptionsPage() {
                 header: "Workspace",
                 cell: (sub) => (
                   <Link
-                    href={`/admin/subscriptions/${sub.id}`}
+                    href={
+                      sub.isFreeFallback
+                        ? `/admin/workspaces/${sub.workspaceId}`
+                        : `/admin/subscriptions/${sub.id}`
+                    }
                     className="text-foreground hover:text-champagne-soft"
                   >
                     {sub.workspaceName}
@@ -94,7 +111,21 @@ export default async function AdminSubscriptionsPage() {
                 key: "plan",
                 header: "Plan",
                 cell: (sub) => (
-                  <span className="text-muted-foreground">{PLAN_LABEL[sub.plan] ?? sub.plan}</span>
+                  <span className="text-muted-foreground">
+                    {PLAN_LABEL[sub.plan] ?? sub.plan}
+                    {sub.isFreeFallback ? " · fără rând Stripe" : ""}
+                  </span>
+                ),
+              },
+              {
+                key: "interval",
+                header: "Interval",
+                cell: (sub) => (
+                  <span className="text-muted-foreground">
+                    {sub.billingInterval
+                      ? INTERVAL_LABEL[sub.billingInterval] ?? sub.billingInterval
+                      : "—"}
+                  </span>
                 ),
               },
               {
@@ -111,14 +142,31 @@ export default async function AdminSubscriptionsPage() {
                 header: "Status",
                 cell: (sub) => (
                   <AdminStatusBadge
-                    label={STATUS_LABEL[sub.status] ?? sub.status}
-                    tone={STATUS_TONE[sub.status] ?? "accent"}
+                    label={
+                      sub.isFreeFallback || sub.plan === "free"
+                        ? "Free"
+                        : STATUS_LABEL[sub.status] ?? sub.status
+                    }
+                    tone={
+                      sub.isFreeFallback || sub.plan === "free"
+                        ? "accent"
+                        : STATUS_TONE[sub.status] ?? "accent"
+                    }
                   />
                 ),
               },
               {
+                key: "cancel",
+                header: "Cancel la final",
+                cell: (sub) => (
+                  <span className="text-muted-soft">
+                    {sub.cancelAtPeriodEnd ? "Da" : "Nu"}
+                  </span>
+                ),
+              },
+              {
                 key: "period",
-                header: "Perioadă curentă până la",
+                header: t("admin.periodUntil"),
                 cell: (sub) => (
                   <span className="text-muted-soft">
                     {sub.currentPeriodEnd ? formatDate(sub.currentPeriodEnd) : "—"}

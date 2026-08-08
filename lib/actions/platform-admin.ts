@@ -7,6 +7,7 @@ import { z } from "zod";
 import { actionError, actionSuccess, type ActionResult } from "@/lib/actions/types";
 import { runBackgroundJobs } from "@/lib/background/runBackgroundJobs";
 import { PLAN_CATALOG, type PlanId } from "@/lib/billing/plan-catalog";
+import { yearlyPriceFromMonthly } from "@/lib/billing/pricing";
 import { writePlatformAudit } from "@/lib/platform/audit";
 import { requirePlatformPermission } from "@/lib/platform/session";
 import { isPlatformRole, PLATFORM_ROLES } from "@/lib/platform/roles";
@@ -569,7 +570,7 @@ export async function updatePlanAction(input: {
       plan_id: parsed.data.planId,
       version: current.version + 1,
       price_monthly: parsed.data.priceMonthly,
-      price_yearly: parsed.data.priceMonthly * 10,
+      price_yearly: yearlyPriceFromMonthly(parsed.data.priceMonthly),
       stripe_price_monthly_id: null,
       stripe_price_yearly_id: null,
       trial_days: current.trial_days,

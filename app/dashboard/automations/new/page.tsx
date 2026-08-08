@@ -8,9 +8,10 @@ import { permissionsForRole } from "@/lib/workspace/permissions";
 import { requireWorkspace } from "@/lib/workspace/session";
 import { getTranslator } from "@/lib/i18n/t";
 
-export const metadata: Metadata = {
-  title: "Automatizare nouă · EasyWedd Pro",
-};
+export async function generateMetadata() {
+  const { t } = await getTranslator();
+  return { title: `${t("modules.automations.new")} · EasyWedd Pro` };
+}
 
 export default async function NewAutomationPage() {
   const { t } = await getTranslator();

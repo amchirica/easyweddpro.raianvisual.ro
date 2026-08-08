@@ -290,7 +290,7 @@ export function TeamPageClient({
                               }
                             >
                               <ShieldCheck data-icon="inline-start" />
-                              Reactivează
+                              {t("modules.team.reactivate")}
                             </DropdownMenuItem>
                           ) : (
                             <DropdownMenuItem
@@ -301,7 +301,7 @@ export function TeamPageClient({
                               }
                             >
                               <Ban data-icon="inline-start" />
-                              Dezactivează
+                              {t("modules.team.deactivate")}
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuSeparator />
@@ -336,8 +336,11 @@ export function TeamPageClient({
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-foreground">{invitation.email}</p>
                       <p className="text-xs text-muted-foreground">
-                        {WORKSPACE_ROLE_LABELS[invitation.role]} · trimisă {formatDate(invitation.createdAt)} ·
-                        expiră {formatDate(invitation.expiresAt)}
+                  {t("modules.team.roleSentExpires", {
+                    role: WORKSPACE_ROLE_LABELS[invitation.role],
+                    sent: formatDate(invitation.createdAt),
+                    expires: formatDate(invitation.expiresAt),
+                  })}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">

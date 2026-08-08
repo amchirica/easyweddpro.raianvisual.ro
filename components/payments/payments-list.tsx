@@ -156,7 +156,7 @@ export function PaymentsList({
         canWrite ? (
           <Button type="button" onClick={() => setDialogOpen(true)}>
             <Plus data-icon="inline-start" />
-            Plată nouă
+            {t("modules.payments.newPayment")}
           </Button>
         ) : undefined
       }
@@ -235,7 +235,7 @@ export function PaymentsList({
               payments.length === 0 && canWrite ? (
                 <Button type="button" onClick={() => setDialogOpen(true)}>
                   <Plus data-icon="inline-start" />
-                  Plată nouă
+                  {t("modules.payments.newPayment")}
                 </Button>
               ) : undefined
             }

@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -20,6 +22,7 @@ export function SettingsForm({
   maintenance: MaintenanceValue;
   registration: RegistrationValue;
 }) {
+  const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
   const [maintEnabled, setMaintEnabled] = useState(maintenance.enabled);
@@ -37,14 +40,14 @@ export function SettingsForm({
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <div className="space-y-4 rounded-xl border border-border p-4">
-        <h3 className="font-heading text-base font-medium text-foreground">Mentenanță</h3>
+        <h3 className="font-heading text-base font-medium text-foreground">{t("admin.maintenance")}</h3>
         <label className="inline-flex items-center gap-2 text-sm">
           <input
             type="checkbox"
             checked={maintEnabled}
             onChange={(e) => setMaintEnabled(e.target.checked)}
           />
-          Mod mentenanță activ
+          {t("admin.maintenanceActive")}
         </label>
         <div className="space-y-1.5">
           <Label htmlFor="maint-message">Mesaj</Label>
@@ -52,18 +55,18 @@ export function SettingsForm({
             id="maint-message"
             value={maintMessage}
             onChange={(e) => setMaintMessage(e.target.value)}
-            placeholder="Mesaj afișat utilizatorilor…"
+            placeholder={t("admin.maintenanceMessagePh")}
           />
         </div>
         <AdminConfirmDialog
           trigger={
             <Button type="button" size="sm">
-              Salvează mentenanța
+              {t("admin.saveMaintenance")}
             </Button>
           }
-          title="Actualizează mentenanța"
-          description="Setarea maintenance va fi scrisă în platform_settings."
-          confirmLabel="Salvează"
+          title={t("admin.updateMaintenance")}
+          description={t("admin.maintenanceDesc")}
+          confirmLabel={t("common.save")}
           onConfirm={(reason) =>
             save(
               "maintenance",
@@ -75,14 +78,14 @@ export function SettingsForm({
       </div>
 
       <div className="space-y-4 rounded-xl border border-border p-4">
-        <h3 className="font-heading text-base font-medium text-foreground">Înregistrare</h3>
+        <h3 className="font-heading text-base font-medium text-foreground">{t("admin.registration")}</h3>
         <label className="inline-flex items-center gap-2 text-sm">
           <input
             type="checkbox"
             checked={regEnabled}
             onChange={(e) => setRegEnabled(e.target.checked)}
           />
-          Înregistrare activă
+          {t("admin.registrationActive")}
         </label>
         <label className="inline-flex items-center gap-2 text-sm">
           <input
@@ -90,17 +93,17 @@ export function SettingsForm({
             checked={inviteOnly}
             onChange={(e) => setInviteOnly(e.target.checked)}
           />
-          Doar pe invitație
+          {t("admin.inviteOnly")}
         </label>
         <AdminConfirmDialog
           trigger={
             <Button type="button" size="sm">
-              Salvează înregistrarea
+              {t("admin.saveRegistration")}
             </Button>
           }
-          title="Actualizează înregistrarea"
-          description="Setarea registration va fi scrisă în platform_settings."
-          confirmLabel="Salvează"
+          title={t("admin.updateRegistration")}
+          description={t("admin.registrationDesc")}
+          confirmLabel={t("common.save")}
           onConfirm={(reason) =>
             save("registration", { enabled: regEnabled, inviteOnly }, reason)
           }

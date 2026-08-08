@@ -1,14 +1,15 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { logActivity } from "@/lib/activity/log";
-import { LEAD_STATUSES, PROJECT_STATUSES } from "@/lib/constants";
-import { isResendConfigured, sendTransactionalEmail } from "@/lib/email/resend";
-import type { Database, Json } from "@/types/database";
 import {
   evaluateConditions,
   type AutomationAction,
   type AutomationCondition,
 } from "@/lib/automations/catalog";
+import { LEAD_STATUSES, PROJECT_STATUSES } from "@/lib/constants";
+import { isResendConfigured, sendTransactionalEmail } from "@/lib/email/resend";
+import { notifyAutomationFailure } from "@/lib/notifications/events";
+import type { Database, Json } from "@/types/database";
 
 type AutomationsClient = SupabaseClient<Database>;
 type AutomationRow = Database["public"]["Tables"]["automations"]["Row"];
@@ -280,11 +281,17 @@ export async function runAutomationsForTrigger(
         });
         continue;
       }
+      const insertFailError = insertError?.message ?? "run_insert_failed";
       summaries.push({
         automationId: automation.id,
         automationName: automation.name,
         status: "failed",
-        error: insertError?.message ?? "run_insert_failed",
+        error: insertFailError,
+      });
+      void notifyAutomationFailure(supabase, workspaceId, {
+        id: automation.id,
+        name: automation.name,
+        error: insertFailError,
       });
       continue;
     }
@@ -329,6 +336,14 @@ export async function runAutomationsForTrigger(
       status: runError ? "failed" : "success",
       error: runError ?? undefined,
     });
+
+    if (runError) {
+      void notifyAutomationFailure(supabase, workspaceId, {
+        id: automation.id,
+        name: automation.name,
+        error: runError,
+      });
+    }
   }
 
   return summaries;

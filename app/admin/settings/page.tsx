@@ -1,4 +1,5 @@
 import { Settings } from "lucide-react";
+import { getTranslator } from "@/lib/i18n/t";
 
 import { AdminDetailPanel } from "@/components/admin/admin-detail-panel";
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
@@ -16,6 +17,7 @@ function asObject(value: unknown): Record<string, unknown> {
 }
 
 export default async function AdminSettingsPage() {
+  const { t } = await getTranslator();
   const admin = await requirePlatformPermission("settings.read");
   const canWrite = canPerformPlatformAction(admin.platformRole, "settings.write");
 
@@ -42,9 +44,9 @@ export default async function AdminSettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-heading text-3xl font-medium text-foreground">Configurări</h1>
+        <h1 className="font-heading text-3xl font-medium text-foreground">{t("admin.configTitle")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Setări non-secrete din `platform_settings`.
+          {t("admin.configHint")}
         </p>
       </div>
 
@@ -78,14 +80,14 @@ export default async function AdminSettingsPage() {
 
       {canWrite ? (
         <AdminDetailPanel
-          title="Actualizare rapidă"
-          description="Editează mentenanța și înregistrarea. Necesită motiv în audit."
+          title={t("admin.quickUpdate")}
+          description={t("admin.quickUpdateDesc")}
         >
           <SettingsForm maintenance={maintenance} registration={registration} />
         </AdminDetailPanel>
       ) : (
         <p className="text-sm text-muted-soft">
-          Rolul tău permite doar citirea setărilor.
+          {t("admin.settingsReadOnly")}
         </p>
       )}
     </div>

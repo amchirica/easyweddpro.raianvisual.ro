@@ -2,6 +2,10 @@ import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 
 import { getStripe, getStripeWebhookSecret, isStripeConfigured, mapPriceIdToPlan } from "@/lib/billing/stripe";
+import {
+  notifySubscriptionPaymentFailed,
+  notifyWebhookFailure,
+} from "@/lib/notifications/events";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/types/database";
 
@@ -20,6 +24,34 @@ function resolveCustomerId(customer: string | Stripe.Customer | Stripe.DeletedCu
   return typeof customer === "string" ? customer : customer.id;
 }
 
+async function resolveWorkspaceIdFromSubscription(
+  admin: AdminClient,
+  subscription: Stripe.Subscription,
+  fallbackWorkspaceId?: string | null,
+): Promise<string | null> {
+  const fromMeta = subscription.metadata?.workspace_id || fallbackWorkspaceId || null;
+  if (fromMeta) return fromMeta;
+
+  const customerId = resolveCustomerId(subscription.customer);
+  if (subscription.id) {
+    const { data: bySub } = await admin
+      .from("subscriptions")
+      .select("workspace_id")
+      .eq("stripe_subscription_id", subscription.id)
+      .maybeSingle();
+    if (bySub?.workspace_id) return bySub.workspace_id;
+  }
+  if (customerId) {
+    const { data: byCustomer } = await admin
+      .from("subscriptions")
+      .select("workspace_id")
+      .eq("stripe_customer_id", customerId)
+      .maybeSingle();
+    if (byCustomer?.workspace_id) return byCustomer.workspace_id;
+  }
+  return null;
+}
+
 /**
  * Persists the Stripe subscription as the source of truth for a workspace's plan/status.
  * Resolves the target workspace via subscription metadata first, falling back to the
@@ -30,9 +62,13 @@ async function syncSubscriptionFromStripe(
   admin: AdminClient,
   subscription: Stripe.Subscription,
   fallbackWorkspaceId?: string | null,
-): Promise<void> {
+): Promise<string | null> {
   const customerId = resolveCustomerId(subscription.customer);
-  const workspaceId = subscription.metadata?.workspace_id || fallbackWorkspaceId || null;
+  const workspaceId = await resolveWorkspaceIdFromSubscription(
+    admin,
+    subscription,
+    fallbackWorkspaceId,
+  );
 
   const item = subscription.items.data[0];
   const priceId = item?.price?.id ?? null;
@@ -62,7 +98,7 @@ async function syncSubscriptionFromStripe(
     if (error && process.env.NODE_ENV === "development") {
       console.error("[stripe.webhook.sync.byWorkspace]", error.message);
     }
-    return;
+    return workspaceId;
   }
 
   if (customerId) {
@@ -71,6 +107,7 @@ async function syncSubscriptionFromStripe(
       console.error("[stripe.webhook.sync.byCustomer]", error.message);
     }
   }
+  return null;
 }
 
 async function handleCheckoutSessionCompleted(
@@ -89,16 +126,34 @@ async function handleCheckoutSessionCompleted(
   await syncSubscriptionFromStripe(admin, subscription, workspaceId);
 }
 
-async function handleInvoiceEvent(admin: AdminClient, stripe: Stripe, invoice: Stripe.Invoice): Promise<void> {
+async function handleInvoiceEvent(
+  admin: AdminClient,
+  stripe: Stripe,
+  invoice: Stripe.Invoice,
+): Promise<string | null> {
   const subscriptionDetails =
     invoice.parent?.type === "subscription_details" ? invoice.parent.subscription_details : null;
   const subscriptionRef = subscriptionDetails?.subscription;
   const subscriptionId = typeof subscriptionRef === "string" ? subscriptionRef : subscriptionRef?.id;
-  if (!subscriptionId) return;
+  if (!subscriptionId) return null;
 
   const workspaceId = (subscriptionDetails?.metadata?.workspace_id as string | undefined) || null;
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-  await syncSubscriptionFromStripe(admin, subscription, workspaceId);
+  return syncSubscriptionFromStripe(admin, subscription, workspaceId);
+}
+
+function extractWorkspaceHint(event: Stripe.Event): string | null {
+  const obj = event.data.object as {
+    metadata?: { workspace_id?: string };
+    client_reference_id?: string | null;
+    parent?: { subscription_details?: { metadata?: { workspace_id?: string } } };
+  };
+  return (
+    obj.metadata?.workspace_id ||
+    obj.client_reference_id ||
+    obj.parent?.subscription_details?.metadata?.workspace_id ||
+    null
+  );
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -157,9 +212,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         await syncSubscriptionFromStripe(admin, event.data.object);
         break;
       }
-      case "invoice.paid":
-      case "invoice.payment_failed": {
+      case "invoice.paid": {
         await handleInvoiceEvent(admin, stripe, event.data.object);
+        break;
+      }
+      case "invoice.payment_failed": {
+        const workspaceId = await handleInvoiceEvent(admin, stripe, event.data.object);
+        if (workspaceId) {
+          void notifySubscriptionPaymentFailed(admin, workspaceId);
+        }
         break;
       }
       default:
@@ -168,6 +229,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
       console.error(`[stripe.webhook.${event.type}]`, error);
+    }
+    const workspaceId = extractWorkspaceHint(event);
+    if (workspaceId) {
+      const detail = error instanceof Error ? error.message : "Eroare necunoscută la procesare.";
+      void notifyWebhookFailure(admin, workspaceId, detail);
     }
     return NextResponse.json({ error: "Eroare la procesarea evenimentului." }, { status: 500 });
   }

@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 
 import { useToast } from "@/components/shared/toast-provider";
@@ -120,6 +122,7 @@ export function PaymentFormDialog({
   defaultCurrency,
   onSuccess,
 }: PaymentFormDialogProps) {
+  const { t } = useI18n();
   const [form, setForm] = useState<PaymentFormState>(() =>
     initial ? formFromInitial(initial) : emptyForm(defaultCurrency),
   );
@@ -174,7 +177,7 @@ export function PaymentFormDialog({
         if (typeof key === "string" && !errors[key]) errors[key] = issue.message;
       }
       setFieldErrors(errors);
-      setFormError("Verifică datele completate.");
+      setFormError(t("common.verifyData"));
       return;
     }
 
@@ -203,11 +206,11 @@ export function PaymentFormDialog({
     <Dialog open={open} onOpenChange={(next) => !submitting && onOpenChange(next)}>
       <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{mode === "create" ? "Plată nouă" : "Editează plata"}</DialogTitle>
+          <DialogTitle>{mode === "create" ? t("modules.payments.new") : t("modules.payments.edit")}</DialogTitle>
           <DialogDescription>
             {mode === "create"
-              ? "Înregistrează un avans, o tranșă sau o plată."
-              : "Actualizează detaliile acestei plăți."}
+              ? t("modules.payments.createHint")
+              : t("modules.payments.editHint")}
           </DialogDescription>
         </DialogHeader>
 
@@ -228,7 +231,7 @@ export function PaymentFormDialog({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="payment-amount">Sumă totală</Label>
+              <Label htmlFor="payment-amount">{t("modules.payments.totalAmount")}</Label>
               <Input
                 id="payment-amount"
                 type="number"
@@ -243,7 +246,7 @@ export function PaymentFormDialog({
               ) : null}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="payment-paidAmount">Sumă încasată</Label>
+              <Label htmlFor="payment-paidAmount">{t("modules.payments.paidAmount")}</Label>
               <Input
                 id="payment-paidAmount"
                 type="number"
@@ -268,14 +271,14 @@ export function PaymentFormDialog({
                 className="mt-0.5"
               />
               <Label htmlFor="payment-allowOverpay" className="text-xs font-normal text-warning">
-                Suma încasată depășește suma totală. Confirmă că este o suprasumă intenționată.
+                {t("modules.payments.overpayWarn")}
               </Label>
             </div>
           ) : null}
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="payment-dueDate">Termen scadență</Label>
+              <Label htmlFor="payment-dueDate">{t("modules.payments.dueDate")}</Label>
               <Input
                 id="payment-dueDate"
                 type="date"
@@ -284,13 +287,13 @@ export function PaymentFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="payment-method">Metodă</Label>
+              <Label htmlFor="payment-method">{t("common.method")}</Label>
               <Select
                 value={form.method || undefined}
                 onValueChange={(value) => updateField("method", (value as PaymentMethod) ?? "")}
               >
                 <SelectTrigger id="payment-method" className="h-8 w-full">
-                  <SelectValue placeholder="Selectează metoda" />
+                  <SelectValue placeholder={t("modules.payments.selectMethod")} />
                 </SelectTrigger>
                 <SelectContent>
                   {PAYMENT_METHODS.map((method) => (
@@ -311,7 +314,7 @@ export function PaymentFormDialog({
                 onValueChange={(value) => updateField("clientId", value ?? "")}
               >
                 <SelectTrigger id="payment-client" className="h-8 w-full">
-                  <SelectValue placeholder="Fără client" />
+                  <SelectValue placeholder={t("common.noClient")} />
                 </SelectTrigger>
                 <SelectContent>
                   {clients.map((client) => (
@@ -323,7 +326,7 @@ export function PaymentFormDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="payment-currency">Valută</Label>
+              <Label htmlFor="payment-currency">{t("modules.payments.currencyLabel")}</Label>
               <Input
                 id="payment-currency"
                 value={form.currency}
@@ -341,7 +344,7 @@ export function PaymentFormDialog({
                 onValueChange={(value) => updateField("contractId", value ?? "")}
               >
                 <SelectTrigger id="payment-contract" className="h-8 w-full">
-                  <SelectValue placeholder="Fără contract" />
+                  <SelectValue placeholder={t("modules.payments.noContract")} />
                 </SelectTrigger>
                 <SelectContent>
                   {contracts.map((contract) => (
@@ -359,7 +362,7 @@ export function PaymentFormDialog({
                 onValueChange={(value) => updateField("projectId", value ?? "")}
               >
                 <SelectTrigger id="payment-project" className="h-8 w-full">
-                  <SelectValue placeholder="Fără proiect" />
+                  <SelectValue placeholder={t("modules.payments.noProject")} />
                 </SelectTrigger>
                 <SelectContent>
                   {projects.map((project) => (
@@ -373,17 +376,17 @@ export function PaymentFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="payment-reference">Referință</Label>
+            <Label htmlFor="payment-reference">{t("modules.payments.reference")}</Label>
             <Input
               id="payment-reference"
               value={form.reference}
               onChange={(event) => updateField("reference", event.target.value)}
-              placeholder="Ex: OP 1234, factură #45"
+              placeholder={t("modules.payments.referencePh")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="payment-proofUrl">Link dovadă plată</Label>
+            <Label htmlFor="payment-proofUrl">{t("modules.payments.proofUrl")}</Label>
             <Input
               id="payment-proofUrl"
               value={form.proofUrl}
@@ -397,7 +400,7 @@ export function PaymentFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="payment-notes">Notițe</Label>
+            <Label htmlFor="payment-notes">{t("modules.leads.notesLabel")}</Label>
             <Textarea
               id="payment-notes"
               rows={3}
@@ -422,14 +425,14 @@ export function PaymentFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={submitting}
             >
-              Anulează
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={submitting}>
               {submitting
-                ? "Se salvează…"
+                ? t("common.saving")
                 : mode === "create"
-                  ? "Creează plată"
-                  : "Salvează modificările"}
+                  ? t("modules.payments.createPayment")
+                  : t("common.saveChanges")}
             </Button>
           </DialogFooter>
         </form>

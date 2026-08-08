@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
 import { useRouter } from "next/navigation";
 
 import { endInspectSessionAction } from "@/lib/actions/platform-admin";
@@ -15,6 +16,7 @@ export function InspectBanner({
   reason: string;
   adminEmail?: string;
 }) {
+  const { t } = useI18n();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -24,7 +26,7 @@ export function InspectBanner({
       toast(result.error, "error");
       return;
     }
-    toast(result.success ?? "Sesiune închisă.", "success");
+    toast(result.success ?? t("admin.sessionClosed"), "success");
     router.push("/admin/workspaces");
     router.refresh();
   }
@@ -33,14 +35,18 @@ export function InspectBanner({
     <div className="border-b border-amber-400/40 bg-amber-500/15 px-4 py-3 text-sm text-amber-50">
       <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3">
         <p>
-          <span className="font-medium">Inspectare admin — {adminEmail ?? "admin"}</span>
+          <span className="font-medium">
+            {t("admin.inspectingAs", { email: adminEmail ?? "admin" })}
+          </span>
           {" · "}
           {workspaceName}
           {" · "}
-          <span className="text-amber-100/80">Motiv: {reason}</span>
+          <span className="text-amber-100/80">
+            {t("admin.reasonLabel", { reason })}
+          </span>
         </p>
         <Button type="button" size="sm" variant="outline" onClick={() => void endSession()}>
-          Închide inspectarea
+          {t("admin.closeInspect")}
         </Button>
       </div>
     </div>

@@ -7,6 +7,7 @@ import {
   type PlanDefinition,
   type PlanId,
 } from "@/lib/billing/plan-catalog";
+import { yearlyPriceFromMonthly } from "@/lib/billing/pricing";
 import type { Database, Json } from "@/types/database";
 
 type Client = SupabaseClient<Database>;
@@ -72,6 +73,7 @@ export async function resolvePlanDefinition(
       name: plan.name,
       description: plan.description,
       priceMonthlyRon: version.price_monthly,
+      priceYearlyRon: version.price_yearly ?? yearlyPriceFromMonthly(version.price_monthly),
       features: parseFeatures(version.features),
       limits: parseLimits(version.limits),
       highlighted: plan.highlighted,
@@ -98,7 +100,7 @@ export async function listAdminPlans(supabase: Client) {
       visibility: "public" as const,
       sortOrder: PLAN_CATALOG.findIndex((p) => p.id === plan.id),
       version: 1,
-      priceYearly: plan.priceMonthlyRon * 10,
+      priceYearly: plan.priceYearlyRon,
       stripePriceMonthlyId: null as string | null,
       stripePriceYearlyId: null as string | null,
       trialDays: 0,

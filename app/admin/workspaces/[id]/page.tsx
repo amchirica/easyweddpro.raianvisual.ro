@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslator } from "@/lib/i18n/t";
 import { notFound } from "next/navigation";
 import { FileText, FolderKanban, Handshake, Users, UserSquare2 } from "lucide-react";
 
@@ -26,14 +27,15 @@ function statusTone(status: string | null) {
   return "accent" as const;
 }
 
-function statusLabel(status: string | null) {
-  if (!status) return "Fără abonament";
+function statusLabel(status: string | null, t: (key: string) => string) {
+  if (!status) return t("admin.noSubscription");
   const map: Record<string, string> = {
-    active: "Activ",
-    trialing: "Trial",
-    past_due: "Restanță",
-    suspended: "Suspendat",
-    cancelled: "Anulat",
+    active: t("status.subscription.active"),
+    trialing: t("status.subscription.trialing"),
+    past_due: t("status.subscription.past_due"),
+    suspended: t("admin.suspended"),
+    cancelled: t("status.subscription.canceled"),
+    canceled: t("status.subscription.canceled"),
   };
   return map[status] ?? status;
 }
@@ -43,6 +45,7 @@ export default async function AdminWorkspaceDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { t } = await getTranslator();
   const { id } = await params;
   const admin = await requirePlatformPermission("workspaces.read");
   const canManage =
@@ -126,7 +129,7 @@ export default async function AdminWorkspaceDetailPage({
     <div className="space-y-6">
       <div>
         <Link href="/admin/workspaces" className="text-xs text-muted-soft hover:text-foreground">
-          ← Înapoi la workspace-uri
+          {t("admin.backToWorkspaces")}
         </Link>
         <h1 className="mt-2 font-heading text-3xl font-medium text-foreground">{workspace.name}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{workspace.slug}</p>
@@ -134,9 +137,9 @@ export default async function AdminWorkspaceDetailPage({
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <AdminMetricCard icon={UserSquare2} label="Leaduri" value={leadsCount.count ?? 0} />
-        <AdminMetricCard icon={Users} label="Clienți" value={clientsCount.count ?? 0} />
-        <AdminMetricCard icon={FileText} label="Oferte" value={proposalsCount.count ?? 0} />
-        <AdminMetricCard icon={Handshake} label="Contracte" value={contractsCount.count ?? 0} />
+        <AdminMetricCard icon={Users} label={t("common.clients")} value={clientsCount.count ?? 0} />
+        <AdminMetricCard icon={FileText} label={t("nav.proposals")} value={proposalsCount.count ?? 0} />
+        <AdminMetricCard icon={Handshake} label={t("nav.contracts")} value={contractsCount.count ?? 0} />
         <AdminMetricCard icon={FolderKanban} label="Proiecte" value={projectsCount.count ?? 0} />
       </section>
 
@@ -145,9 +148,9 @@ export default async function AdminWorkspaceDetailPage({
           items={[
             { label: "ID", value: workspace.id },
             { label: "Plan workspace", value: planLabel },
-            { label: "Oraș", value: workspace.city ?? "—" },
-            { label: "Țară", value: workspace.country ?? "—" },
-            { label: "Monedă", value: workspace.currency },
+            { label: t("common.city"), value: workspace.city ?? "—" },
+            { label: t("admin.country"), value: workspace.country ?? "—" },
+            { label: t("common.currency"), value: workspace.currency },
             { label: "Fus orar", value: workspace.timezone },
             { label: "Creat la", value: formatDateTime(workspace.created_at) },
             { label: "Actualizat la", value: formatDateTime(workspace.updated_at) },
@@ -157,7 +160,7 @@ export default async function AdminWorkspaceDetailPage({
 
       <AdminDetailPanel
         title="Abonament"
-        description="Status facturare și trial."
+        description={t("admin.billingTrialStatus")}
         actions={
           subscription ? (
             <Link
@@ -176,7 +179,7 @@ export default async function AdminWorkspaceDetailPage({
                 label: "Status",
                 value: (
                   <AdminStatusBadge
-                    label={statusLabel(subscription.status)}
+                    label={statusLabel(subscription.status, t)}
                     tone={statusTone(subscription.status)}
                   />
                 ),
@@ -184,7 +187,7 @@ export default async function AdminWorkspaceDetailPage({
               { label: "Plan", value: subscription.plan },
               { label: "MRR", value: mrr === 0 ? "—" : formatCurrency(mrr) },
               {
-                label: "Trial până la",
+                label: t("admin.trialUntil"),
                 value: subscription.trial_end
                   ? formatDate(subscription.trial_end)
                   : subscription.trial_ends_at
@@ -192,7 +195,7 @@ export default async function AdminWorkspaceDetailPage({
                     : "—",
               },
               {
-                label: "Perioadă curentă până la",
+                label: t("admin.periodUntil"),
                 value: subscription.current_period_end
                   ? formatDate(subscription.current_period_end)
                   : "—",
@@ -204,7 +207,7 @@ export default async function AdminWorkspaceDetailPage({
             ]}
           />
         ) : (
-          <p className="text-sm text-muted-soft">Nu există abonament pentru acest workspace.</p>
+          <p className="text-sm text-muted-soft">{t("admin.noSubForWorkspace")}</p>
         )}
       </AdminDetailPanel>
 
@@ -241,8 +244,8 @@ export default async function AdminWorkspaceDetailPage({
 
       {canManage ? (
         <AdminDetailPanel
-          title="Acțiuni admin"
-          description="Schimbă planul, extinde trial-ul, suspendă sau inspectează workspace-ul."
+          title={t("admin.adminActions")}
+          description={t("admin.adminActionsDesc")}
         >
           <WorkspaceAdminActions
             workspaceId={workspace.id}

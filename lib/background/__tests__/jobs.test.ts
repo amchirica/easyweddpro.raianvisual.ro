@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("server-only", () => ({}));
+
 import { settleJobs } from "@/lib/background/runner";
 import type { JobResult } from "@/lib/background/types";
 import { EVENT_REMINDER_DAYS } from "@/lib/background/types";

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslator } from "@/lib/i18n/t";
 import { notFound } from "next/navigation";
 
 import { AdminDetailGrid, AdminDetailPanel } from "@/components/admin/admin-detail-panel";
@@ -34,6 +35,7 @@ export default async function AdminUserDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { t } = await getTranslator();
   const { id } = await params;
   const admin = await requirePlatformPermission("users.read");
   const canWrite = canPerformPlatformAction(admin.platformRole, "users.write");
@@ -79,10 +81,10 @@ export default async function AdminUserDetailPage({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <Link href="/admin/users" className="text-xs text-muted-soft hover:text-foreground">
-            ← Înapoi la utilizatori
+            {t("admin.backToUsers")}
           </Link>
           <h1 className="mt-2 font-heading text-3xl font-medium text-foreground">
-            {profile.full_name ?? "Fără nume"}
+            {profile.full_name ?? t("admin.noName")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">{email ?? "email indisponibil"}</p>
         </div>
@@ -91,7 +93,7 @@ export default async function AdminUserDetailPage({
         ) : null}
       </div>
 
-      <AdminDetailPanel title="Profil" description="Date din profiles și auth.">
+      <AdminDetailPanel title={t("admin.profile")} description={t("admin.profileDesc")}>
         <AdminDetailGrid
           items={[
             { label: "ID", value: profile.id },
@@ -107,7 +109,7 @@ export default async function AdminUserDetailPage({
               ),
             },
             {
-              label: "Admin platformă",
+              label: t("admin.platformAdmin"),
               value: profile.is_platform_admin ? "Da" : "Nu",
             },
             {
@@ -126,7 +128,7 @@ export default async function AdminUserDetailPage({
 
       <AdminDetailPanel
         title="Memberships"
-        description="Workspace-urile în care este membru acest utilizator."
+        description={t("admin.memberWorkspaces")}
       >
         {(members ?? []).length === 0 ? (
           <p className="text-sm text-muted-soft">Niciun membership.</p>

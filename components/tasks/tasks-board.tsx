@@ -353,7 +353,7 @@ export function TasksBoard({
                                   onClick={() => openEditDialog(task)}
                                   className="text-xs text-champagne hover:text-champagne-soft"
                                 >
-                                  Editează
+                  {t("common.edit")}
                                 </button>
                                 {canDelete ? (
                                   <button

@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useEffect, useState, type FormEvent } from "react";
 
 import { useToast } from "@/components/shared/toast-provider";
@@ -110,6 +112,7 @@ export function TaskFormDialog({
   isAssigneeOnly,
   onSuccess,
 }: TaskFormDialogProps) {
+  const { t } = useI18n();
   const [form, setForm] = useState<TaskFormState>(() =>
     initial ? formFromInitial(initial) : emptyForm(isAssigneeOnly ? currentUserId : undefined),
   );
@@ -157,7 +160,7 @@ export function TaskFormDialog({
         if (typeof key === "string" && !errors[key]) errors[key] = issue.message;
       }
       setFieldErrors(errors);
-      setFormError("Verifică datele completate.");
+      setFormError(t("common.verifyData"));
       return;
     }
 
@@ -186,11 +189,11 @@ export function TaskFormDialog({
     <Dialog open={open} onOpenChange={(next) => !submitting && onOpenChange(next)}>
       <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{mode === "create" ? "Task nou" : "Editează task"}</DialogTitle>
+          <DialogTitle>{mode === "create" ? t("modules.tasks.new") : t("modules.tasks.edit")}</DialogTitle>
           <DialogDescription>
             {mode === "create"
-              ? "Adaugă un task nou pentru echipa ta."
-              : "Actualizează detaliile acestui task."}
+              ? t("modules.tasks.createHint")
+              : t("modules.tasks.editHint")}
           </DialogDescription>
         </DialogHeader>
 
@@ -252,7 +255,7 @@ export function TaskFormDialog({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="task-dueDate">Data limită</Label>
+              <Label htmlFor="task-dueDate">{t("modules.tasks.dueDate")}</Label>
               <Input
                 id="task-dueDate"
                 type="date"
@@ -279,7 +282,7 @@ export function TaskFormDialog({
                 </SelectContent>
               </Select>
               {isAssigneeOnly ? (
-                <p className="text-xs text-muted-soft">Poți crea task-uri doar pentru tine.</p>
+                <p className="text-xs text-muted-soft">{t("modules.tasks.onlySelf")}</p>
               ) : null}
             </div>
           </div>
@@ -292,7 +295,7 @@ export function TaskFormDialog({
                 onValueChange={(value) => updateField("clientId", value ?? "")}
               >
                 <SelectTrigger id="task-client" className="h-8 w-full">
-                  <SelectValue placeholder="Fără client" />
+                  <SelectValue placeholder={t("common.noClient")} />
                 </SelectTrigger>
                 <SelectContent>
                   {clients.map((client) => (
@@ -310,7 +313,7 @@ export function TaskFormDialog({
                 onValueChange={(value) => updateField("projectId", value ?? "")}
               >
                 <SelectTrigger id="task-project" className="h-8 w-full">
-                  <SelectValue placeholder="Fără proiect" />
+                  <SelectValue placeholder={t("modules.payments.noProject")} />
                 </SelectTrigger>
                 <SelectContent>
                   {projects.map((project) => (
@@ -324,7 +327,7 @@ export function TaskFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="task-notes">Notițe</Label>
+            <Label htmlFor="task-notes">{t("modules.leads.notesLabel")}</Label>
             <Textarea
               id="task-notes"
               rows={4}
@@ -349,14 +352,10 @@ export function TaskFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={submitting}
             >
-              Anulează
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={submitting}>
-              {submitting
-                ? "Se salvează…"
-                : mode === "create"
-                  ? "Creează task"
-                  : "Salvează modificările"}
+              {submitting ? t("common.saving") : mode === "create" ? t("modules.tasks.createTask") : t("common.saveChanges")}
             </Button>
           </DialogFooter>
         </form>

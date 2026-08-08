@@ -5,9 +5,10 @@ import Script from "next/script";
 import { RegisterServiceWorker } from "@/components/pwa/register-sw";
 import { AppProviders } from "@/components/providers/app-providers";
 import { ToastProvider } from "@/components/shared/toast-provider";
-import { APP_NAME, APP_SEO_DESCRIPTION, APP_TAGLINE } from "@/lib/constants";
+import { APP_NAME } from "@/lib/constants";
 import { getRequestLocale } from "@/lib/i18n/get-locale";
 import { getRequestTheme, themeAntiFlashScript } from "@/lib/i18n/get-theme";
+import { getTranslator } from "@/lib/i18n/t";
 import { getSiteUrl } from "@/lib/url";
 
 import "./globals.css";
@@ -25,37 +26,44 @@ const cormorant = Cormorant_Garamond({
 
 const siteUrl = getSiteUrl();
 
-export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: {
-    default: `${APP_NAME} — Business OS pentru Weddings & Events`,
-    template: `%s · ${APP_NAME}`,
-  },
-  description: APP_SEO_DESCRIPTION,
-  applicationName: APP_NAME,
-  icons: {
-    icon: "/logo.ico",
-    shortcut: "/logo.ico",
-    apple: "/logo.png",
-  },
-  manifest: "/site.webmanifest",
-  openGraph: {
-    type: "website",
-    locale: "ro_RO",
-    url: siteUrl,
-    siteName: APP_NAME,
-    title: `${APP_NAME} — Business OS pentru Weddings & Events`,
-    description: APP_TAGLINE,
-    images: [{ url: "/logo.png", width: 64, height: 64, alt: APP_NAME }],
-  },
-  twitter: {
-    card: "summary",
-    title: `${APP_NAME} — Business OS pentru Weddings & Events`,
-    description: APP_TAGLINE,
-    images: ["/logo.png"],
-  },
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t, locale } = await getTranslator();
+  const ogTitle = t("marketing.seo.homeOgTitle");
+  const ogDescription = t("marketing.seo.homeOgDescription");
+  const description = t("marketing.seo.homeDescription");
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title: {
+      default: ogTitle,
+      template: `%s · ${APP_NAME}`,
+    },
+    description,
+    applicationName: APP_NAME,
+    icons: {
+      icon: "/logo.ico",
+      shortcut: "/logo.ico",
+      apple: "/logo.png",
+    },
+    manifest: "/site.webmanifest",
+    openGraph: {
+      type: "website",
+      locale: locale === "en" ? "en_US" : "ro_RO",
+      url: siteUrl,
+      siteName: APP_NAME,
+      title: ogTitle,
+      description: ogDescription,
+      images: [{ url: "/logo.png", width: 64, height: 64, alt: APP_NAME }],
+    },
+    twitter: {
+      card: "summary",
+      title: ogTitle,
+      description: ogDescription,
+      images: ["/logo.png"],
+    },
+    robots: { index: true, follow: true },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: [

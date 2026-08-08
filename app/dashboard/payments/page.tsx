@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslator } from "@/lib/i18n/t";
 
 import { PaymentsList, type PaymentListItem } from "@/components/payments/payments-list";
 import { listClients } from "@/lib/data/clients";
@@ -6,9 +7,10 @@ import { getWorkspacePaymentKpis, listPayments, type PaymentWithRelations } from
 import { permissionsForRole } from "@/lib/workspace/permissions";
 import { requireWorkspace } from "@/lib/workspace/session";
 
-export const metadata: Metadata = {
-  title: "Plăți · EasyWedd Pro",
-};
+export async function generateMetadata() {
+  const { t } = await getTranslator();
+  return { title: `${t("modules.payments.title")} · EasyWedd Pro` };
+}
 
 function mapPaymentRow(row: PaymentWithRelations): PaymentListItem {
   return {
@@ -33,6 +35,7 @@ function mapPaymentRow(row: PaymentWithRelations): PaymentListItem {
 }
 
 export default async function PaymentsPage() {
+  const { t } = await getTranslator();
   const ctx = await requireWorkspace();
   const permissions = permissionsForRole(ctx.role);
 
@@ -62,7 +65,7 @@ export default async function PaymentsPage() {
     const result = await listPayments(ctx.supabase, ctx.activeWorkspace.id, { limit: 200 });
     payments = result.payments.map(mapPaymentRow);
   } catch (err) {
-    error = err instanceof Error ? err.message : "Nu am putut încărca plățile.";
+    error = err instanceof Error ? err.message : t("modules.payments.loadFailed");
   }
 
   return (

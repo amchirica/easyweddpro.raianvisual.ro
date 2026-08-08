@@ -7,6 +7,7 @@ import { StatCard } from "@/components/shared/stat-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { assertPlanFeature } from "@/lib/billing/assert-feature";
 import { fetchWorkspaceAnalyticsSummary, type WorkspaceAnalyticsSummary } from "@/lib/data/analytics";
 import { formatCurrency } from "@/lib/format";
 import { getTranslator } from "@/lib/i18n/t";
@@ -120,6 +121,22 @@ export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps
           icon={Lock}
           title={t("modules.analytics.noPermission")}
           description={t("modules.analytics.noPermissionHint")}
+        />
+      </ModuleShell>
+    );
+  }
+
+  const planFeature = await assertPlanFeature(ctx.supabase, ctx.activeWorkspace.id, "analytics");
+  if (!planFeature.ok) {
+    return (
+      <ModuleShell
+        title={t("modules.analytics.title")}
+        description={t("modules.analytics.description")}
+      >
+        <EmptyState
+          icon={Lock}
+          title={t("modules.analytics.noPermission")}
+          description={planFeature.reason}
         />
       </ModuleShell>
     );

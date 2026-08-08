@@ -94,3 +94,29 @@ export async function markAllNotificationsReadAction(): Promise<ActionResult<{ u
   revalidatePath("/dashboard");
   return actionSuccess("Notificări marcate ca citite.", { updated: data?.length ?? 0 });
 }
+
+export async function deleteNotificationAction(
+  input: unknown,
+): Promise<ActionResult<{ deleted: boolean }>> {
+  const parsed = notificationIdSchema.safeParse(input);
+  if (!parsed.success) {
+    return actionError(parsed.error.issues[0]?.message ?? "Date invalide.");
+  }
+
+  const ctx = await requireWorkspace();
+
+  const { data, error } = await ctx.supabase
+    .from("notifications")
+    .delete()
+    .eq("id", parsed.data.notificationId)
+    .eq("workspace_id", ctx.activeWorkspace.id)
+    .eq("user_id", ctx.user.id)
+    .select("id")
+    .maybeSingle();
+
+  if (error) return actionError("Nu am putut șterge notificarea.");
+  if (!data) return actionError("Notificarea nu a fost găsită.");
+
+  revalidatePath("/dashboard");
+  return actionSuccess("", { deleted: true });
+}

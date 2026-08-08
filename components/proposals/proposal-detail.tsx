@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -40,7 +42,7 @@ import {
   duplicateProposalAction,
   publishProposalAction,
 } from "@/lib/actions/proposals";
-import { PROPOSAL_STATUS_LABELS, type ProposalStatus } from "@/lib/constants";
+import { type ProposalStatus } from "@/lib/constants";
 import { formatCurrency, formatDate, formatDateTime } from "@/lib/format";
 import type { DiscountType } from "@/lib/proposals/money";
 import { canEditProposal } from "@/lib/proposals/status";
@@ -113,6 +115,7 @@ export function ProposalDetail({
   clients,
   leads,
 }: ProposalDetailProps) {
+  const { t } = useI18n();
   const [editing, setEditing] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [duplicating, setDuplicating] = useState(false);
@@ -136,7 +139,7 @@ export function ProposalDetail({
   }
 
   async function handlePublish() {
-    if (!requireLive("Publicarea ofertelor necesită un cont conectat.")) return;
+    if (!requireLive(t("modules.proposals.needAccountPublish"))) return;
     setPublishing(true);
     const result = await publishProposalAction(proposal.id);
     setPublishing(false);
@@ -145,7 +148,7 @@ export function ProposalDetail({
       toast(result.error, "error");
       return;
     }
-    toast(result?.success ?? "Ofertă publicată.", "success");
+    toast(result?.success ?? t("modules.proposals.published"), "success");
     if (result?.data?.publicUrlPath) {
       setCopiedPublicPath(result.data.publicUrlPath);
     }
@@ -158,14 +161,14 @@ export function ProposalDetail({
     const url = `${window.location.origin}${path}`;
     try {
       await navigator.clipboard.writeText(url);
-      toast("Link copiat în clipboard.", "success");
+      toast(t("common.linkCopied"), "success");
     } catch {
-      toast("Nu am putut copia linkul.", "error");
+      toast(t("modules.proposals.linkCopyFailed"), "error");
     }
   }
 
   async function handleDuplicate() {
-    if (!requireLive("Duplicarea ofertelor necesită un cont conectat.")) return;
+    if (!requireLive(t("modules.proposals.needAccountDuplicate"))) return;
     setDuplicating(true);
     const result = await duplicateProposalAction(proposal.id);
     setDuplicating(false);
@@ -174,14 +177,14 @@ export function ProposalDetail({
       toast(result.error, "error");
       return;
     }
-    toast(result?.success ?? "Ofertă duplicată.", "success");
+    toast(result?.success ?? t("modules.proposals.duplicated"), "success");
     if (result?.data?.proposalId) {
       router.push(`/dashboard/proposals/${result.data.proposalId}`);
     }
   }
 
   async function handleCancel() {
-    if (!requireLive("Anularea ofertelor necesită un cont conectat.")) {
+    if (!requireLive(t("modules.proposals.needAccountCancel"))) {
       setCancelOpen(false);
       return;
     }
@@ -194,12 +197,12 @@ export function ProposalDetail({
       toast(result.error, "error");
       return;
     }
-    toast(result?.success ?? "Ofertă anulată.", "success");
+    toast(result?.success ?? t("modules.proposals.cancelled"), "success");
     router.refresh();
   }
 
   async function handleDelete() {
-    if (!requireLive("Ștergerea ofertelor necesită un cont conectat.")) {
+    if (!requireLive(t("modules.proposals.needAccountDelete"))) {
       setDeleteOpen(false);
       return;
     }
@@ -212,12 +215,12 @@ export function ProposalDetail({
       setDeleteOpen(false);
       return;
     }
-    toast(result?.success ?? "Ofertă ștearsă.", "success");
+    toast(result?.success ?? t("modules.proposals.deleted"), "success");
     router.push("/dashboard/proposals");
   }
 
   async function handleConvert() {
-    if (!requireLive("Conversia în contract necesită un cont conectat.")) return;
+    if (!requireLive(t("modules.proposals.needAccountConvert"))) return;
     setConverting(true);
     const result = await convertProposalToContractAction(proposal.id);
     setConverting(false);
@@ -226,14 +229,14 @@ export function ProposalDetail({
       toast(result.error, "error");
       return;
     }
-    toast(result?.success ?? "Contract creat.", "success");
+    toast(result?.success ?? t("modules.proposals.contractCreated"), "success");
     if (result?.data?.contractId) {
       router.push(`/dashboard/contracts/${result.data.contractId}?edit=1`);
     }
   }
 
   function handleEditClick() {
-    if (!requireLive("Editarea ofertelor necesită un cont conectat.")) return;
+    if (!requireLive(t("modules.proposals.needAccountEdit"))) return;
     setEditing(true);
   }
 
@@ -279,7 +282,7 @@ export function ProposalDetail({
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-          Înapoi la oferte
+          {t("modules.proposals.backToList")}
         </Link>
         <ProposalForm
           mode="edit"
@@ -303,7 +306,7 @@ export function ProposalDetail({
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-        Înapoi la oferte
+        {t("modules.proposals.backToList")}
       </Link>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -311,12 +314,12 @@ export function ProposalDetail({
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="font-heading text-2xl font-medium text-foreground">{proposal.title}</h1>
             <StatusBadge
-              label={PROPOSAL_STATUS_LABELS[proposal.effectiveStatus]}
+              label={t(`status.proposal.${proposal.effectiveStatus}`)}
               tone={PROPOSAL_STATUS_TONE[proposal.effectiveStatus]}
             />
           </div>
           <p className="text-sm text-muted-foreground">
-            {proposal.proposalNumber ?? "Fără număr"} · {proposal.clientName ?? proposal.leadName ?? "Fără destinatar"}
+            {proposal.proposalNumber ?? t("modules.proposals.noNumber")} · {proposal.clientName ?? proposal.leadName ?? t("modules.proposals.noRecipient")}
           </p>
         </div>
 
@@ -324,46 +327,46 @@ export function ProposalDetail({
           {canShowEdit ? (
             <Button type="button" variant="outline" size="sm" onClick={handleEditClick}>
               <Pencil data-icon="inline-start" />
-              Editează
+              {t("common.edit")}
             </Button>
           ) : null}
           {canShowPublish ? (
             <Button type="button" variant="outline" size="sm" onClick={handlePublish} disabled={publishing}>
               <Send data-icon="inline-start" />
-              {publishing ? "Se publică…" : "Publică"}
+              {publishing ? t("common.publishing") : t("common.publish")}
             </Button>
           ) : null}
           {hasPublicLink ? (
             <Button type="button" variant="outline" size="sm" onClick={handleCopyLink}>
               <Copy data-icon="inline-start" />
-              Copiază link
+              {t("common.copyLink")}
             </Button>
           ) : null}
           <Button type="button" variant="outline" size="sm" onClick={handleDuplicate} disabled={duplicating}>
             <Files data-icon="inline-start" />
-            {duplicating ? "Se duplică…" : "Duplică"}
+            {duplicating ? t("modules.proposals.duplicating") : t("common.duplicate")}
           </Button>
           {canShowConvert ? (
             <Button type="button" size="sm" onClick={handleConvert} disabled={converting}>
               <FileCheck2 data-icon="inline-start" />
-              {converting ? "Se convertește…" : "Convertește în contract"}
+              {converting ? t("modules.proposals.converting") : t("modules.proposals.convertToContract")}
             </Button>
           ) : proposal.contractId ? (
             <Button type="button" variant="outline" size="sm" render={<Link href={`/dashboard/contracts/${proposal.contractId}`} />} nativeButton={false}>
               <FileCheck2 data-icon="inline-start" />
-              Vezi contract
+              {t("modules.proposals.viewContract")}
             </Button>
           ) : null}
           {canShowCancel ? (
             <Button type="button" variant="outline" size="sm" onClick={() => setCancelOpen(true)}>
               <Ban data-icon="inline-start" />
-              Anulează
+              {t("common.cancel")}
             </Button>
           ) : null}
           {canShowDelete ? (
             <Button type="button" variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
               <Trash2 data-icon="inline-start" />
-              Șterge
+              {t("common.delete")}
             </Button>
           ) : null}
         </div>
@@ -372,7 +375,7 @@ export function ProposalDetail({
       {hasPublicLink && copiedPublicPath ? (
         <div className="surface-card flex flex-wrap items-center justify-between gap-3 p-4">
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">Link public</p>
+            <p className="text-xs text-muted-foreground">{t("modules.proposals.publicLink")}</p>
             <p className="truncate text-sm text-foreground">{copiedPublicPath}</p>
           </div>
           <Link
@@ -380,7 +383,7 @@ export function ProposalDetail({
             target="_blank"
             className="inline-flex items-center gap-1.5 text-sm text-champagne hover:text-champagne-soft"
           >
-            Deschide
+            {t("common.open")}
             <ExternalLink className="h-3.5 w-3.5" aria-hidden />
           </Link>
         </div>
@@ -389,56 +392,56 @@ export function ProposalDetail({
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="surface-card space-y-3 p-5">
           <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
-            Destinatar
+            {t("modules.proposals.recipient")}
           </p>
           {proposal.clientId ? (
             <Link
               href={`/dashboard/clients/${proposal.clientId}`}
               className="text-sm text-champagne hover:text-champagne-soft"
             >
-              {proposal.clientName ?? "Vezi client"}
+              {proposal.clientName ?? t("modules.proposals.viewClient")}
             </Link>
           ) : proposal.leadId ? (
             <Link
               href={`/dashboard/leads/${proposal.leadId}`}
               className="text-sm text-champagne hover:text-champagne-soft"
             >
-              {proposal.leadName ?? "Vezi lead"}
+              {proposal.leadName ?? t("modules.proposals.viewLead")}
             </Link>
           ) : (
-            <p className="text-sm text-muted-foreground">Fără destinatar asociat</p>
+            <p className="text-sm text-muted-foreground">{t("modules.proposals.noRecipientLinked")}</p>
           )}
         </div>
 
         <div className="surface-card space-y-3 p-5">
           <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
-            Valabilitate
+            {t("modules.proposals.validity")}
           </p>
           <p className="text-sm text-foreground">
-            {proposal.validUntil ? formatDate(proposal.validUntil) : "Fără termen limită"}
+            {proposal.validUntil ? formatDate(proposal.validUntil) : t("modules.proposals.noDeadline")}
           </p>
-          <p className="text-xs text-muted-soft">Creată {formatDateTime(proposal.createdAt)}</p>
+          <p className="text-xs text-muted-soft">{t("modules.proposals.createdAt", { date: formatDateTime(proposal.createdAt) })}</p>
         </div>
 
         <div className="surface-card space-y-3 p-5">
           <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
-            Valoare totală
+            {t("modules.proposals.totalValue")}
           </p>
           <p className="font-heading text-2xl font-medium text-champagne">
             {formatCurrency(proposal.total, proposal.currency)}
           </p>
           <p className="text-xs text-muted-soft">
-            Subtotal {formatCurrency(proposal.subtotal, proposal.currency)}
+            {t("modules.proposals.subtotalLabel", { amount: formatCurrency(proposal.subtotal, proposal.currency) })}
           </p>
         </div>
       </div>
 
       <div className="surface-card space-y-4 p-5">
         <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
-          Items ofertă
+          {t("modules.proposals.items")}
         </p>
         {items.length === 0 ? (
-          <EmptyState icon={PackageOpen} title="Niciun item" description="Această ofertă nu are items adăugate." />
+          <EmptyState icon={PackageOpen} title={t("modules.proposals.noItems")} description={t("modules.proposals.noItemsHint")} />
         ) : (
           <div className="divide-y divide-border">
             {items.map((item) => (
@@ -463,21 +466,21 @@ export function ProposalDetail({
 
         <div className="space-y-1.5 border-t border-border pt-3 text-sm">
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Subtotal</span>
+            <span className="text-muted-foreground">{t("common.subtotal")}</span>
             <span className="text-foreground">{formatCurrency(proposal.subtotal, proposal.currency)}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Discount</span>
+            <span className="text-muted-foreground">{t("modules.proposals.discount")}</span>
             <span className="text-foreground">
               -{formatCurrency(proposal.discountAmount, proposal.currency)}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">TVA ({proposal.taxRate}%)</span>
+            <span className="text-muted-foreground">{t("modules.proposals.tax", { rate: proposal.taxRate })}</span>
             <span className="text-foreground">{formatCurrency(proposal.taxAmount, proposal.currency)}</span>
           </div>
           <div className="flex items-center justify-between border-t border-border pt-2">
-            <span className="font-medium text-foreground">Total</span>
+            <span className="font-medium text-foreground">{t("modules.proposals.total")}</span>
             <span className="font-heading text-lg font-medium text-champagne">
               {formatCurrency(proposal.total, proposal.currency)}
             </span>
@@ -488,7 +491,7 @@ export function ProposalDetail({
       {proposal.terms ? (
         <div className="surface-card space-y-2 p-5">
           <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
-            Termeni și condiții
+            {t("modules.proposals.terms")}
           </p>
           <p className="text-sm whitespace-pre-wrap text-foreground">{proposal.terms}</p>
         </div>
@@ -497,7 +500,7 @@ export function ProposalDetail({
       {proposal.notes ? (
         <div className="surface-card space-y-2 p-5">
           <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
-            Notițe interne
+            {t("modules.proposals.internalNotes")}
           </p>
           <p className="text-sm whitespace-pre-wrap text-foreground">{proposal.notes}</p>
         </div>
@@ -506,17 +509,17 @@ export function ProposalDetail({
       <Dialog open={cancelOpen} onOpenChange={(next) => !cancelling && setCancelOpen(next)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Anulezi această ofertă?</DialogTitle>
+            <DialogTitle>{t("modules.proposals.cancelTitle")}</DialogTitle>
             <DialogDescription>
-              Oferta va fi marcată drept anulată și nu va mai putea fi acceptată de client.
+              {t("modules.proposals.cancelConfirm")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setCancelOpen(false)} disabled={cancelling}>
-              Renunță
+              {t("common.dismiss")}
             </Button>
             <Button type="button" variant="destructive" onClick={handleCancel} disabled={cancelling}>
-              {cancelling ? "Se anulează…" : "Anulează oferta"}
+              {cancelling ? t("common.cancelling") : t("modules.proposals.cancelProposal")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -525,15 +528,15 @@ export function ProposalDetail({
       <Dialog open={deleteOpen} onOpenChange={(next) => !deleting && setDeleteOpen(next)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Ștergi această ofertă?</DialogTitle>
-            <DialogDescription>Această acțiune nu poate fi anulată.</DialogDescription>
+            <DialogTitle>{t("modules.proposals.deleteTitle")}</DialogTitle>
+            <DialogDescription>{t("common.cannotUndo")}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setDeleteOpen(false)} disabled={deleting}>
-              Anulează
+              {t("common.cancel")}
             </Button>
             <Button type="button" variant="destructive" onClick={handleDelete} disabled={deleting}>
-              {deleting ? "Se șterge…" : "Șterge oferta"}
+              {deleting ? t("modules.proposals.deleting") : t("modules.proposals.deleteProposal")}
             </Button>
           </DialogFooter>
         </DialogContent>

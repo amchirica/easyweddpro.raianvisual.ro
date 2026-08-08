@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PROPOSAL_STATUSES, PROPOSAL_STATUS_LABELS, type ProposalStatus } from "@/lib/constants";
+import { PROPOSAL_STATUSES, type ProposalStatus } from "@/lib/constants";
 import { formatCurrency, formatDate } from "@/lib/format";
 
 export type ProposalListItem = {
@@ -77,7 +77,7 @@ export function ProposalsList({ initialProposals, mode, canWrite, error }: Propo
         canCreate ? (
           <Button type="button" render={<Link href="/dashboard/proposals/new" />} nativeButton={false}>
             <Plus data-icon="inline-start" />
-            Ofertă nouă
+            {t("modules.proposals.new")}
           </Button>
         ) : undefined
       }
@@ -96,12 +96,12 @@ export function ProposalsList({ initialProposals, mode, canWrite, error }: Propo
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <label className="relative block max-w-sm flex-1">
-            <span className="sr-only">Căutare oferte</span>
+            <span className="sr-only">{t("modules.proposals.searchSr")}</span>
             <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Caută după titlu, număr sau client…"
+              placeholder={t("modules.proposals.searchPlaceholder")}
               className="h-9 pl-9"
             />
           </label>
@@ -111,10 +111,10 @@ export function ProposalsList({ initialProposals, mode, canWrite, error }: Propo
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Toate statusurile</SelectItem>
+              <SelectItem value="all">{t("common.allStatuses")}</SelectItem>
               {PROPOSAL_STATUSES.map((item) => (
                 <SelectItem key={item} value={item}>
-                  {PROPOSAL_STATUS_LABELS[item]}
+                  {t(`status.proposal.${item}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -124,17 +124,17 @@ export function ProposalsList({ initialProposals, mode, canWrite, error }: Propo
         {filtered.length === 0 ? (
           <EmptyState
             icon={FileText}
-            title={initialProposals.length === 0 ? "Nicio ofertă încă" : "Nicio ofertă găsită"}
+            title={initialProposals.length === 0 ? t("modules.proposals.empty") : t("modules.proposals.emptyFiltered")}
             description={
               initialProposals.length === 0
-                ? "Creează prima ofertă pentru un lead sau client."
-                : "Încearcă alți termeni de căutare sau alt filtru de status."
+                ? t("modules.proposals.emptyHint")
+                : t("common.searchNoResultsHint")
             }
             action={
               initialProposals.length === 0 && canCreate ? (
                 <Button type="button" render={<Link href="/dashboard/proposals/new" />} nativeButton={false}>
                   <Plus data-icon="inline-start" />
-                  Ofertă nouă
+                  {t("modules.proposals.new")}
                 </Button>
               ) : undefined
             }
@@ -144,13 +144,13 @@ export function ProposalsList({ initialProposals, mode, canWrite, error }: Propo
             <table className="w-full min-w-[860px] text-left text-sm">
               <thead>
                 <tr className="border-b border-border text-xs text-muted-foreground uppercase tracking-[0.08em]">
-                  <th className="px-4 py-3 font-medium">Număr</th>
-                  <th className="px-4 py-3 font-medium">Client / Lead</th>
-                  <th className="px-4 py-3 font-medium">Titlu</th>
-                  <th className="px-4 py-3 font-medium">Sumă</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">Valabilă până la</th>
-                  <th className="px-4 py-3 font-medium">Acțiuni</th>
+                  <th className="px-4 py-3 font-medium">{t("common.number")}</th>
+                  <th className="px-4 py-3 font-medium">{t("modules.proposals.clientOrLead")}</th>
+                  <th className="px-4 py-3 font-medium">{t("common.title")}</th>
+                  <th className="px-4 py-3 font-medium">{t("common.amount")}</th>
+                  <th className="px-4 py-3 font-medium">{t("common.status")}</th>
+                  <th className="px-4 py-3 font-medium">{t("modules.proposals.validUntil")}</th>
+                  <th className="px-4 py-3 font-medium">{t("common.actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -166,7 +166,7 @@ export function ProposalsList({ initialProposals, mode, canWrite, error }: Propo
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge
-                        label={PROPOSAL_STATUS_LABELS[proposal.effectiveStatus]}
+                        label={t(`status.proposal.${proposal.effectiveStatus}`)}
                         tone={PROPOSAL_STATUS_TONE[proposal.effectiveStatus]}
                       />
                     </td>
@@ -179,7 +179,7 @@ export function ProposalsList({ initialProposals, mode, canWrite, error }: Propo
                           href={`/dashboard/proposals/${proposal.id}`}
                           className="text-xs text-champagne hover:text-champagne-soft"
                         >
-                          Vezi
+                          {t("common.view")}
                         </Link>
                         {proposal.publicToken && proposal.status !== "draft" ? (
                           <Link
@@ -187,7 +187,7 @@ export function ProposalsList({ initialProposals, mode, canWrite, error }: Propo
                             target="_blank"
                             className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
                           >
-                            Link public
+                            {t("modules.proposals.publicLink")}
                             <ExternalLink className="h-3 w-3" aria-hidden />
                           </Link>
                         ) : null}

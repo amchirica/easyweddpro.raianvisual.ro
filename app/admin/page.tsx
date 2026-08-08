@@ -11,12 +11,14 @@ import {
 } from "lucide-react";
 
 import { AdminMetricCard } from "@/components/admin/admin-metric-card";
+import { getTranslator } from "@/lib/i18n/t";
 import { AdminErrorState } from "@/components/admin/admin-error-state";
 import { getPlatformKpis } from "@/lib/data/admin-kpis";
 import { formatCurrency } from "@/lib/format";
 import { requirePlatformPermission } from "@/lib/platform/session";
 
 export default async function AdminDashboardPage() {
+  const { t } = await getTranslator();
   const admin = await requirePlatformPermission("dashboard.read");
 
   let kpis = null;
@@ -24,7 +26,7 @@ export default async function AdminDashboardPage() {
   try {
     kpis = await getPlatformKpis(admin.supabase);
   } catch (error) {
-    loadError = error instanceof Error ? error.message : "Nu am putut încărca KPI-urile.";
+    loadError = error instanceof Error ? error.message : t("admin.kpiLoadFailed");
   }
 
   return (
@@ -32,7 +34,7 @@ export default async function AdminDashboardPage() {
       <div>
         <h1 className="font-heading text-3xl font-medium text-foreground">Admin Dashboard</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Indicatori reali ai platformei. MRR este calculat în RON pe baza planurilor active.
+          {t("admin.overviewHint")}
         </p>
       </div>
 
@@ -49,14 +51,14 @@ export default async function AdminDashboardPage() {
 
           <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <AdminMetricCard label="Trial-uri" value={kpis.trialsActive} />
-            <AdminMetricCard label="Plătite" value={kpis.subscriptionsPaid} />
+            <AdminMetricCard label={t("admin.paid")} value={kpis.subscriptionsPaid} />
             <AdminMetricCard label="Past due" value={kpis.subscriptionsPastDue} />
             <AdminMetricCard label="Anulate/suspendate" value={kpis.subscriptionsCancelled} />
           </section>
 
           <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <AdminMetricCard icon={Mail} label="Email trimise 24h" value={kpis.emailsSent24h} />
-            <AdminMetricCard icon={Mail} label="Email eșuate 24h" value={kpis.emailsFailed24h} />
+            <AdminMetricCard icon={Mail} label={t("admin.emailsFailed24h")} value={kpis.emailsFailed24h} />
             <AdminMetricCard icon={Timer} label="Cron failures 24h" value={kpis.cronFailures24h} />
             <AdminMetricCard icon={Activity} label="Automation failures 24h" value={kpis.automationFailures24h} />
           </section>
@@ -64,8 +66,8 @@ export default async function AdminDashboardPage() {
           <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <AdminMetricCard icon={MessageSquareWarning} label="Feedback nou" value={kpis.feedbackNew} />
             <AdminMetricCard icon={Bug} label="Erori deschise" value={kpis.errorsOpen} />
-            <AdminMetricCard icon={TrendingUp} label="Leaduri platformă" value={kpis.leadsTotal} />
-            <AdminMetricCard label="Oferte / Contracte / Proiecte" value={`${kpis.proposalsTotal} / ${kpis.contractsTotal} / ${kpis.projectsTotal}`} />
+            <AdminMetricCard icon={TrendingUp} label={t("admin.platformLeads")} value={kpis.leadsTotal} />
+            <AdminMetricCard label={t("admin.proposalsContractsProjects")} value={`${kpis.proposalsTotal} / ${kpis.contractsTotal} / ${kpis.projectsTotal}`} />
           </section>
         </>
       ) : null}

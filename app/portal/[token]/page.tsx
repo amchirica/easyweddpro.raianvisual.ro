@@ -14,10 +14,6 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import {
-  CONTRACT_STATUS_LABELS,
-  PAYMENT_STATUS_LABELS,
-  PROJECT_STATUS_LABELS,
-  PROPOSAL_STATUS_LABELS,
   type ContractStatus,
   type PaymentStatus,
   type ProjectStatus,
@@ -26,19 +22,20 @@ import {
 import { fetchClientPortal } from "@/lib/data/contracts";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
+import { getTranslator } from "@/lib/i18n/t";
 
 type PortalPageProps = {
   params: Promise<{ token: string }>;
 };
 
-const SECTIONS = [
-  { id: "overview", label: "Prezentare", icon: FileText },
-  { id: "offer", label: "Ofertă", icon: FileText },
-  { id: "contract", label: "Contract", icon: ScrollText },
-  { id: "payments", label: "Plăți", icon: CircleDollarSign },
-  { id: "event", label: "Eveniment", icon: CalendarDays },
-  { id: "contact", label: "Contact", icon: Mail },
-];
+const SECTION_DEFS = [
+  { id: "overview", labelKey: "portal.overviewShort", icon: FileText },
+  { id: "offer", labelKey: "portal.proposal", icon: FileText },
+  { id: "contract", labelKey: "portal.contract", icon: ScrollText },
+  { id: "payments", labelKey: "portal.payments", icon: CircleDollarSign },
+  { id: "event", labelKey: "portal.event", icon: CalendarDays },
+  { id: "contact", labelKey: "portal.contact", icon: Mail },
+] as const;
 
 const PROPOSAL_STATUS_TONE: Record<
   ProposalStatus,
@@ -78,35 +75,32 @@ const PAYMENT_STATUS_TONE: Record<
   refunded: "neutral",
 };
 
-function paymentStatusLabel(status: string): string {
-  if (status in PAYMENT_STATUS_LABELS) {
-    return PAYMENT_STATUS_LABELS[status as PaymentStatus];
-  }
-  return status;
+function paymentStatusLabel(status: string, t: (k: string) => string): string {
+  const key = `status.payment.${status}`;
+  const label = t(key);
+  return label === key ? status : label;
 }
 
-function projectStatusLabel(status: string): string {
-  if (status in PROJECT_STATUS_LABELS) {
-    return PROJECT_STATUS_LABELS[status as ProjectStatus];
-  }
-  return status;
+function projectStatusLabel(status: string, t: (k: string) => string): string {
+  const key = `status.project.${status}`;
+  const label = t(key);
+  return label === key ? status : label;
 }
 
-function proposalStatusLabel(status: string): string {
-  if (status in PROPOSAL_STATUS_LABELS) {
-    return PROPOSAL_STATUS_LABELS[status as ProposalStatus];
-  }
-  return status;
+function proposalStatusLabel(status: string, t: (k: string) => string): string {
+  const key = `status.proposal.${status}`;
+  const label = t(key);
+  return label === key ? status : label;
 }
 
-function contractStatusLabel(status: string): string {
-  if (status in CONTRACT_STATUS_LABELS) {
-    return CONTRACT_STATUS_LABELS[status as ContractStatus];
-  }
-  return status;
+function contractStatusLabel(status: string, t: (k: string) => string): string {
+  const key = `status.contract.${status}`;
+  const label = t(key);
+  return label === key ? status : label;
 }
 
 type PortalLayoutProps = {
+  t: (key: string, params?: Record<string, string | number>) => string;
   clientName: string;
   overview: {
     eventType: string | null;
@@ -170,6 +164,7 @@ type PortalLayoutProps = {
 };
 
 function PortalLayout({
+  t,
   clientName,
   overview,
   offer,
@@ -183,31 +178,31 @@ function PortalLayout({
     <div>
       <div>
         <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-          Bine ai venit,
+          {t("portal.welcome")},
         </p>
         <h1 className="mt-1 font-heading text-3xl font-medium text-foreground sm:text-4xl">
           {clientName}
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Portalul tău personal — oferta, contractul și detaliile evenimentului, într-un singur loc.
+          {t("portal.personalIntro")}
         </p>
       </div>
 
       <nav className="mt-8 flex flex-wrap gap-2 border-b border-border pb-6">
-        {SECTIONS.map((section) => (
+        {SECTION_DEFS.map((section) => (
           <a
             key={section.id}
             href={`#${section.id}`}
             className="flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs text-muted-foreground transition-colors hover:border-champagne/30 hover:text-foreground"
           >
             <section.icon className="h-3.5 w-3.5" aria-hidden />
-            {section.label}
+            {t(section.labelKey)}
           </a>
         ))}
       </nav>
 
       <section id="overview" className="scroll-mt-24 py-10">
-        <h2 className="font-heading text-xl font-medium text-foreground">Prezentare generală</h2>
+        <h2 className="font-heading text-xl font-medium text-foreground">{t("portal.overview")}</h2>
         <div className="mt-5 grid gap-4 sm:grid-cols-3">
           <div className="surface-card p-5">
             <p className="text-xs text-muted-foreground">Tip eveniment</p>
@@ -255,7 +250,7 @@ function PortalLayout({
       <Separator />
 
       <section id="offer" className="scroll-mt-24 py-10">
-        <h2 className="font-heading text-xl font-medium text-foreground">Ofertă</h2>
+        <h2 className="font-heading text-xl font-medium text-foreground">{t("portal.proposal")}</h2>
         {offer ? (
           <div className="surface-card mt-5 p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
@@ -266,7 +261,7 @@ function PortalLayout({
                 ) : null}
                 {offer.validUntil ? (
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Valabilă până la {formatDate(offer.validUntil)}
+                    {t("portal.validUntil")} {formatDate(offer.validUntil)}
                   </p>
                 ) : null}
               </div>
@@ -277,14 +272,14 @@ function PortalLayout({
             </p>
           </div>
         ) : (
-          <p className="mt-5 text-sm text-muted-foreground">Nu există ofertă asociată momentan.</p>
+          <p className="mt-5 text-sm text-muted-foreground">{t("portal.noOffer")}</p>
         )}
       </section>
 
       <Separator />
 
       <section id="contract" className="scroll-mt-24 py-10">
-        <h2 className="font-heading text-xl font-medium text-foreground">Contract</h2>
+        <h2 className="font-heading text-xl font-medium text-foreground">{t("portal.contract")}</h2>
         {contract ? (
           <div className="surface-card mt-5 space-y-4 p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
@@ -331,17 +326,17 @@ function PortalLayout({
                 } nativeButton={false}
               >
                 <Download data-icon="inline-start" />
-                Descarcă PDF contract
+                {t("portal.downloadPdf")}
               </Button>
             ) : (
               <p className="text-xs text-muted-soft">
-                PDF-ul contractului va fi disponibil după publicarea linkului de către furnizor.
+                {t("portal.pdfAfterPublish")}
               </p>
             )}
           </div>
         ) : (
           <p className="mt-5 text-sm text-muted-foreground">
-            Contractul va apărea aici imediat după acceptarea ofertei.
+            {t("portal.contractAfterAccept")}
           </p>
         )}
       </section>
@@ -349,10 +344,10 @@ function PortalLayout({
       <Separator />
 
       <section id="payments" className="scroll-mt-24 py-10">
-        <h2 className="font-heading text-xl font-medium text-foreground">Plăți</h2>
+        <h2 className="font-heading text-xl font-medium text-foreground">{t("portal.payments")}</h2>
         {payments.length === 0 ? (
           <p className="mt-5 text-sm text-muted-foreground">
-            Nu există încă un plan de plăți asociat.
+            {t("portal.noPaymentPlan")}
           </p>
         ) : (
           <div className="surface-card mt-5 divide-y divide-border">
@@ -364,7 +359,7 @@ function PortalLayout({
                 <div>
                   <p className="text-sm text-foreground">{payment.label}</p>
                   <p className="text-xs text-muted-soft">
-                    {payment.dueDate ? `Scadent la ${formatDate(payment.dueDate)}` : "Fără scadență"}
+                    {payment.dueDate ? t("portal.dueOn", { date: formatDate(payment.dueDate) }) : t("portal.noDue")}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -389,7 +384,7 @@ function PortalLayout({
       <Separator />
 
       <section id="event" className="scroll-mt-24 py-10">
-        <h2 className="font-heading text-xl font-medium text-foreground">Eveniment</h2>
+        <h2 className="font-heading text-xl font-medium text-foreground">{t("portal.event")}</h2>
         <div className="surface-card mt-5 p-6">
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-champagne/30 bg-champagne/10 text-champagne">
@@ -439,8 +434,7 @@ function PortalLayout({
           ) : null}
           {contact.city ? <p className="text-xs text-muted-soft">{contact.city}</p> : null}
           <p className="text-xs text-muted-soft">
-            Pentru întrebări despre ofertă, contract sau eveniment, contactează direct echipa
-            studioului.
+            {t("portal.contactTeam", { name: contact.providerName || "EasyWedd Pro" })}
           </p>
         </div>
       </section>
@@ -450,6 +444,7 @@ function PortalLayout({
 
 export default async function PortalPage({ params }: PortalPageProps) {
   const { token } = await params;
+  const { t } = await getTranslator();
 
   const supabase = await createClient();
   if (supabase) {
@@ -458,7 +453,7 @@ export default async function PortalPage({ params }: PortalPageProps) {
     try {
       portal = await fetchClientPortal(supabase, token);
     } catch (error) {
-      rpcError = error instanceof Error ? error.message : "Eroare portal.";
+      rpcError = error instanceof Error ? error.message : t("portal.error");
       if (process.env.NODE_ENV === "development") {
         console.error("Request failed", {
           operation: "get_client_portal_by_token",
@@ -472,10 +467,9 @@ export default async function PortalPage({ params }: PortalPageProps) {
     if (rpcError) {
       return (
         <div className="mx-auto flex min-h-[50vh] max-w-lg flex-col justify-center px-6 py-16 text-center">
-          <h1 className="font-heading text-2xl font-medium text-foreground">Portal indisponibil</h1>
+          <h1 className="font-heading text-2xl font-medium text-foreground">{t("portal.unavailable")}</h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            Conexiunea cu serverul nu a putut fi realizată. Verifică configurația și încearcă din
-            nou.
+            {t("portal.connectionFailed")}
           </p>
           {process.env.NODE_ENV === "development" ? (
             <p className="mt-4 rounded-md border border-border bg-surface-elevated/60 px-3 py-2 text-left text-xs text-muted-soft">
@@ -492,6 +486,7 @@ export default async function PortalPage({ params }: PortalPageProps) {
 
       return (
         <PortalLayout
+          t={t}
           clientName={portal.client.name}
           overview={{
             eventType: portal.client.event_type,
@@ -508,7 +503,7 @@ export default async function PortalPage({ params }: PortalPageProps) {
                   title: portal.proposal.title,
                   validUntil: portal.proposal.valid_until,
                   status: proposalStatus,
-                  statusLabel: proposalStatusLabel(proposalStatus),
+                  statusLabel: proposalStatusLabel(proposalStatus, t),
                   statusTone:
                     PROPOSAL_STATUS_TONE[proposalStatus as ProposalStatus] ?? "neutral",
                   total: portal.proposal.total,
@@ -522,7 +517,7 @@ export default async function PortalPage({ params }: PortalPageProps) {
               ? {
                   title: portal.contract.title,
                   status: contractStatus,
-                  statusLabel: contractStatusLabel(contractStatus),
+                  statusLabel: contractStatusLabel(contractStatus, t),
                   statusTone:
                     CONTRACT_STATUS_TONE[contractStatus as ContractStatus] ?? "neutral",
                   total: portal.contract.total,
@@ -541,7 +536,7 @@ export default async function PortalPage({ params }: PortalPageProps) {
               ? {
                   name: portal.project.name,
                   status: portal.project.status,
-                  statusLabel: projectStatusLabel(portal.project.status),
+                  statusLabel: projectStatusLabel(portal.project.status, t),
                   progress: portal.project.progress,
                 }
               : null
@@ -553,7 +548,7 @@ export default async function PortalPage({ params }: PortalPageProps) {
             paidAmount: payment.paid_amount,
             dueDate: payment.due_date,
             status: payment.status,
-            statusLabel: paymentStatusLabel(payment.status),
+            statusLabel: paymentStatusLabel(payment.status, t),
             statusTone: PAYMENT_STATUS_TONE[payment.status as PaymentStatus] ?? "neutral",
             currency: payment.currency,
           }))}

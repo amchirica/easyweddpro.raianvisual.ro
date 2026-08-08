@@ -1,0 +1,672 @@
+{
+  "seo": {
+    "homeTitle": "Business OS for Weddings & Events",
+    "homeDescription": "Business OS for Weddings & Events vendors: event CRM, proposals, contracts, payments, calendar, and projects — for photographers, DJs, wedding planners, venues, and agencies.",
+    "homeOgTitle": "EasyWedd Pro — Business OS for Weddings & Events",
+    "homeOgDescription": "Business OS for event industry professionals",
+    "featuresTitle": "Features",
+    "featuresDescription": "EasyWedd Pro Business OS: event CRM, proposals, contracts, payments, calendar, projects, automations, analytics, and client portal for Weddings & Events.",
+    "pricingTitle": "Pricing",
+    "pricingDescription": "Free, Solo, Studio, and Agency — EasyWedd Pro Business OS for Weddings & Events. Start free, no card required on the Free plan."
+  },
+  "common": {
+    "startFree": "Start free",
+    "seeHowItWorks": "See how it works",
+    "seeFeatures": "See features",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "billingIntervalMonthly": "Monthly",
+    "billingIntervalYearly": "Yearly",
+    "oneMonthFree": "1 month free",
+    "savePerYear": "Save {amount}/year",
+    "free": "Free",
+    "mostPopular": "Most popular",
+    "product": "Product",
+    "legal": "Legal",
+    "allRights": "© {year} EasyWedd Pro. All rights reserved.",
+    "footerTagline": "Business OS for the events industry.",
+    "privacy": "Privacy",
+    "terms": "Terms and conditions",
+    "cookies": "Cookies",
+    "dpa": "DPA",
+    "security": "Security",
+    "unlimited": "Unlimited"
+  },
+  "hero": {
+    "eyebrow": "Business OS for Event Professionals",
+    "heading": "Run your entire event business from one place.",
+    "support": "From the first lead to the final follow-up.",
+    "promise": "Leads, clients, proposals, contracts, payments, calendar, projects, team, and automations — built specifically for Weddings & Events professionals.",
+    "noCard": "No credit card on the Free plan. Set up in a few minutes."
+  },
+  "mock": {
+    "workspace": "EasyWedd Pro · Workspace",
+    "demoUi": "Demo UI",
+    "pipelineTitle": "Lead pipeline",
+    "eventsTitle": "Events",
+    "contractTitle": "Contract",
+    "paymentsTitle": "Payments",
+    "tasksTitle": "Tasks",
+    "analyticsTitle": "Analytics",
+    "pipelineNew": "New",
+    "pipelineProposal": "Proposal",
+    "pipelineNegotiation": "Negotiation",
+    "pipelineWon": "Won",
+    "eventWedding": "Popescu Wedding",
+    "eventCorporate": "Corporate Nova",
+    "eventVenue": "Elysium Hall",
+    "contractPackage": "Full Day Package",
+    "contractMeta": "Digital acceptance · PDF",
+    "contractSent": "Sent",
+    "paymentDeposit": "Deposit",
+    "paymentInstallment": "Installment 2",
+    "paymentFinal": "Final",
+    "statusConfirmed": "Confirmed",
+    "statusDue": "Due",
+    "statusScheduled": "Scheduled",
+    "taskLogistics": "Confirm logistics",
+    "taskFollowUp": "Send proposal follow-up",
+    "taskChecklist": "Event checklist −7d",
+    "analyticsMeta": "Conversion · pipeline · sources"
+  },
+  "problem": {
+    "title": "Too much time lost before the real work even starts.",
+    "description": "Requests across different channels, manual follow-up, and commercial steps that eat hours — before you get to the event.",
+    "highlight": "A lead that doesn't reply shouldn't consume your entire afternoon.",
+    "closing": "EasyWedd Pro turns the commercial process into a clear, automatable workflow.",
+    "channels": [
+      "Instagram",
+      "WhatsApp",
+      "Facebook",
+      "Email",
+      "Forms",
+      "Manual follow-up",
+      "Date check",
+      "Proposal",
+      "Discussions",
+      "Contract",
+      "Deposit",
+      "Reminders",
+      "Deadline"
+    ]
+  },
+  "workflow": {
+    "eyebrow": "Product signature",
+    "title": "One workflow. From inquiry to event.",
+    "description": "From first contact to review and referral — the same thread, without switching tools.",
+    "steps": [
+      "Lead",
+      "Qualification",
+      "Proposal",
+      "Follow-up",
+      "Acceptance",
+      "Contract",
+      "Deposit",
+      "Project",
+      "Calendar",
+      "Tasks",
+      "Event",
+      "Delivery",
+      "Final payment",
+      "Review",
+      "Follow-up"
+    ]
+  },
+  "automation": {
+    "title": "Stop manually chasing every client.",
+    "description": "Automations on real workflow triggers — without pretending inactive external integrations.",
+    "items": [
+      {
+        "trigger": "New lead",
+        "action": "auto task"
+      },
+      {
+        "trigger": "Proposal not viewed",
+        "action": "follow-up"
+      },
+      {
+        "trigger": "Contract sent",
+        "action": "reminder"
+      },
+      {
+        "trigger": "Deposit due",
+        "action": "notification"
+      },
+      {
+        "trigger": "Event in 7 days",
+        "action": "checklist"
+      },
+      {
+        "trigger": "Event completed",
+        "action": "request review"
+      }
+    ]
+  },
+  "modules": {
+    "title": "Platform modules",
+    "description": "A complete Business OS for Weddings & Events — CRM is only one part of the workflow.",
+    "items": [
+      {
+        "title": "CRM",
+        "items": [
+          "pipeline",
+          "leads",
+          "sources",
+          "status",
+          "follow-up"
+        ]
+      },
+      {
+        "title": "Proposals",
+        "items": [
+          "packages",
+          "add-ons",
+          "discount",
+          "public link",
+          "acceptance"
+        ]
+      },
+      {
+        "title": "Contracts",
+        "items": [
+          "template",
+          "digital acceptance",
+          "versions",
+          "PDF"
+        ]
+      },
+      {
+        "title": "Payments",
+        "items": [
+          "deposit",
+          "installments",
+          "outstanding",
+          "reminders"
+        ]
+      },
+      {
+        "title": "Calendar",
+        "items": [
+          "events",
+          "meetings",
+          "deadlines",
+          "tasks"
+        ]
+      },
+      {
+        "title": "Projects",
+        "items": [
+          "workflow",
+          "team",
+          "checklist",
+          "deadline"
+        ]
+      },
+      {
+        "title": "Automations",
+        "items": [
+          "trigger",
+          "conditions",
+          "actions"
+        ]
+      },
+      {
+        "title": "Analytics",
+        "items": [
+          "conversion",
+          "pipeline",
+          "revenue",
+          "sources",
+          "results"
+        ]
+      },
+      {
+        "title": "Client Portal",
+        "items": [
+          "proposal",
+          "contract",
+          "payments",
+          "project",
+          "documents"
+        ]
+      }
+    ]
+  },
+  "businessFit": {
+    "title": "Not every event business works the same way. EasyWedd Pro knows that.",
+    "description": "The same platform. A workflow adapted to your activity.",
+    "closing": "The same platform. A workflow adapted to your activity.",
+    "items": [
+      {
+        "title": "Photo & Video",
+        "items": [
+          "lead",
+          "contract",
+          "shooting",
+          "editing",
+          "delivery"
+        ]
+      },
+      {
+        "title": "DJ & Bands",
+        "items": [
+          "bookings",
+          "playlist",
+          "equipment",
+          "logistics",
+          "soundcheck"
+        ]
+      },
+      {
+        "title": "Wedding Planner",
+        "items": [
+          "vendors",
+          "timeline",
+          "tasks",
+          "budget",
+          "coordination"
+        ]
+      },
+      {
+        "title": "Venues",
+        "items": [
+          "availability",
+          "bookings",
+          "rooms",
+          "menus",
+          "deposits"
+        ]
+      },
+      {
+        "title": "Decor & Flowers",
+        "items": [
+          "concept",
+          "inventory",
+          "transport",
+          "setup",
+          "teardown"
+        ]
+      },
+      {
+        "title": "Catering",
+        "items": [
+          "menus",
+          "guests",
+          "logistics",
+          "payments"
+        ]
+      },
+      {
+        "title": "Beauty",
+        "items": [
+          "appointments",
+          "people",
+          "venues",
+          "services"
+        ]
+      }
+    ]
+  },
+  "templates": {
+    "title": "You don't start from scratch.",
+    "description": "At onboarding, based on the category you choose, you can get ready-made templates.",
+    "closing": "Instead of spending days configuring a CRM, you start working.",
+    "items": [
+      "recommended pipeline",
+      "proposal",
+      "contract",
+      "tasks",
+      "automations",
+      "emails",
+      "follow-up",
+      "project"
+    ]
+  },
+  "ecosystem": {
+    "title": "More than a Business OS. An ecosystem.",
+    "description": "EasyWedd for couples. EasyWedd Pro for vendors.",
+    "forCouples": "For couples",
+    "forVendors": "For vendors",
+    "proMeta": "Business OS · Weddings & Events",
+    "availableNow": "Available now",
+    "inDevelopment": "In development",
+    "bridge": [
+      "Proposal",
+      "Contract",
+      "Payment",
+      "Schedule",
+      "Questionnaire",
+      "Documents"
+    ],
+    "available": [
+      "Proposal",
+      "Contract",
+      "Client portal",
+      "Payments",
+      "Project"
+    ],
+    "coming": [
+      "Couple questionnaire",
+      "Schedule sync",
+      "Bidirectional documents"
+    ]
+  },
+  "circular": {
+    "title": "An event connects dozens of people. Software should do the same.",
+    "description": "The differentiator vs general CRMs: an ecosystem built for the Weddings & Events vertical.",
+    "steps": [
+      "Couples",
+      "EasyWedd",
+      "Vendors",
+      "EasyWedd Pro",
+      "Project",
+      "Event",
+      "Review",
+      "Referral",
+      "Future clients"
+    ]
+  },
+  "roadmap": {
+    "eyebrow": "Roadmap",
+    "title": "The future of EasyWedd",
+    "description": "The Marketplace is not live. We are preparing discovery, matching, and proposal requests — without presenting them as live features.",
+    "items": [
+      "vendor discovery",
+      "recommendations",
+      "availability",
+      "proposal request",
+      "reviews",
+      "matching"
+    ]
+  },
+  "europe": {
+    "title": "Built for the European market",
+    "description": "Localization, currencies, and European business practices. We don't claim absolute legal compliance — we give you the control to configure.",
+    "items": [
+      "GDPR — designed with privacy in mind",
+      "EUR / RON and other currencies",
+      "Timezone and localization",
+      "Configurable languages",
+      "Configurable contracts",
+      "VAT and payment flows",
+      "Manual payments + Stripe",
+      "European business"
+    ]
+  },
+  "compare": {
+    "title": "General CRM vs. EasyWedd Pro",
+    "generalLabel": "General CRM",
+    "proLabel": "EasyWedd Pro",
+    "general": [
+      "manual setup",
+      "generic workflow",
+      "general templates",
+      "no event context"
+    ],
+    "pro": [
+      "business-type setup",
+      "event workflow",
+      "specific templates",
+      "event calendar",
+      "client portal",
+      "EasyWedd ecosystem"
+    ]
+  },
+  "pricing": {
+    "title": "Simple pricing. No surprises.",
+    "description": "Start free — no card on the Free plan. Pay yearly and get 1 month free (pay 11 months). Save the equivalent of one month.",
+    "pageEyebrow": "Pricing",
+    "pageDescription": "Start free. Move to a paid plan only when your team and client volume grow. Yearly billing = 1 month free.",
+    "compareTitle": "Compare plans",
+    "featureColumn": "Feature",
+    "faqTitle": "Pricing questions",
+    "unsureTitle": "Not sure which plan fits?",
+    "unsureDescription": "Start with the Free plan — you can upgrade anytime from your account.",
+    "comparison": [
+      {
+        "label": "Active leads",
+        "free": "5",
+        "solo": "Unlimited",
+        "studio": "Unlimited",
+        "agency": "Unlimited"
+      },
+      {
+        "label": "Clients",
+        "free": "3",
+        "solo": "Unlimited",
+        "studio": "Unlimited",
+        "agency": "Unlimited"
+      },
+      {
+        "label": "Users",
+        "free": "1",
+        "solo": "1",
+        "studio": "5",
+        "agency": "15"
+      },
+      {
+        "label": "Automations",
+        "free": "—",
+        "solo": "—",
+        "studio": "✓",
+        "agency": "✓"
+      },
+      {
+        "label": "Analytics",
+        "free": "—",
+        "solo": "—",
+        "studio": "✓",
+        "agency": "✓"
+      },
+      {
+        "label": "Custom branding",
+        "free": "—",
+        "solo": "—",
+        "studio": "✓",
+        "agency": "✓"
+      },
+      {
+        "label": "Project pipeline",
+        "free": "—",
+        "solo": "—",
+        "studio": "✓",
+        "agency": "✓"
+      },
+      {
+        "label": "Multi-brand",
+        "free": "—",
+        "solo": "—",
+        "studio": "—",
+        "agency": "✓"
+      }
+    ],
+    "faq": [
+      {
+        "question": "Are the plans only for photo-video studios?",
+        "answer": "No. Free, Solo, Studio, and Agency apply to freelancers, teams, venues, and agencies in the events industry. \"Studio\" is the plan name for growing teams, not only photo-video."
+      },
+      {
+        "question": "Can I change plans later?",
+        "answer": "Yes, you can upgrade or downgrade anytime from account settings, with no penalties."
+      },
+      {
+        "question": "Do prices include VAT?",
+        "answer": "Displayed prices exclude VAT. The final invoice includes VAT according to Romanian law."
+      },
+      {
+        "question": "Is there a trial for paid plans?",
+        "answer": "The Free plan is available indefinitely — ideal for testing the flow before upgrading."
+      },
+      {
+        "question": "How does yearly billing work?",
+        "answer": "With yearly payment you get 1 month free: you pay for 11 months and receive 12. You save the equivalent of one month versus paying monthly."
+      }
+    ]
+  },
+  "plans": {
+    "free": {
+      "description": "Try the workflow.",
+      "cta": "Start free",
+      "features": [
+        "5 active leads",
+        "3 clients",
+        "1 user",
+        "Core features",
+        "EasyWedd Pro branding"
+      ]
+    },
+    "solo": {
+      "description": "For independent professionals.",
+      "cta": "Choose Solo",
+      "features": [
+        "Unlimited leads",
+        "Clients, proposals, contracts",
+        "Calendar and payments",
+        "Client portal",
+        "1 user"
+      ]
+    },
+    "studio": {
+      "description": "For teams and growing businesses.",
+      "cta": "Choose Studio",
+      "features": [
+        "Up to 5 users",
+        "Automations",
+        "Analytics",
+        "Production pipeline",
+        "Templates",
+        "Custom branding"
+      ]
+    },
+    "agency": {
+      "description": "For complex operations and multiple teams.",
+      "cta": "Choose Agency",
+      "features": [
+        "Up to 15 users",
+        "Advanced roles",
+        "Reports",
+        "Multiple brands",
+        "Priority support",
+        "Advanced features"
+      ]
+    }
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "items": [
+      {
+        "question": "Is EasyWedd Pro just a CRM?",
+        "answer": "No. It is a Business OS for Weddings & Events: leads, proposals, contracts, payments, calendar, projects, automations, and client portal — built for the events vertical."
+      },
+      {
+        "question": "Is it only for photographers?",
+        "answer": "No. The platform covers photo-video, DJs, bands, venues, planners, decor, beauty, catering, entertainment, transport, stationery, and event agencies."
+      },
+      {
+        "question": "Can I configure the platform for my business type?",
+        "answer": "Yes. At onboarding you choose a category, and the workspace can receive recommended pipeline, proposals, contracts, tasks, and automations."
+      },
+      {
+        "question": "Do my clients need to create an account?",
+        "answer": "No. Proposal, contract, and project can be accessed through the portal via a unique link, without a password."
+      },
+      {
+        "question": "How does it relate to EasyWedd?",
+        "answer": "EasyWedd Pro is for vendors; EasyWedd is for couples. They form an ecosystem — advanced syncs are marked separately as \"in development\" where relevant."
+      },
+      {
+        "question": "Can I cancel my subscription anytime?",
+        "answer": "Yes. You can downgrade to the Free plan from settings, with no long-term contract."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Organize your entire event business.",
+    "description": "Lead → proposal → contract → deposit → project → event → follow-up. Start free."
+  },
+  "footer": {
+    "tagline": "Business OS for event industry professionals"
+  },
+  "featuresPage": {
+    "eyebrow": "Business OS · Weddings & Events",
+    "title": "Operational platform for event vendors",
+    "description": "Lead → proposal → contract → deposit → project → event → follow-up. Connected modules, adapted to your business type.",
+    "groups": [
+      {
+        "title": "Commercial workflow",
+        "description": "From lead to contract and deposit — without chaos on WhatsApp and email.",
+        "items": [
+          {
+            "title": "CRM & pipeline",
+            "description": "Leads, sources, statuses, and follow-up on a pipeline built for events — not a generic CRM."
+          },
+          {
+            "title": "Client files",
+            "description": "History of proposals, contracts, and payments for every client, in one place."
+          },
+          {
+            "title": "Proposals",
+            "description": "Packages, add-ons, discount, and public link — see when the proposal was viewed and accepted."
+          },
+          {
+            "title": "Contracts",
+            "description": "Templates, digital acceptance, versions, and PDF — no lost paperwork."
+          }
+        ]
+      },
+      {
+        "title": "Operations",
+        "description": "Project, calendar, and team — from booking to delivery.",
+        "items": [
+          {
+            "title": "Calendar",
+            "description": "Events, meetings, deadlines, and tasks in one unified calendar."
+          },
+          {
+            "title": "Projects",
+            "description": "Business-type workflow, team, checklist, and event deadlines."
+          },
+          {
+            "title": "Tasks",
+            "description": "Assign work with priorities and due dates, linked to project and event."
+          },
+          {
+            "title": "Team & roles",
+            "description": "Every member sees what to do, with role-based permissions."
+          }
+        ]
+      },
+      {
+        "title": "Finance & insight",
+        "description": "Clear payments and pipeline analytics.",
+        "items": [
+          {
+            "title": "Payments",
+            "description": "Deposits, installments, outstanding amounts, and reminders — tracked per event."
+          },
+          {
+            "title": "Analytics",
+            "description": "Conversion, pipeline, revenue, sources, and results — no invented vanity metrics."
+          }
+        ]
+      },
+      {
+        "title": "Client experience",
+        "description": "Automations and portal — without manual effort at every step.",
+        "items": [
+          {
+            "title": "Automations",
+            "description": "Trigger → conditions → actions: proposal follow-up, contract reminder, pre-event checklist, review."
+          },
+          {
+            "title": "Client portal",
+            "description": "Proposal, contract, payments, project, and documents on a unique link — no mandatory account."
+          }
+        ]
+      }
+    ],
+    "ctaTitle": "Start working — not configuring for days",
+    "ctaDescription": "Free account, no card on the Free plan.",
+    "seePricing": "See pricing"
+  }
+}

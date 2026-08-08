@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
@@ -148,6 +150,7 @@ export function ProposalForm({
   onCancelEdit,
   onSaved,
 }: ProposalFormProps) {
+  const { t } = useI18n();
   const [form, setForm] = useState<FormState>(() =>
     makeInitialState({ initial, defaultClientId, defaultLeadId, currency }),
   );
@@ -214,7 +217,7 @@ export function ProposalForm({
     if (submitting) return;
 
     if (!canWrite) {
-      toast("Nu ai permisiunea de a salva oferte.", "error");
+      toast(t("modules.proposals.noPermissionSave"), "error");
       return;
     }
 
@@ -237,7 +240,7 @@ export function ProposalForm({
 
       setFieldErrors(errors);
       setItemErrors(nextItemErrors);
-      setFormError("Verifică datele completate.");
+      setFormError(t("common.verifyData"));
       return;
     }
 
@@ -254,13 +257,13 @@ export function ProposalForm({
 
       if (result?.error) {
         const message =
-          result.error || "Oferta nu a putut fi salvată. Verifică datele și încearcă din nou.";
+          result.error || t("modules.proposals.saveFailed");
         setFormError(message);
         toast(message, "error");
         return;
       }
 
-      toast(result?.success ?? (mode === "create" ? "Ofertă creată." : "Ofertă actualizată."), "success");
+      toast(result?.success ?? (mode === "create" ? t("modules.proposals.created") : t("modules.proposals.updated")), "success");
 
       if (mode === "create") {
         const newId = result?.data?.proposalId;
@@ -277,7 +280,7 @@ export function ProposalForm({
           message: error instanceof Error ? error.message : String(error),
         });
       }
-      const message = "Oferta nu a putut fi salvată. Verifică datele și încearcă din nou.";
+      const message = t("modules.proposals.saveFailed");
       setFormError(message);
       toast(message, "error");
     } finally {
@@ -289,19 +292,19 @@ export function ProposalForm({
     <form onSubmit={handleSubmit} className="space-y-6 pb-24 lg:pb-0">
       {!canWrite ? (
         <p className="rounded-md border border-champagne/30 bg-champagne/10 px-3 py-2 text-sm text-champagne-soft">
-          Nu ai permisiunea de a edita această ofertă. Poți vizualiza datele, dar salvarea este dezactivată.
+          {t("modules.proposals.noPermissionEdit")}
         </p>
       ) : null}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="proposal-title">Titlu ofertă</Label>
+            <Label htmlFor="proposal-title">{t("modules.proposals.formTitle")}</Label>
             <Input
               id="proposal-title"
               value={form.title}
               onChange={(event) => update("title", event.target.value)}
-              placeholder="Pachet Full Service"
+              placeholder={t("modules.proposals.titlePlaceholder")}
               aria-invalid={Boolean(fieldErrors.title)}
               disabled={!canWrite}
             />
@@ -310,7 +313,7 @@ export function ProposalForm({
 
           <div className="surface-card space-y-3 p-4">
             <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
-              Destinatar
+              {t("modules.proposals.recipient")}
             </p>
             <div className="flex gap-2">
               <Button
@@ -320,7 +323,7 @@ export function ProposalForm({
                 onClick={() => update("target", "client")}
                 disabled={!canWrite}
               >
-                Client
+                {t("common.client")}
               </Button>
               <Button
                 type="button"
@@ -329,19 +332,19 @@ export function ProposalForm({
                 onClick={() => update("target", "lead")}
                 disabled={!canWrite}
               >
-                Lead
+                {t("common.lead")}
               </Button>
             </div>
 
             {form.target === "client" ? (
               <div className="space-y-2">
-                <Label htmlFor="proposal-client">Client</Label>
+                <Label htmlFor="proposal-client">{t("common.client")}</Label>
                 <Select
                   value={form.clientId || undefined}
                   onValueChange={(value) => update("clientId", (value as string) ?? "")}
                 >
                   <SelectTrigger id="proposal-client" className="h-8 w-full" disabled={!canWrite}>
-                    <SelectValue placeholder="Selectează clientul" />
+                    <SelectValue placeholder={t("modules.proposals.selectClient")} />
                   </SelectTrigger>
                   <SelectContent>
                     {clients.map((client) => (
@@ -352,18 +355,18 @@ export function ProposalForm({
                   </SelectContent>
                 </Select>
                 {clients.length === 0 ? (
-                  <p className="text-xs text-muted-soft">Niciun client disponibil încă.</p>
+                  <p className="text-xs text-muted-soft">{t("modules.proposals.noClientsYet")}</p>
                 ) : null}
               </div>
             ) : (
               <div className="space-y-2">
-                <Label htmlFor="proposal-lead">Lead</Label>
+                <Label htmlFor="proposal-lead">{t("common.lead")}</Label>
                 <Select
                   value={form.leadId || undefined}
                   onValueChange={(value) => update("leadId", (value as string) ?? "")}
                 >
                   <SelectTrigger id="proposal-lead" className="h-8 w-full" disabled={!canWrite}>
-                    <SelectValue placeholder="Selectează leadul" />
+                    <SelectValue placeholder={t("modules.proposals.selectLead")} />
                   </SelectTrigger>
                   <SelectContent>
                     {leads.map((lead) => (
@@ -374,7 +377,7 @@ export function ProposalForm({
                   </SelectContent>
                 </Select>
                 {leads.length === 0 ? (
-                  <p className="text-xs text-muted-soft">Niciun lead disponibil încă.</p>
+                  <p className="text-xs text-muted-soft">{t("modules.proposals.noLeadsYet")}</p>
                 ) : null}
               </div>
             )}
@@ -385,7 +388,7 @@ export function ProposalForm({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="proposal-currency">Monedă</Label>
+              <Label htmlFor="proposal-currency">{t("common.currency")}</Label>
               <Input
                 id="proposal-currency"
                 value={form.currency}
@@ -395,7 +398,7 @@ export function ProposalForm({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="proposal-validUntil">Valabilă până la</Label>
+              <Label htmlFor="proposal-validUntil">{t("modules.proposals.validUntil")}</Label>
               <Input
                 id="proposal-validUntil"
                 type="date"
@@ -412,7 +415,7 @@ export function ProposalForm({
 
           <div className="space-y-3">
             <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
-              Items ofertă
+              {t("modules.proposals.items")}
             </p>
             <ProposalItemsEditor
               items={form.items}
@@ -429,7 +432,7 @@ export function ProposalForm({
 
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="proposal-discountType">Tip discount</Label>
+              <Label htmlFor="proposal-discountType">{t("modules.proposals.discountType")}</Label>
               <Select
                 value={form.discountType}
                 onValueChange={(value) => update("discountType", (value as DiscountType) ?? "none")}
@@ -438,14 +441,14 @@ export function ProposalForm({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">Fără discount</SelectItem>
-                  <SelectItem value="percent">Procent (%)</SelectItem>
-                  <SelectItem value="fixed">Sumă fixă</SelectItem>
+                  <SelectItem value="none">{t("modules.proposals.noDiscount")}</SelectItem>
+                  <SelectItem value="percent">{t("modules.proposals.percentDiscount")}</SelectItem>
+                  <SelectItem value="fixed">{t("modules.proposals.fixedDiscount")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="proposal-discountValue">Valoare discount</Label>
+              <Label htmlFor="proposal-discountValue">{t("modules.proposals.discountValue")}</Label>
               <Input
                 id="proposal-discountValue"
                 type="number"
@@ -456,7 +459,7 @@ export function ProposalForm({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="proposal-taxRate">TVA (%)</Label>
+              <Label htmlFor="proposal-taxRate">{t("modules.proposals.taxRate")}</Label>
               <Input
                 id="proposal-taxRate"
                 type="number"
@@ -474,25 +477,25 @@ export function ProposalForm({
           {fieldErrors.taxRate ? <p className="text-xs text-destructive">{fieldErrors.taxRate}</p> : null}
 
           <div className="space-y-2">
-            <Label htmlFor="proposal-terms">Termeni și condiții</Label>
+            <Label htmlFor="proposal-terms">{t("modules.proposals.terms")}</Label>
             <Textarea
               id="proposal-terms"
               rows={4}
               value={form.terms}
               onChange={(event) => update("terms", event.target.value)}
-              placeholder="Condiții de plată, politică de anulare…"
+              placeholder={t("modules.proposals.termsPlaceholder")}
               disabled={!canWrite}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="proposal-notes">Notițe interne</Label>
+            <Label htmlFor="proposal-notes">{t("modules.proposals.internalNotes")}</Label>
             <Textarea
               id="proposal-notes"
               rows={3}
               value={form.notes}
               onChange={(event) => update("notes", event.target.value)}
-              placeholder="Vizibile doar echipei tale…"
+              placeholder={t("modules.proposals.notesPlaceholder")}
               disabled={!canWrite}
             />
           </div>
@@ -509,36 +512,36 @@ export function ProposalForm({
           <div className="hidden items-center justify-end gap-3 lg:flex">
             {mode === "edit" && onCancelEdit ? (
               <Button type="button" variant="outline" onClick={onCancelEdit} disabled={submitting}>
-                Anulează
+                {t("common.cancel")}
               </Button>
             ) : null}
             <Button type="submit" disabled={submitting || !canWrite}>
-              {submitting ? "Se salvează…" : mode === "create" ? "Creează ofertă" : "Salvează modificările"}
+              {submitting ? t("common.saving") : mode === "create" ? t("modules.proposals.createProposal") : t("common.saveChanges")}
             </Button>
           </div>
         </div>
 
         <div className="hidden lg:block">
           <div className="surface-card sticky top-20 space-y-3 p-5">
-            <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">Rezumat</p>
+            <p className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">{t("modules.proposals.summary")}</p>
             <dl className="space-y-2 text-sm">
               <div className="flex items-center justify-between">
-                <dt className="text-muted-foreground">Subtotal</dt>
+                <dt className="text-muted-foreground">{t("common.subtotal")}</dt>
                 <dd className="text-foreground">{formatCurrency(totals?.subtotal ?? 0, form.currency)}</dd>
               </div>
               <div className="flex items-center justify-between">
-                <dt className="text-muted-foreground">Discount</dt>
+                <dt className="text-muted-foreground">{t("modules.proposals.discount")}</dt>
                 <dd className="text-foreground">
                   -{formatCurrency(totals?.discountAmount ?? 0, form.currency)}
                 </dd>
               </div>
               <div className="flex items-center justify-between">
-                <dt className="text-muted-foreground">TVA</dt>
+                <dt className="text-muted-foreground">{t("modules.proposals.taxShort")}</dt>
                 <dd className="text-foreground">{formatCurrency(totals?.taxAmount ?? 0, form.currency)}</dd>
               </div>
             </dl>
             <div className="flex items-center justify-between border-t border-border pt-3">
-              <span className="text-sm text-muted-foreground">Total</span>
+              <span className="text-sm text-muted-foreground">{t("modules.proposals.total")}</span>
               <span className="font-heading text-xl font-medium text-champagne">
                 {formatCurrency(totals?.total ?? 0, form.currency)}
               </span>
@@ -549,7 +552,7 @@ export function ProposalForm({
 
       <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-3 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-md lg:hidden">
         <div className="min-w-0">
-          <p className="text-xs text-muted-foreground">Total ofertă</p>
+          <p className="text-xs text-muted-foreground">{t("modules.proposals.totalProposal")}</p>
           <p className="truncate font-heading text-lg font-medium text-champagne">
             {formatCurrency(totals?.total ?? 0, form.currency)}
           </p>
@@ -557,11 +560,11 @@ export function ProposalForm({
         <div className="flex shrink-0 items-center gap-2">
           {mode === "edit" && onCancelEdit ? (
             <Button type="button" size="sm" variant="outline" onClick={onCancelEdit} disabled={submitting}>
-              Anulează
+              {t("common.cancel")}
             </Button>
           ) : null}
           <Button type="submit" size="sm" disabled={submitting || !canWrite}>
-            {submitting ? "Se salvează…" : mode === "create" ? "Creează" : "Salvează"}
+            {submitting ? t("common.saving") : mode === "create" ? t("modules.proposals.createShort") : t("common.save")}
           </Button>
         </div>
       </div>

@@ -1,7 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import type { LucideIcon } from "lucide-react";
+import {
+  Activity,
+  Bug,
+  Building2,
+  LayoutDashboard,
+  Layers,
+  Mail,
+  MessageSquareWarning,
+  ScrollText,
+  ServerCog,
+  Settings,
+  Shield,
+  Timer,
+  Users,
+  Wallet,
+  Webhook,
+  type LucideIcon,
+} from "lucide-react";
 
 import { AdminEnvBadge } from "@/components/admin/admin-env-badge";
 import { BrandLogo } from "@/components/brand/brand-logo";
@@ -10,10 +27,30 @@ import { useI18n } from "@/components/providers/i18n-provider";
 import { GlobalSearch } from "@/components/search/global-search";
 import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 
+export const ADMIN_NAV_ICONS = {
+  "layout-dashboard": LayoutDashboard,
+  users: Users,
+  building: Building2,
+  wallet: Wallet,
+  layers: Layers,
+  mail: Mail,
+  timer: Timer,
+  activity: Activity,
+  webhook: Webhook,
+  feedback: MessageSquareWarning,
+  audit: ScrollText,
+  system: ServerCog,
+  bug: Bug,
+  settings: Settings,
+  shield: Shield,
+} as const;
+
+export type AdminNavIconName = keyof typeof ADMIN_NAV_ICONS;
+
 export type AdminNavItem = {
   href: string;
   labelKey: string;
-  icon: LucideIcon;
+  icon: AdminNavIconName;
 };
 
 export function AdminChrome({
@@ -55,16 +92,19 @@ export function AdminChrome({
           </div>
         </div>
         <nav className="mx-auto flex w-full max-w-7xl gap-1 overflow-x-auto px-6 pb-3 text-sm text-muted-foreground">
-          {nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 transition-colors hover:bg-surface-elevated hover:text-foreground"
-            >
-              <item.icon className="h-3.5 w-3.5" aria-hidden />
-              {t(`nav.${item.labelKey}`)}
-            </Link>
-          ))}
+          {nav.map((item) => {
+            const Icon: LucideIcon = ADMIN_NAV_ICONS[item.icon];
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 transition-colors hover:bg-surface-elevated hover:text-foreground"
+              >
+                <Icon className="h-3.5 w-3.5" aria-hidden />
+                {t(`nav.${item.labelKey}`)}
+              </Link>
+            );
+          })}
         </nav>
       </header>
       <main className="mx-auto w-full max-w-7xl px-6 py-10">{children}</main>

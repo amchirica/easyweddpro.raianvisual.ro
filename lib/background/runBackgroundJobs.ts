@@ -1,5 +1,6 @@
 import { aggregateAnalytics } from "@/lib/background/analytics";
 import { runAutomations } from "@/lib/background/automations";
+import { processTrialExpiringNotifications } from "@/lib/background/billing-reminders";
 import { cleanupExpiredTokens, cleanupOldLogs } from "@/lib/background/cleanup";
 import { createBackgroundAdminClient } from "@/lib/background/client";
 import { processScheduledEmails } from "@/lib/background/emails";
@@ -83,6 +84,13 @@ export async function runBackgroundJobs(
       runLoggedJob(supabase, "analytics", () => aggregateAnalytics(supabase, scanOpts), {
         source,
       }),
+    () =>
+      runLoggedJob(
+        supabase,
+        "billing_reminders",
+        () => processTrialExpiringNotifications(supabase, scanOpts),
+        { source },
+      ),
   ]);
 
   const finishedAt = new Date();

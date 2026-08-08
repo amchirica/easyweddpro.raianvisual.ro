@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
+
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { UserCheck, UserPlus } from "lucide-react";
@@ -35,6 +37,7 @@ export function ConvertLeadDialog({
   mode,
   onSuccess,
 }: ConvertLeadDialogProps) {
+  const { t } = useI18n();
   const [choice, setChoice] = useState<"create" | "existing">("create");
   const [matches, setMatches] = useState<ClientMatch[]>([]);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -89,12 +92,12 @@ export function ConvertLeadDialog({
     if (submitting) return;
 
     if (mode !== "live") {
-      toast("Conversia leadurilor necesită un cont conectat.", "info");
+      toast(t("modules.leads.convertNeedAccount"), "info");
       return;
     }
 
     if (choice === "existing" && !selectedClientId) {
-      setError("Selectează clientul existent.");
+      setError(t("modules.leads.selectExisting"));
       return;
     }
 
@@ -110,7 +113,7 @@ export function ConvertLeadDialog({
     setSubmitting(false);
 
     if (result?.error || !result?.data) {
-      setError(result?.error ?? "Conversia a eșuat.");
+      setError(result?.error ?? t("modules.leads.convertFailed"));
       return;
     }
 
@@ -124,21 +127,20 @@ export function ConvertLeadDialog({
     <Dialog open={open} onOpenChange={(next) => !submitting && onOpenChange(next)}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Convertește în client</DialogTitle>
+          <DialogTitle>{t("modules.leads.convertTitle")}</DialogTitle>
           <DialogDescription>
-            Alege dacă {lead.name} devine un client nou sau se leagă de unul existent.
+            {t("modules.leads.convertHint", { name: lead.name })}
           </DialogDescription>
         </DialogHeader>
 
         {mode !== "live" ? (
           <div className="space-y-4">
             <p className="rounded-md border border-border bg-background/40 px-3 py-3 text-sm text-muted-foreground">
-              Conversia leadurilor în clienți este disponibilă doar pentru workspace-uri conectate.
-              Creează-ți un cont pentru a folosi această funcție.
+              {t("modules.leads.convertDemo")}
             </p>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                Închide
+                {t("common.close")}
               </Button>
             </DialogFooter>
           </div>
@@ -175,11 +177,11 @@ export function ConvertLeadDialog({
             </div>
 
             {loadingMatches ? (
-              <p className="text-sm text-muted-foreground">Se caută potriviri…</p>
+              <p className="text-sm text-muted-foreground">{t("modules.leads.searchingMatches")}</p>
             ) : choice === "existing" ? (
               matches.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Nu am găsit clienți existenți cu acest email sau telefon.
+                  {t("modules.leads.noMatches")}
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -228,10 +230,10 @@ export function ConvertLeadDialog({
                 onClick={() => onOpenChange(false)}
                 disabled={submitting}
               >
-                Anulează
+                {t("common.cancel")}
               </Button>
               <Button type="button" onClick={handleConvert} disabled={submitting}>
-                {submitting ? "Se convertește…" : "Convertește"}
+                {submitting ? t("modules.leads.converting") : t("modules.leads.convert")}
               </Button>
             </DialogFooter>
           </div>

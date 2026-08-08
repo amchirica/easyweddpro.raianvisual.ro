@@ -1,4 +1,5 @@
 import { Activity } from "lucide-react";
+import { getTranslator } from "@/lib/i18n/t";
 
 import { AdminEmptyState } from "@/components/admin/admin-empty-state";
 import { AdminErrorState } from "@/components/admin/admin-error-state";
@@ -8,6 +9,7 @@ import { formatDateTime } from "@/lib/format";
 import { requirePlatformPermission } from "@/lib/platform/session";
 
 export default async function AdminJobsPage() {
+  const { t } = await getTranslator();
   const admin = await requirePlatformPermission("cron.read");
 
   const { data, error } = await admin.supabase
@@ -41,7 +43,7 @@ export default async function AdminJobsPage() {
         <AdminEmptyState
           icon={Activity}
           title="Niciun job"
-          description="Nu există încă execuții înregistrate în cron_runs."
+          description={t("admin.noJobExecutions")}
         />
       ) : null}
 
@@ -64,7 +66,7 @@ export default async function AdminJobsPage() {
               },
               {
                 key: "duration",
-                header: "Durată",
+                header: t("admin.duration"),
                 cell: (row) => (
                   <span className="text-muted-foreground">
                     {row.durationMs != null ? `${row.durationMs} ms` : "—"}

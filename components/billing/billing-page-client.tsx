@@ -24,6 +24,11 @@ import {
   createCheckoutSessionAction,
 } from "@/lib/actions/billing";
 import type { PlanDefinition, PlanId, PlanLimits, WorkspaceUsage } from "@/lib/billing/plans";
+import {
+  planDisplayPrice,
+  yearlyPriceFromMonthly,
+  yearlySavingsRon,
+} from "@/lib/billing/pricing";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -46,23 +51,28 @@ type BillingPageClientProps = {
   subscription: SubscriptionSummary;
 };
 
-const STATUS_LABELS: Record<string, { label: string; tone: "neutral" | "accent" | "success" | "warning" | "danger" }> = {
-  active: { label: "Activ", tone: "success" },
-  trialing: { label: "Perioadă de probă", tone: "accent" },
-  past_due: { label: "Plată întârziată", tone: "warning" },
-  canceled: { label: "Anulat", tone: "danger" },
-  incomplete: { label: "Incomplet", tone: "danger" },
-  incomplete_expired: { label: "Incomplet expirat", tone: "danger" },
-  unpaid: { label: "Neplătit", tone: "danger" },
-  inactive: { label: "Inactiv", tone: "neutral" },
+const STATUS_TONES: Record<string, "neutral" | "accent" | "success" | "warning" | "danger"> = {
+  active: "success",
+  trialing: "accent",
+  past_due: "warning",
+  canceled: "danger",
+  incomplete: "danger",
+  incomplete_expired: "danger",
+  unpaid: "danger",
+  inactive: "neutral",
 };
 
-function statusMeta(status: string) {
-  return STATUS_LABELS[status] ?? { label: status, tone: "neutral" as const };
+function statusMeta(status: string, t: (key: string) => string) {
+  const key = `billing.status.${status}`;
+  const label = t(key);
+  return {
+    label: label === key ? status : label,
+    tone: STATUS_TONES[status] ?? ("neutral" as const),
+  };
 }
 
-function limitLabel(current: number, limit: number | null): string {
-  return limit == null ? `${current} · nelimitat` : `${current} / ${limit}`;
+function limitLabel(current: number, limit: number | null, unlimited: string): string {
+  return limit == null ? `${current} · ${unlimited}` : `${current} / ${limit}`;
 }
 
 export function BillingPageClient({
@@ -82,7 +92,7 @@ export function BillingPageClient({
   const [portalBusy, setPortalBusy] = useState(false);
 
   const currentPlan = plans.find((plan) => plan.id === usage.plan) ?? plans[0];
-  const status = statusMeta(subscription.status);
+  const status = statusMeta(subscription.status, t);
 
   async function handleUpgrade(planId: PlanId) {
     if (planId === "free" || !canManageBilling) return;
@@ -118,8 +128,7 @@ export function BillingPageClient({
           <div className="flex items-start gap-3 rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
             <p>
-              Facturarea prin Stripe nu este configurată încă pe acest mediu. Upgrade-urile și portalul de
-              facturare vor fi disponibile după configurare.
+              {t("billing.stripeNotConfigured")}
             </p>
           </div>
         ) : null}
@@ -135,16 +144,16 @@ export function BillingPageClient({
               {subscription.cancelAtPeriodEnd && subscription.currentPeriodEnd ? (
                 <span className="flex items-center gap-1.5 text-warning">
                   <CalendarClock className="h-3.5 w-3.5" aria-hidden />
-                  Se anulează pe {formatDate(subscription.currentPeriodEnd)}
+                  {t("billing.cancelsOn", { date: formatDate(subscription.currentPeriodEnd) })}
                 </span>
               ) : subscription.currentPeriodEnd ? (
                 <span className="flex items-center gap-1.5">
                   <CalendarClock className="h-3.5 w-3.5" aria-hidden />
-                  Se reînnoiește pe {formatDate(subscription.currentPeriodEnd)}
+                  {t("billing.renewsOn", { date: formatDate(subscription.currentPeriodEnd) })}
                 </span>
               ) : null}
               {subscription.status === "trialing" && subscription.trialEnd ? (
-                <span>Perioada de probă expiră pe {formatDate(subscription.trialEnd)}</span>
+                <span>{t("billing.trialEndsOn", { date: formatDate(subscription.trialEnd) })}</span>
               ) : null}
             </div>
           </div>
@@ -155,33 +164,33 @@ export function BillingPageClient({
             disabled={!canManageBilling || !isStripeConfigured || !subscription.hasStripeCustomer || portalBusy}
             title={
               !subscription.hasStripeCustomer
-                ? "Alege mai întâi un plan plătit pentru a activa facturarea."
+                ? t("billing.choosePaidPlan")
                 : undefined
             }
           >
             <CreditCard data-icon="inline-start" />
-            {portalBusy ? "Se deschide…" : "Gestionează facturarea"}
+            {portalBusy ? t("billing.opening") : t("billing.manageBilling")}
           </Button>
         </div>
 
         <div>
-          <h2 className="mb-3 font-heading text-lg font-medium text-foreground">Utilizare curentă</h2>
+          <h2 className="mb-3 font-heading text-lg font-medium text-foreground">{t("billing.currentUsage")}</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             <StatCard
-              label="Leaduri active"
-              value={limitLabel(usage.activeLeads, limits.activeLeads)}
+              label={t("billing.activeLeads")}
+              value={limitLabel(usage.activeLeads, limits.activeLeads, t("billing.unlimited"))}
               icon={Users}
             />
-            <StatCard label="Clienți" value={limitLabel(usage.clients, limits.clients)} icon={Contact} />
-            <StatCard label="Utilizatori" value={limitLabel(usage.users, limits.users)} icon={Layers} />
+            <StatCard label={t("common.clients")} value={limitLabel(usage.clients, limits.clients, t("billing.unlimited"))} icon={Contact} />
+            <StatCard label={t("billing.users")} value={limitLabel(usage.users, limits.users, t("billing.unlimited"))} icon={Layers} />
             <StatCard
-              label="Oferte active"
-              value={limitLabel(usage.activeProposals, limits.activeProposals)}
+              label={t("billing.activeProposals")}
+              value={limitLabel(usage.activeProposals, limits.activeProposals, t("billing.unlimited"))}
               icon={FileText}
             />
             <StatCard
-              label="Contracte active"
-              value={limitLabel(usage.activeContracts, limits.activeContracts)}
+              label={t("billing.activeContracts")}
+              value={limitLabel(usage.activeContracts, limits.activeContracts, t("billing.unlimited"))}
               icon={ScrollText}
             />
           </div>
@@ -201,7 +210,7 @@ export function BillingPageClient({
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                Lunar
+                {t("billing.billingIntervalMonthly")}
               </button>
               <button
                 type="button"
@@ -213,7 +222,7 @@ export function BillingPageClient({
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                Anual
+                {t("billing.billingIntervalYearly")}
               </button>
             </div>
           </div>
@@ -222,6 +231,16 @@ export function BillingPageClient({
             {plans.map((plan) => {
               const isCurrent = plan.id === usage.plan;
               const isFree = plan.id === "free";
+              const yearlyTotal =
+                plan.priceYearlyRon > 0
+                  ? plan.priceYearlyRon
+                  : yearlyPriceFromMonthly(plan.priceMonthlyRon);
+              const displayPrice = isFree
+                ? 0
+                : billingInterval === "year"
+                  ? yearlyTotal
+                  : planDisplayPrice(plan.priceMonthlyRon, "month");
+              const savings = yearlySavingsRon(plan.priceMonthlyRon);
               return (
                 <div
                   key={plan.id}
@@ -235,21 +254,31 @@ export function BillingPageClient({
                       <Layers className="h-4 w-4" aria-hidden />
                     </div>
                     {isCurrent ? (
-                      <StatusBadge label="Plan curent" tone="accent" />
+                      <StatusBadge label={t("billing.currentPlan")} tone="accent" />
                     ) : plan.highlighted ? (
-                      <StatusBadge label="Popular" tone="accent" />
+                      <StatusBadge label={t("billing.popular")} tone="accent" />
                     ) : null}
                   </div>
                   <div>
                     <p className="font-heading text-lg font-medium text-foreground">{plan.name}</p>
                     <p className="text-sm text-muted-foreground">{plan.description}</p>
                   </div>
-                  <p className="font-heading text-2xl font-medium text-foreground">
-                    {plan.priceMonthlyRon === 0 ? "Gratuit" : formatCurrency(plan.priceMonthlyRon)}
-                    {plan.priceMonthlyRon > 0 ? (
-                      <span className="text-sm text-muted-soft"> /lună</span>
+                  <div>
+                    <p className="font-heading text-2xl font-medium text-foreground">
+                      {isFree ? t("billing.free") : formatCurrency(displayPrice)}
+                      {!isFree ? (
+                        <span className="text-sm text-muted-soft">
+                          {billingInterval === "year" ? t("billing.perYear") : t("billing.perMonth")}
+                        </span>
+                      ) : null}
+                    </p>
+                    {!isFree && billingInterval === "year" ? (
+                      <div className="mt-1.5 space-y-0.5 text-xs text-muted-foreground">
+                        <p>{t("billing.oneMonthFree")}</p>
+                        <p>{t("billing.savePerYear", { amount: formatCurrency(savings) })}</p>
+                      </div>
                     ) : null}
-                  </p>
+                  </div>
                   <ul className="space-y-1.5 text-sm text-muted-foreground">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-2">
@@ -261,7 +290,7 @@ export function BillingPageClient({
                   <div className="mt-auto">
                     {isFree ? (
                       <Button type="button" variant="outline" disabled className="w-full justify-center">
-                        {isCurrent ? "Plan curent" : "Plan de bază"}
+                        {isCurrent ? t("billing.currentPlan") : t("billing.basePlan")}
                       </Button>
                     ) : (
                       <Button
@@ -279,7 +308,7 @@ export function BillingPageClient({
                         {isCurrent
                           ? "Plan curent"
                           : checkoutBusyPlan === plan.id
-                            ? "Se redirecționează…"
+                            ? t("billing.redirecting")
                             : plan.cta}
                       </Button>
                     )}

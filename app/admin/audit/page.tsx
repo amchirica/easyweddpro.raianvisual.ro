@@ -1,4 +1,5 @@
 import { ScrollText } from "lucide-react";
+import { getTranslator } from "@/lib/i18n/t";
 
 import { AdminAuditTimeline } from "@/components/admin/admin-audit-timeline";
 import { AdminDetailPanel } from "@/components/admin/admin-detail-panel";
@@ -9,6 +10,7 @@ import { formatDateTime } from "@/lib/format";
 import { requirePlatformPermission } from "@/lib/platform/session";
 
 export default async function AdminAuditPage() {
+  const { t } = await getTranslator();
   const admin = await requirePlatformPermission("audit.read");
 
   let platformError: string | null = null;
@@ -34,7 +36,7 @@ export default async function AdminAuditPage() {
   try {
     activity = await listRecentActivityForAdmin(admin.supabase, 40);
   } catch (error) {
-    activityError = error instanceof Error ? error.message : "Nu am putut încărca activity_logs.";
+    activityError = error instanceof Error ? error.message : t("admin.activityLoadFailed");
   }
 
   const timeline = (platformLogs ?? []).map((row) => ({
@@ -49,9 +51,9 @@ export default async function AdminAuditPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-heading text-3xl font-medium text-foreground">Audit platformă</h1>
+        <h1 className="font-heading text-3xl font-medium text-foreground">{t("admin.auditTitle")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Jurnalul principal din `platform_audit_logs`, plus activitate recentă din workspace-uri.
+          {t("admin.auditHint")}
         </p>
       </div>
 
@@ -60,8 +62,8 @@ export default async function AdminAuditPage() {
         {!platformError && timeline.length === 0 ? (
           <AdminEmptyState
             icon={ScrollText}
-            title="Fără audit"
-            description="Nu există încă înregistrări în platform_audit_logs."
+            title={t("admin.noAudit")}
+            description={t("admin.noAuditDesc")}
           />
         ) : null}
         {!platformError && timeline.length > 0 ? (
@@ -71,11 +73,11 @@ export default async function AdminAuditPage() {
 
       <AdminDetailPanel
         title="Activity logs (workspace)"
-        description="Secțiune opțională — activitate din toate workspace-urile."
+        description={t("admin.activityOptional")}
       >
         {activityError ? <AdminErrorState message={activityError} /> : null}
         {!activityError && activity.length === 0 ? (
-          <p className="text-sm text-muted-soft">Nicio activitate workspace înregistrată.</p>
+          <p className="text-sm text-muted-soft">{t("admin.noWorkspaceActivity")}</p>
         ) : null}
         {!activityError && activity.length > 0 ? (
           <div className="divide-y divide-border">
